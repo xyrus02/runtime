@@ -14,25 +14,27 @@ namespace XyrusWorx.Runtime.Graphics
 		private readonly object mFrameLock = new object();
 		private readonly Scope mRunningScope = new Scope();
 		
-		private readonly IServiceLocator mServices;
+		private readonly IServiceLocator mServices = ServiceLocator.Default;
+		private TReactor mCurrentReactor;
 
-		public RenderLoop() : this(null) {}
-		public RenderLoop(IServiceLocator services)
+		public RenderLoop()
 		{
-			mServices = services ?? ServiceLocator.Default;
-			CurrentReactor = mServices.CreateInstance<TReactor>();
-			CurrentPresenter = mServices.CreateInstance<TPresenter>();
+			mCurrentReactor = mServices.CreateInstance<TReactor>();
 		}
 		
 		public double Clock { get; private set; }
 		public double FramesPerSecond { get; private set; }
 
 		[NotNull]
-		public TReactor CurrentReactor { get; }
+		public TReactor CurrentReactor
+		{
+			get => mCurrentReactor ?? throw new ObjectDisposedException(GetType().Name);
+		}
+
 		IReactor IRenderLoop.CurrentReactor => CurrentReactor;
 		
-		[NotNull]
-		public TPresenter CurrentPresenter { get; }
+		[CanBeNull]
+		public TPresenter Presenter { get; set; }
 		
 		public void Run(CancellationToken cancellationToken)
 		{
@@ -55,7 +57,7 @@ namespace XyrusWorx.Runtime.Graphics
 					lock (mFrameLock)
 					{
 						CurrentReactor.Update(this);
-						host.Execute(() => CurrentPresenter.Present(CurrentReactor, this));
+						host.Execute(() => Presenter?.Present(CurrentReactor, this));
 					}
 					
 					var t = watch.Elapsed.TotalSeconds;
@@ -75,5 +77,12 @@ namespace XyrusWorx.Runtime.Graphics
 			
 		}
 		public void WaitForFrame() => Monitor.Wait(mFrameLock);
+		public void Dispose()
+		{
+			WaitForFrame();
+			
+			mCurrentReactor?.Dispose();
+			mCurrentReactor = null;
+		}
 	}
 }

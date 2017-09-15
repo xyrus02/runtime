@@ -33,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="XyrusWorx.Foundation.Windows" Version="3.0.0" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.4.0" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <RootNamespace>XyrusWorx.Runtime.Graphics</RootNamespace>

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using JetBrains.Annotations;
 using XyrusWorx.Threading;
 using XyrusWorx.Windows.Runtime;
@@ -11,13 +12,23 @@ namespace XyrusWorx.Runtime.Graphics
 	{
 		private RelayOperation mRenderLoopThread;
 
-		protected override void OnConfigureWindow(Window window)
+		protected virtual void OnInitialize([NotNull] WpfFrontBuffer view, [NotNull] TReactor reactor){}
+		protected virtual void OnTerminate([NotNull] WpfFrontBuffer view, [NotNull] TReactor reactor){}
+		
+		protected sealed override void OnConfigureWindow(Window window)
 		{
 			window.SizeToContent = SizeToContent.WidthAndHeight;
 			window.ResizeMode = ResizeMode.NoResize;
 		}
 		protected sealed override Task OnInitialize(RenderLoop<TReactor, WpfFrontBuffer> viewModel)
 		{
+			var view = GetView<WpfFrontBuffer>();
+			
+			viewModel.Presenter = view ;
+			view.Background = Brushes.Black;
+
+			OnInitialize(view, viewModel.CurrentReactor);
+			
 			mRenderLoopThread = new RelayOperation(ct => viewModel.Run(ct));
 			mRenderLoopThread.DispatchMode = OperationDispatchMode.BackgroundThread;
 			mRenderLoopThread.Run();
@@ -26,8 +37,10 @@ namespace XyrusWorx.Runtime.Graphics
 		}
 		protected sealed override Task OnShutdown(RenderLoop<TReactor, WpfFrontBuffer> viewModel)
 		{
-			// necessary because otherwise WPF causes a deadlock
-			GetViewModel<IRenderLoop>()?.WaitForFrame();
+			var view = GetView<WpfFrontBuffer>();
+			
+			OnTerminate(view, viewModel.CurrentReactor);
+			viewModel.Dispose();
 			
 			mRenderLoopThread.Cancel();
 			mRenderLoopThread = null;
