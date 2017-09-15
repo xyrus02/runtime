@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace XyrusWorx.Runtime.Graphics 
@@ -39,11 +40,24 @@ namespace XyrusWorx.Runtime.Graphics
 
 		protected abstract void UpdateOverride([NotNull] IRenderLoop renderLoop);
 
+		protected void Kernel([NotNull] Action<Vector2> action)
+		{
+			Parallel.For(0, BackBufferWidth * BackBufferHeight, offs =>
+			{
+				var i = offs % BackBufferWidth;
+				var j = offs / BackBufferHeight;
+				
+				action(new Vector2(i / (float)BackBufferWidth, j / (float)BackBufferHeight));
+			});
+		}
+
+		protected Vector3 Rgb(Vector2 uv) => Rgb((int)(uv.X * BackBufferWidth), (int)(uv.Y * BackBufferHeight));
 		protected Vector3 Rgb(int x, int y)
 		{
 			var rgba = Rgba(x, y);
 			return new Vector3(rgba.X, rgba.Y, rgba.Z);
 		}
+		protected Vector4 Rgba(Vector2 uv) => Rgba((int)(uv.X * BackBufferWidth), (int)(uv.Y * BackBufferHeight));
 		protected Vector4 Rgba(int x, int y)
 		{
 			if (x < 0 || y < 0 || x >= BackBufferWidth || y >= BackBufferHeight)
@@ -51,7 +65,7 @@ namespace XyrusWorx.Runtime.Graphics
 				return new Vector4(0, 0, 0, 0);
 			}
 
-			var addr = x << 2 + y * ((IReactor)this).BackBufferStride;
+			var addr = (x << 2) + y * ((IReactor)this).BackBufferStride;
 			var p = new byte[4];
 			
 			Marshal.Copy(BackBuffer + addr, p, 0, p.Length);
@@ -64,11 +78,13 @@ namespace XyrusWorx.Runtime.Graphics
 				p[3] / 255f);
 		}
 		
+		protected void Rgb(Vector2 uv, Vector3 rgb) => Rgb((int)(uv.X * BackBufferWidth), (int)(uv.Y * BackBufferHeight), rgb);
 		protected void Rgb(int x, int y, Vector3 rgb)
 		{
 			var rgba = new Vector4(rgb.X, rgb.Y, rgb.Z, 1f);
 			Rgba(x, y, rgba);
 		}
+		protected void Rgba(Vector2 uv, Vector4 rgba) => Rgba((int)(uv.X * BackBufferWidth), (int)(uv.Y * BackBufferHeight), rgba);
 		protected void Rgba(int x, int y, Vector4 rgba)
 		{
 			if (x < 0 || y < 0 || x >= BackBufferWidth || y >= BackBufferHeight)
@@ -76,7 +92,7 @@ namespace XyrusWorx.Runtime.Graphics
 				return;
 			}
 			
-			var addr = x << 2 + y * ((IReactor)this).BackBufferStride;
+			var addr = (x << 2) + y * ((IReactor)this).BackBufferStride;
 			
 			// RGBA --> BGRA
 			var p = new[]
