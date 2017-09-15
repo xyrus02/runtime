@@ -20,6 +20,11 @@ namespace XyrusWorx.Runtime.Graphics
 			public int tmp;
 		}
 
+		// ReSharper disable once InconsistentNaming
+		public const float PI = 3.14159265358979f;
+		public const float E = 2.71828182845905f;
+		public const float Epsilon = float.Epsilon;
+
 		private static float Exec(Func<double, double> f, float x) => (float)f(x);
 		private static float Exec(Func<double, double, double> f, float x, float y) => (float)f(x, y);
 		private static float Exec(Func<double, double, double, double> f, float x, float y, float z) => (float)f(x, y, z);
