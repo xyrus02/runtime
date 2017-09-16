@@ -96,6 +96,11 @@ namespace XyrusWorx.Runtime.Graphics
 			
 			if (ShowFramesPerSecond)
 			{
+				if (mMeasuresTypeFace == null)
+				{
+					UpdateTypeFace();
+				}
+				
 				var formattedText = new FormattedText($"{mRenderLoop?.FramesPerSecond:###,###,###,##0.00} fps", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, mMeasuresTypeFace, MeasuresFontSize, MeasuresForeground);
 				
 				drawingContext.DrawText(formattedText, new Point(area.Width - 5 - formattedText.Width, measuresOffset));
@@ -104,12 +109,22 @@ namespace XyrusWorx.Runtime.Graphics
 				
 			if (ShowClock)
 			{
+				if (mMeasuresTypeFace == null)
+				{
+					UpdateTypeFace();
+				}
+				
 				var formattedText = new FormattedText($"{mRenderLoop?.Clock:###,###,###,##0.00}s", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, mMeasuresTypeFace, MeasuresFontSize, MeasuresForeground);
 				
 				drawingContext.DrawText(formattedText, new Point(area.Width - 5 - formattedText.Width, measuresOffset));
 				// ReSharper disable once RedundantAssignment
 				measuresOffset += formattedText.Height + 2;
 			}
+		}
+
+		private void UpdateTypeFace()
+		{
+			mMeasuresTypeFace = new Typeface(MeasuresFontFamily ?? FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
 		}
 
 		private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -131,13 +146,7 @@ namespace XyrusWorx.Runtime.Graphics
 		}
 		private static void OnMeasuresFontFamilyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
-			var ctl = d as WpfFrontBuffer;
-			if (ctl == null)
-			{
-				return;
-			}
-
-			ctl.mMeasuresTypeFace = new Typeface(e.NewValue as FontFamily ?? ctl.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+			d.CastTo<WpfFrontBuffer>()?.UpdateTypeFace();
 		}
 	}
 
