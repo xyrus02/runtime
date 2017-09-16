@@ -15,6 +15,7 @@ namespace XyrusWorx.Runtime.Graphics
 
 		public static DependencyProperty MeasuresFontSizeProperty = DependencyProperty.Register("MeasuresFontSize", typeof(double), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(14.0, FrameworkPropertyMetadataOptions.AffectsRender));
 		public static DependencyProperty MeasuresForegroundProperty = DependencyProperty.Register("MeasuresForeground", typeof(Brush), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(Brushes.White, FrameworkPropertyMetadataOptions.AffectsRender));
+		public static DependencyProperty MeasuresBackgroundProperty = DependencyProperty.Register("MeasuresBackground", typeof(Brush), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(Brushes.Transparent, FrameworkPropertyMetadataOptions.AffectsRender));
 		public static DependencyProperty ShowFramesPerSecondProperty = DependencyProperty.Register("ShowFramesPerSecond", typeof(bool), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 		public static DependencyProperty ShowClockProperty = DependencyProperty.Register("ShowClock", typeof(bool), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 		
@@ -41,6 +42,11 @@ namespace XyrusWorx.Runtime.Graphics
 		{
 			get => GetValue(MeasuresForegroundProperty) as Brush;
 			set => SetValue(MeasuresForegroundProperty, value);
+		}
+		public Brush MeasuresBackground
+		{
+			get => GetValue(MeasuresBackgroundProperty) as Brush;
+			set => SetValue(MeasuresBackgroundProperty, value);
 		}
 		
 		public bool ShowFramesPerSecond
@@ -93,32 +99,30 @@ namespace XyrusWorx.Runtime.Graphics
 			}
 
 			double measuresOffset = 5;
-			
-			if (ShowFramesPerSecond)
+
+			void PrintLn(string text)
 			{
 				if (mMeasuresTypeFace == null)
 				{
 					UpdateTypeFace();
 				}
 				
-				var formattedText = new FormattedText($"{mRenderLoop?.FramesPerSecond:###,###,###,##0.00} fps", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, mMeasuresTypeFace, MeasuresFontSize, MeasuresForeground);
+				var formattedText = new FormattedText(text, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, mMeasuresTypeFace, MeasuresFontSize, MeasuresForeground);
+				var point = new Point(area.Width - 5 - formattedText.Width, measuresOffset);
 				
-				drawingContext.DrawText(formattedText, new Point(area.Width - 5 - formattedText.Width, measuresOffset));
+				drawingContext.DrawRectangle(MeasuresBackground, null, new Rect(point, new Size(formattedText.Width, formattedText.Height)));
+				drawingContext.DrawText(formattedText, point);
 				measuresOffset += formattedText.Height + 2;
+			}
+			
+			if (ShowFramesPerSecond)
+			{
+				PrintLn($"{mRenderLoop?.FramesPerSecond:###,###,###,##0.00} fps");
 			}
 				
 			if (ShowClock)
 			{
-				if (mMeasuresTypeFace == null)
-				{
-					UpdateTypeFace();
-				}
-				
-				var formattedText = new FormattedText($"{mRenderLoop?.Clock:###,###,###,##0.00}s", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, mMeasuresTypeFace, MeasuresFontSize, MeasuresForeground);
-				
-				drawingContext.DrawText(formattedText, new Point(area.Width - 5 - formattedText.Width, measuresOffset));
-				// ReSharper disable once RedundantAssignment
-				measuresOffset += formattedText.Height + 2;
+				PrintLn($"{mRenderLoop?.Clock:###,###,###,##0.00}s");
 			}
 		}
 
