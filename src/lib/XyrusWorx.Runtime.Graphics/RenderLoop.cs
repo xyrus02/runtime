@@ -75,7 +75,7 @@ namespace XyrusWorx.Runtime.Graphics
 						var fps = 1.0 / tt;
 					
 						FramesPerSecond = FramesPerSecond <= 0 ? fps : FramesPerSecond * 0.9 + fps * 0.1;
-						fpsWatch.Reset();
+						fpsWatch.Restart();
 					}
 					
 					Clock += t;

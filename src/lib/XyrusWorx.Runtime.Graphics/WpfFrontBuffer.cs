@@ -21,7 +21,6 @@ namespace XyrusWorx.Runtime.Graphics
 		public static DependencyProperty ShowClockProperty = DependencyProperty.Register("ShowClock", typeof(bool), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 
 		private readonly Scope mPresentationScope = new Scope();
-		private readonly Stopwatch mMeasureStopwatch = new Stopwatch();
 		
 		private Typeface mMeasuresTypeFace;
 		private WriteableBitmap mFrontBuffer;
@@ -30,7 +29,6 @@ namespace XyrusWorx.Runtime.Graphics
 		public WpfFrontBuffer()
 		{
 			DataContextChanged += OnDataContextChanged;
-			mMeasureStopwatch.Start();
 		}
 
 		public FontFamily MeasuresFontFamily
@@ -129,11 +127,6 @@ namespace XyrusWorx.Runtime.Graphics
 				drawingContext.DrawImage(mFrontBuffer, area);
 			}
 
-			if (mMeasureStopwatch.ElapsedMilliseconds < 1000)
-			{
-				return;
-			}
-			
 			double measuresOffset = 5;
 
 			void PrintLn(string text)
@@ -162,8 +155,6 @@ namespace XyrusWorx.Runtime.Graphics
 			{
 				PrintLn($"{mRenderLoop?.Clock:###,###,###,##0.00}s");
 			}
-			
-			mMeasureStopwatch.Restart();
 		}
 
 		private void UpdateTypeFace()
