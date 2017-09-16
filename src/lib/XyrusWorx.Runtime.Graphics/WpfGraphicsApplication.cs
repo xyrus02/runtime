@@ -12,6 +12,11 @@ namespace XyrusWorx.Runtime.Graphics
 	{
 		private RelayOperation mRenderLoopThread;
 
+		public IRenderLoop RenderLoop
+		{
+			get => GetViewModel<IRenderLoop>();
+		}
+
 		protected virtual void OnInitialize([NotNull] WpfFrontBuffer view, [NotNull] TReactor reactor){}
 		protected virtual void OnTerminate([NotNull] WpfFrontBuffer view, [NotNull] TReactor reactor){}
 		

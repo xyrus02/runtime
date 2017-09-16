@@ -38,7 +38,7 @@ namespace XyrusWorx.Runtime.Graphics
 			{
 				var host = mServices.Resolve<IApplicationHost>();
 				var watch = new Stopwatch();
-				var tIter = 1.0 / (MaximumFramesPerSecond <= 0 ? 1 : MaximumFramesPerSecond);
+				var tIter = MaximumFramesPerSecond <= 0 ? double.NaN : 1.0 / MaximumFramesPerSecond;
 
 				while (!cancellationToken.IsCancellationRequested)
 				{
@@ -53,18 +53,23 @@ namespace XyrusWorx.Runtime.Graphics
 							host.Execute(() => Presenter.Present(Reactor, this));
 						}
 					}
-					
-					var t = watch.Elapsed.TotalSeconds;
-					var fps = 1.0 / t;
-					var dt = tIter - t;
 
+					var t = watch.Elapsed.TotalSeconds;
+					
+					if (!double.IsNaN(tIter))
+					{
+						var dt = tIter - t;
+						if (dt > 0)
+						{
+							Thread.Sleep(TimeSpan.FromSeconds(dt));
+						}
+					}
+
+					var tt = watch.Elapsed.TotalSeconds;
+					var fps = 1.0 / tt;
+					
 					FramesPerSecond = FramesPerSecond <= 0 ? fps : FramesPerSecond * 0.9 + fps * 0.1;
 					Clock += t;
-					
-					if (dt > 0)
-					{
-						Thread.Sleep(TimeSpan.FromSeconds(dt));
-					}
 				}
 			}
 			

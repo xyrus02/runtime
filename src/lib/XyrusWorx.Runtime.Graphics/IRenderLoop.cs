@@ -14,5 +14,6 @@ namespace XyrusWorx.Runtime.Graphics
 		
 		double Clock { get; }
 		double FramesPerSecond { get; }
+		double MaximumFramesPerSecond { get; set; }
 	}
 }
