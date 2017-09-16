@@ -41,11 +41,17 @@ namespace XyrusWorx.Runtime.Graphics
 		protected sealed override Task OnShutdown(RenderLoop<TReactor, WpfFrontBuffer> viewModel)
 		{
 			var view = GetView<WpfFrontBuffer>();
-			if (view != null && viewModel.Reactor != null)
+			viewModel.WaitForFrame();
+			
+			if (view != null)
 			{
-				OnTerminate(view, viewModel.Reactor);
-				viewModel.Reactor.Dispose();
-				viewModel.Reactor = null;
+				if (viewModel.Reactor != null) 
+				{
+					OnTerminate(view, viewModel.Reactor);
+				
+					viewModel.Reactor.Dispose();
+					viewModel.Reactor = null;
+				}
 			}
 
 			if (mRenderLoopThread != null)
