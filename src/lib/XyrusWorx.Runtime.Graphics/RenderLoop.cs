@@ -18,6 +18,7 @@ namespace XyrusWorx.Runtime.Graphics
 
 		public double Clock { get; private set; }
 		public double FramesPerSecond { get; private set; }
+		public double MaximumFramesPerSecond { get; set; } = 60.0;
 
 		[CanBeNull]
 		public TReactor Reactor { get; set; }
@@ -37,8 +38,7 @@ namespace XyrusWorx.Runtime.Graphics
 			{
 				var host = mServices.Resolve<IApplicationHost>();
 				var watch = new Stopwatch();
-				
-				const double tIter = 1.0 / 30d;
+				var tIter = 1.0 / (MaximumFramesPerSecond <= 0 ? 1 : MaximumFramesPerSecond);
 
 				while (!cancellationToken.IsCancellationRequested)
 				{
