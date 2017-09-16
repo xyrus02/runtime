@@ -59,6 +59,24 @@ namespace XyrusWorx.Runtime.Graphics
 			get => (bool)GetValue(ShowClockProperty);
 			set => SetValue(ShowClockProperty, value);
 		}
+		
+		public void InvalidateBackBuffer()
+		{
+			var renderLoop = DataContext.CastTo<IRenderLoop>();
+			var reactor = renderLoop?.CurrentReactor;
+
+			if (reactor == null)
+			{
+				mFrontBuffer = null;
+				return;
+			}
+
+			var width = reactor.BackBufferStride >> 2;
+			mFrontBuffer = new WriteableBitmap(width, reactor.BackBufferHeight, 96.0, 96.0, PixelFormats.Bgra32, null);
+			
+			Width = width;
+			Height = reactor.BackBufferHeight;
+		}
 	
 		void IPresenter.Present(IReactor reactor, IRenderLoop renderLoop)
 		{
@@ -130,23 +148,9 @@ namespace XyrusWorx.Runtime.Graphics
 		{
 			mMeasuresTypeFace = new Typeface(MeasuresFontFamily ?? FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
 		}
-
 		private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			var renderLoop = e.NewValue as IRenderLoop;
-			var reactor = renderLoop?.CurrentReactor;
-
-			if (reactor == null)
-			{
-				mFrontBuffer = null;
-				return;
-			}
-
-			var width = reactor.BackBufferStride >> 2;
-			mFrontBuffer = new WriteableBitmap(width, reactor.BackBufferHeight, 96.0, 96.0, PixelFormats.Bgra32, null);
-			
-			Width = width;
-			Height = reactor.BackBufferHeight;
+			InvalidateBackBuffer();
 		}
 		private static void OnMeasuresFontFamilyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{

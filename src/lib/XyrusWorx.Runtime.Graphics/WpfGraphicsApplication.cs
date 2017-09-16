@@ -24,9 +24,10 @@ namespace XyrusWorx.Runtime.Graphics
 		{
 			var view = GetView<WpfFrontBuffer>();
 			
-			viewModel.Presenter = view ;
 			viewModel.Reactor = ServiceLocator.Default.CreateInstance<TReactor>();
-			
+			viewModel.Presenter = view;
+
+			view.InvalidateBackBuffer();
 			view.Background = Brushes.Black;
 
 			OnInitialize(view, viewModel.Reactor);
@@ -40,12 +41,18 @@ namespace XyrusWorx.Runtime.Graphics
 		protected sealed override Task OnShutdown(RenderLoop<TReactor, WpfFrontBuffer> viewModel)
 		{
 			var view = GetView<WpfFrontBuffer>();
-			
-			OnTerminate(view, viewModel.Reactor);
-			viewModel.Dispose();
-			
-			mRenderLoopThread.Cancel();
-			mRenderLoopThread = null;
+			if (view != null && viewModel.Reactor != null)
+			{
+				OnTerminate(view, viewModel.Reactor);
+				viewModel.Reactor.Dispose();
+				viewModel.Reactor = null;
+			}
+
+			if (mRenderLoopThread != null)
+			{
+				mRenderLoopThread.Cancel();
+				mRenderLoopThread = null;
+			}
 			
 			return Task.CompletedTask;
 		}

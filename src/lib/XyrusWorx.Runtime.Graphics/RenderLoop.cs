@@ -71,10 +71,5 @@ namespace XyrusWorx.Runtime.Graphics
 			
 		}
 		public void WaitForFrame() => Monitor.Wait(mFrameLock);
-		public void Dispose()
-		{
-			WaitForFrame();
-			Reactor?.Dispose();
-		}
 	}
 }
