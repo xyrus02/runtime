@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,6 +19,9 @@ namespace XyrusWorx.Runtime.Graphics
 		public static DependencyProperty MeasuresBackgroundProperty = DependencyProperty.Register("MeasuresBackground", typeof(Brush), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(Brushes.Transparent, FrameworkPropertyMetadataOptions.AffectsRender));
 		public static DependencyProperty ShowFramesPerSecondProperty = DependencyProperty.Register("ShowFramesPerSecond", typeof(bool), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 		public static DependencyProperty ShowClockProperty = DependencyProperty.Register("ShowClock", typeof(bool), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
+
+		private readonly Scope mPresentationScope = new Scope();
+		private readonly Stopwatch mMeasureStopwatch = new Stopwatch();
 		
 		private Typeface mMeasuresTypeFace;
 		private WriteableBitmap mFrontBuffer;
@@ -26,6 +30,7 @@ namespace XyrusWorx.Runtime.Graphics
 		public WpfFrontBuffer()
 		{
 			DataContextChanged += OnDataContextChanged;
+			mMeasureStopwatch.Start();
 		}
 
 		public FontFamily MeasuresFontFamily
@@ -90,18 +95,26 @@ namespace XyrusWorx.Runtime.Graphics
 				throw new ArgumentNullException(nameof(renderLoop));
 			}
 
-			mRenderLoop = renderLoop;
-
-			if (mFrontBuffer != null)
+			if (mPresentationScope.IsInScope)
 			{
-				var fbArea = new Int32Rect(0, 0, mFrontBuffer.PixelWidth, mFrontBuffer.PixelHeight);
-				var fbLength = reactor.BackBufferStride * reactor.BackBufferHeight;
-				var fbStride = mFrontBuffer.PixelWidth * 4;
-				
-				mFrontBuffer.WritePixels(fbArea, reactor.BackBuffer, fbLength, fbStride);
+				return;
 			}
+
+			using (mPresentationScope.Enter())
+			{
+				mRenderLoop = renderLoop;
+				
+				if (mFrontBuffer != null)
+				{
+					var fbArea = new Int32Rect(0, 0, mFrontBuffer.PixelWidth, mFrontBuffer.PixelHeight);
+					var fbLength = reactor.BackBufferStride * reactor.BackBufferHeight;
+					var fbStride = mFrontBuffer.PixelWidth * 4;
+				
+					mFrontBuffer.WritePixels(fbArea, reactor.BackBuffer, fbLength, fbStride);
+				}
 			
-			InvalidateVisual();
+				InvalidateVisual();
+			}
 		}
 		protected override void OnRender(DrawingContext drawingContext)
 		{
@@ -116,6 +129,11 @@ namespace XyrusWorx.Runtime.Graphics
 				drawingContext.DrawImage(mFrontBuffer, area);
 			}
 
+			if (mMeasureStopwatch.ElapsedMilliseconds < 1000)
+			{
+				return;
+			}
+			
 			double measuresOffset = 5;
 
 			void PrintLn(string text)
@@ -125,8 +143,10 @@ namespace XyrusWorx.Runtime.Graphics
 					UpdateTypeFace();
 				}
 				
+#pragma warning disable 618
 				var formattedText = new FormattedText(text, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, mMeasuresTypeFace, MeasuresFontSize, MeasuresForeground);
 				var point = new Point(area.Width - 5 - formattedText.Width, measuresOffset);
+#pragma warning restore 618
 				
 				drawingContext.DrawRectangle(MeasuresBackground, null, new Rect(point, new Size(formattedText.Width, formattedText.Height)));
 				drawingContext.DrawText(formattedText, point);
@@ -142,6 +162,8 @@ namespace XyrusWorx.Runtime.Graphics
 			{
 				PrintLn($"{mRenderLoop?.Clock:###,###,###,##0.00}s");
 			}
+			
+			mMeasureStopwatch.Restart();
 		}
 
 		private void UpdateTypeFace()

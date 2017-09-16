@@ -38,7 +38,11 @@ namespace XyrusWorx.Runtime.Graphics
 			{
 				var host = mServices.Resolve<IApplicationHost>();
 				var watch = new Stopwatch();
+				var fpsWatch = new Stopwatch();
+				
 				var tIter = MaximumFramesPerSecond <= 0 ? double.NaN : 1.0 / MaximumFramesPerSecond;
+
+				fpsWatch.Start();
 
 				while (!cancellationToken.IsCancellationRequested)
 				{
@@ -50,7 +54,7 @@ namespace XyrusWorx.Runtime.Graphics
 
 						if (Reactor != null && Presenter != null)
 						{
-							host.Execute(() => Presenter.Present(Reactor, this));
+							host.ExecuteAsync(() => Presenter.Present(Reactor, this), TaskPriority.Ui);
 						}
 					}
 
@@ -65,10 +69,15 @@ namespace XyrusWorx.Runtime.Graphics
 						}
 					}
 
-					var tt = watch.Elapsed.TotalSeconds;
-					var fps = 1.0 / tt;
+					if (fpsWatch.ElapsedMilliseconds >= 1000)
+					{
+						var tt = watch.Elapsed.TotalSeconds;
+						var fps = 1.0 / tt;
 					
-					FramesPerSecond = FramesPerSecond <= 0 ? fps : FramesPerSecond * 0.9 + fps * 0.1;
+						FramesPerSecond = FramesPerSecond <= 0 ? fps : FramesPerSecond * 0.9 + fps * 0.1;
+						fpsWatch.Reset();
+					}
+					
 					Clock += t;
 				}
 			}
