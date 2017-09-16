@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime.Graphics
 		void Run(CancellationToken cancellationToken);
 		void WaitForFrame();
 		
-		[NotNull]
+		[CanBeNull]
 		IReactor CurrentReactor { get; }
 		
 		double Clock { get; }

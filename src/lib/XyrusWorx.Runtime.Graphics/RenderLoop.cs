@@ -15,23 +15,13 @@ namespace XyrusWorx.Runtime.Graphics
 		private readonly Scope mRunningScope = new Scope();
 		
 		private readonly IServiceLocator mServices = ServiceLocator.Default;
-		private TReactor mCurrentReactor;
 
-		public RenderLoop()
-		{
-			mCurrentReactor = mServices.CreateInstance<TReactor>();
-		}
-		
 		public double Clock { get; private set; }
 		public double FramesPerSecond { get; private set; }
 
-		[NotNull]
-		public TReactor CurrentReactor
-		{
-			get => mCurrentReactor ?? throw new ObjectDisposedException(GetType().Name);
-		}
-
-		IReactor IRenderLoop.CurrentReactor => CurrentReactor;
+		[CanBeNull]
+		public TReactor Reactor { get; set; }
+		IReactor IRenderLoop.CurrentReactor => Reactor;
 		
 		[CanBeNull]
 		public TPresenter Presenter { get; set; }
@@ -56,8 +46,12 @@ namespace XyrusWorx.Runtime.Graphics
 
 					lock (mFrameLock)
 					{
-						CurrentReactor.Update(this);
-						host.Execute(() => Presenter?.Present(CurrentReactor, this));
+						Reactor?.Update(this);
+
+						if (Reactor != null && Presenter != null)
+						{
+							host.Execute(() => Presenter.Present(Reactor, this));
+						}
 					}
 					
 					var t = watch.Elapsed.TotalSeconds;
@@ -80,9 +74,7 @@ namespace XyrusWorx.Runtime.Graphics
 		public void Dispose()
 		{
 			WaitForFrame();
-			
-			mCurrentReactor?.Dispose();
-			mCurrentReactor = null;
+			Reactor?.Dispose();
 		}
 	}
 }

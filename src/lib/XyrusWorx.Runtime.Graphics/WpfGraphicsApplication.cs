@@ -25,9 +25,11 @@ namespace XyrusWorx.Runtime.Graphics
 			var view = GetView<WpfFrontBuffer>();
 			
 			viewModel.Presenter = view ;
+			viewModel.Reactor = ServiceLocator.Default.CreateInstance<TReactor>();
+			
 			view.Background = Brushes.Black;
 
-			OnInitialize(view, viewModel.CurrentReactor);
+			OnInitialize(view, viewModel.Reactor);
 			
 			mRenderLoopThread = new RelayOperation(ct => viewModel.Run(ct));
 			mRenderLoopThread.DispatchMode = OperationDispatchMode.BackgroundThread;
@@ -39,7 +41,7 @@ namespace XyrusWorx.Runtime.Graphics
 		{
 			var view = GetView<WpfFrontBuffer>();
 			
-			OnTerminate(view, viewModel.CurrentReactor);
+			OnTerminate(view, viewModel.Reactor);
 			viewModel.Dispose();
 			
 			mRenderLoopThread.Cancel();
