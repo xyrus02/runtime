@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{_m00}, {_m01} | {_m10}, {_m11}")]
-	public struct Float2x2 : IMatrixType, IMatrixType<float>, IEquatable<Float2x2>, IComparable<Float2x2>, IComparable
+	public struct Float2x2 : IMatrix, IMatrix<float>, IEquatable<Float2x2>, IComparable<Float2x2>, IComparable
 	{
 		public float _m00, _m01, _m10, _m11;
 
@@ -55,14 +55,14 @@ namespace XyrusWorx.Runtime
 			a._m10 * b, a._m11 * b);
 
 		[NotNull]
-		public float[] this[int i]
+		public IVector<float> this[int i]
 		{
 			get
 			{
 				switch (i)
 				{
-					case 0:return new [] { _m00, _m01 };
-					case 1:return new [] { _m10, _m11 };
+					case 0: return new Float2(_m00, _m01);
+					case 1: return new Float2(_m10, _m11);
 				}
 
 				throw new IndexOutOfRangeException();
@@ -152,31 +152,31 @@ namespace XyrusWorx.Runtime
 			return CompareTo((Float2x2)obj);
 		}
 		
-		public IVectorType[] GetRows() => new IVectorType[]
+		public IVector[] GetRows() => new IVector[]
 		{
 			new Float2(_m00, _m10),
 			new Float2(_m01, _m11)
 		};
 		
-		public IVectorType[] GetColumns()=> new IVectorType[]
+		public IVector[] GetColumns()=> new IVector[]
 		{
 			new Float2(_m00, _m01),
 			new Float2(_m10, _m11)
 		};
 		
-		IVectorType<float>[] IMatrixType<float>.GetColumns() => new IVectorType<float>[]
+		IVector<float>[] IMatrix<float>.GetColumns() => new IVector<float>[]
 		{
 			new Float2(_m00, _m10),
 			new Float2(_m01, _m11)
 		};
 		
-		IVectorType<float>[] IMatrixType<float>.GetRows() => new IVectorType<float>[]
+		IVector<float>[] IMatrix<float>.GetRows() => new IVector<float>[]
 		{
 			new Float2(_m00, _m01),
 			new Float2(_m10, _m11)
 		};
 		
-		Type IMatrixType.ComponentType
+		Type IMatrix.ComponentType
 		{
 			get => typeof(float);
 		}

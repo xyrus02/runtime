@@ -10,14 +10,14 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{x}, {y}, {z}, {w}")]
-	public struct Vector4<T> : IVectorType, IVectorType<T>, IEquatable<Vector4<T>>, IComparable<Vector4<T>>, IComparable
+	public struct Vector4<T> : IVector, IVector<T>, IEquatable<Vector4<T>>, IComparable<Vector4<T>>, IComparable
 		where T: struct, IEquatable<T>, IComparable<T>, IComparable
 	{
 		public T x, y, z, w;
 		
-		object[] IVectorType.GetComponents() => new object[] {x, y, z, w};
-		T[] IVectorType<T>.GetComponents() => new [] {x, y, z, w};
-		Type IVectorType.ComponentType
+		object[] IVector.GetComponents() => new object[] {x, y, z, w};
+		T[] IVector<T>.GetComponents() => new [] {x, y, z, w};
+		Type IVector.ComponentType
 		{
 			get => typeof(T);
 		}
@@ -58,6 +58,22 @@ namespace XyrusWorx.Runtime
 		public static bool operator <=(Vector4<T> left, Vector4<T> right) => left.CompareTo(right) <= 0;
 		public static bool operator >=(Vector4<T> left, Vector4<T> right) => left.CompareTo(right) >= 0;
 
+		public T this[int i]
+		{
+			get
+			{
+				switch (i)
+				{
+					case 0: return x;
+					case 1: return y;
+					case 2: return z;
+					case 3: return w;
+				}
+				
+				throw new IndexOutOfRangeException();
+			}
+		}
+		
 		public Vector2<T> xy
 		{
 			get => new Vector2<T>(x, y);

@@ -10,13 +10,13 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{x}, {y}, {z}, {w}")]
-	public struct Float4 : IVectorType, IVectorType<float>, IEquatable<Float4>, IComparable<Float4>, IComparable
+	public struct Float4 : IVector, IVector<float>, IEquatable<Float4>, IComparable<Float4>, IComparable
 	{
 		public float x, y, z, w;
 
-		object[] IVectorType.GetComponents() => new object[] { x, y, z, w };
-		float[] IVectorType<float>.GetComponents() => new[] { x, y, z, w };
-		Type IVectorType.ComponentType
+		object[] IVector.GetComponents() => new object[] { x, y, z, w };
+		float[] IVector<float>.GetComponents() => new[] { x, y, z, w };
+		Type IVector.ComponentType
 		{
 			get => typeof(float);
 		}
@@ -75,6 +75,21 @@ namespace XyrusWorx.Runtime
 		public float RadiusSquared() => x * x + y * y + z * z + w * w;
 		public float Radius() => (float)Math.Sqrt(x * x + y * y + z * z + w * w);
 		
+		public float this[int i]
+		{
+			get
+			{
+				switch (i)
+				{
+					case 0: return x;
+					case 1: return y;
+					case 2: return z;
+					case 3: return w;
+				}
+				
+				throw new IndexOutOfRangeException();
+			}
+		}
 		public Int4 Int() => new Int4((int)x, (int)y, (int)z, (int)w);
 
 		public Float2 xy

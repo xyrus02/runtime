@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{_m00}, {_m01}, {_m02} | {_m10}, {_m11}, {_m12} | {_m20}, {_m21}, {_m22}")]
-	public struct Float3x3 : IMatrixType, IMatrixType<float>, IEquatable<Float3x3>, IComparable<Float3x3>, IComparable
+	public struct Float3x3 : IMatrix, IMatrix<float>, IEquatable<Float3x3>, IComparable<Float3x3>, IComparable
 	{
 		public float _m00, _m01, _m02, _m10, _m11, _m12, _m20, _m21, _m22;
 
@@ -72,15 +72,15 @@ namespace XyrusWorx.Runtime
 			a._m20 * b, a._m21 * b, a._m22 * b);
 
 		[NotNull]
-		public float[] this[int i]
+		public IVector<float> this[int i]
 		{
 			get
 			{
 				switch (i)
 				{
-					case 0:return new [] { _m00, _m01, _m02 };
-					case 1:return new [] { _m10, _m11, _m12 };
-					case 2:return new [] { _m20, _m21, _m22 };
+					case 0: return new Float3( _m00, _m01, _m02 );
+					case 1: return new Float3( _m10, _m11, _m12 );
+					case 2: return new Float3( _m20, _m21, _m22 );
 				}
 
 				throw new IndexOutOfRangeException();
@@ -212,35 +212,35 @@ namespace XyrusWorx.Runtime
 			return CompareTo((Float3x3)obj);
 		}
 		
-		public IVectorType[] GetRows() => new IVectorType[]
+		public IVector[] GetRows() => new IVector[]
 		{
 			new Float3(_m00, _m10, _m20),
 			new Float3(_m01, _m11, _m21),
 			new Float3(_m02, _m12, _m22)
 		};
 		
-		public IVectorType[] GetColumns()=> new IVectorType[]
+		public IVector[] GetColumns()=> new IVector[]
 		{
 			new Float3(_m00, _m01, _m02),
 			new Float3(_m10, _m11, _m12),
 			new Float3(_m20, _m21, _m22)
 		};
 		
-		IVectorType<float>[] IMatrixType<float>.GetColumns() => new IVectorType<float>[]
+		IVector<float>[] IMatrix<float>.GetColumns() => new IVector<float>[]
 		{
 			new Float3(_m00, _m10, _m20),
 			new Float3(_m01, _m11, _m21),
 			new Float3(_m02, _m12, _m22)
 		};
 		
-		IVectorType<float>[] IMatrixType<float>.GetRows() => new IVectorType<float>[]
+		IVector<float>[] IMatrix<float>.GetRows() => new IVector<float>[]
 		{
 			new Float3(_m00, _m01, _m02),
 			new Float3(_m10, _m11, _m12),
 			new Float3(_m20, _m21, _m22)
 		};
 		
-		Type IMatrixType.ComponentType
+		Type IMatrix.ComponentType
 		{
 			get => typeof(float);
 		}

@@ -10,13 +10,13 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{x}, {y}, {z}, {w}")]
-	public struct Int4 : IVectorType, IVectorType<int>, IEquatable<Int4>, IComparable<Int4>, IComparable
+	public struct Int4 : IVector, IVector<int>, IEquatable<Int4>, IComparable<Int4>, IComparable
 	{
 		public int x, y, z, w;
 
-		object[] IVectorType.GetComponents() => new object[] { x, y, z, w };
-		int[] IVectorType<int>.GetComponents() => new[] { x, y, z, w };
-		Type IVectorType.ComponentType
+		object[] IVector.GetComponents() => new object[] { x, y, z, w };
+		int[] IVector<int>.GetComponents() => new[] { x, y, z, w };
+		Type IVector.ComponentType
 		{
 			get => typeof(int);
 		}
@@ -72,6 +72,21 @@ namespace XyrusWorx.Runtime
 		public static implicit operator Int4(Vector4<int> source) => new Int4(source.x, source.y, source.z, source.w); 
 		public static implicit operator Float4(Int4 source) => source.Float(); 
 
+		public int this[int i]
+		{
+			get
+			{
+				switch (i)
+				{
+					case 0: return x;
+					case 1: return y;
+					case 2: return z;
+					case 3: return w;
+				}
+				
+				throw new IndexOutOfRangeException();
+			}
+		}
 		public Float4 Float() => new Float4(x, y, z, w);
 		
 		public Int2 xy

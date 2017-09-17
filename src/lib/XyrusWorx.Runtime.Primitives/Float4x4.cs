@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{_m00}, {_m01}, {_m02}, {_m03} | {_m10}, {_m11}, {_m12}, {_m13} | {_m20}, {_m21}, {_m22}, {_m23} | {_m30}, {_m31}, {_m32}, {_m33}")]
-	public struct Float4x4 : IMatrixType, IMatrixType<float>, IEquatable<Float4x4>, IComparable<Float4x4>, IComparable
+	public struct Float4x4 : IMatrix, IMatrix<float>, IEquatable<Float4x4>, IComparable<Float4x4>, IComparable
 	{
 		public float _m00, _m01, _m02, _m03, _m10, _m11, _m12, _m13, _m20, _m21, _m22, _m23, _m30, _m31, _m32, _m33;
 
@@ -92,16 +92,16 @@ namespace XyrusWorx.Runtime
 			a._m30 * b, a._m31 * b, a._m32 * b, a._m33 * b);
 
 		[NotNull]
-		public float[] this[int i]
+		public IVector<float> this[int i]
 		{
 			get
 			{
 				switch (i)
 				{
-					case 0:return new [] { _m00, _m01, _m02, _m03 };
-					case 1:return new [] { _m10, _m11, _m12, _m13 };
-					case 2:return new [] { _m20, _m21, _m22, _m23 };
-					case 3:return new [] { _m30, _m31, _m32, _m33 };
+					case 0: return new Float4( _m00, _m01, _m02, _m03 );
+					case 1: return new Float4( _m10, _m11, _m12, _m13 );
+					case 2: return new Float4( _m20, _m21, _m22, _m23 );
+					case 3: return new Float4( _m30, _m31, _m32, _m33 );
 				}
 
 				throw new IndexOutOfRangeException();
@@ -179,7 +179,7 @@ namespace XyrusWorx.Runtime
 				return false;
 			}
 			
-			return obj is Float3x3 && Equals((Float3x3)obj);
+			return obj is Float4x4 && Equals((Float4x4)obj);
 		}
 		public override string ToString() => $"{_m00}, {_m01}, {_m02}, {_m03} | {_m10}, {_m11}, {_m12}, {_m13} | {_m20}, {_m21}, {_m22}, {_m23} | {_m30}, {_m31}, {_m32}, {_m33}";
 		public int CompareTo(Float4x4 other)
@@ -291,7 +291,7 @@ namespace XyrusWorx.Runtime
 			return CompareTo((Float4x4)obj);
 		}
 		
-		public IVectorType[] GetRows() => new IVectorType[]
+		public IVector[] GetRows() => new IVector[]
 		{
 			new Float4(_m00, _m10, _m20, _m30),
 			new Float4(_m01, _m11, _m21, _m31),
@@ -299,7 +299,7 @@ namespace XyrusWorx.Runtime
 			new Float4(_m03, _m13, _m23, _m33)
 		};
 		
-		public IVectorType[] GetColumns()=> new IVectorType[]
+		public IVector[] GetColumns()=> new IVector[]
 		{
 			new Float4(_m00, _m01, _m02, _m03),
 			new Float4(_m10, _m11, _m12, _m13),
@@ -307,7 +307,7 @@ namespace XyrusWorx.Runtime
 			new Float4(_m30, _m31, _m32, _m33)
 		};
 		
-		IVectorType<float>[] IMatrixType<float>.GetColumns() => new IVectorType<float>[]
+		IVector<float>[] IMatrix<float>.GetColumns() => new IVector<float>[]
 		{
 			new Float4(_m00, _m10, _m20, _m30),
 			new Float4(_m01, _m11, _m21, _m31),
@@ -315,7 +315,7 @@ namespace XyrusWorx.Runtime
 			new Float4(_m03, _m13, _m23, _m33)
 		};
 		
-		IVectorType<float>[] IMatrixType<float>.GetRows() => new IVectorType<float>[]
+		IVector<float>[] IMatrix<float>.GetRows() => new IVector<float>[]
 		{
 			new Float4(_m00, _m01, _m02, _m03),
 			new Float4(_m10, _m11, _m12, _m13),
@@ -323,7 +323,7 @@ namespace XyrusWorx.Runtime
 			new Float4(_m30, _m31, _m32, _m33)
 		};
 		
-		Type IMatrixType.ComponentType
+		Type IMatrix.ComponentType
 		{
 			get => typeof(float);
 		}
