@@ -4,10 +4,10 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyName>XyrusWorx.Runtime.Graphics</AssemblyName>
-    <AssemblyTitle>XyrusWorx Graphics Application Runtime</AssemblyTitle>
-    <Description>Provides base classes and solutions for creating pure graphics applications on top of XyrusWorx Foundation and WPF</Description>
-    <TargetFrameworks>net461;net462</TargetFrameworks>
+    <AssemblyName>XyrusWorx.Runtime.Primitives</AssemblyName>
+    <AssemblyTitle>XyrusWorx Runtime BCL (primitive types)</AssemblyTitle>
+    <Description>Offers a range of primitive types for XyrusWorx Runtime</Description>
+    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>true</GenerateAssemblyConfigurationAttribute>
@@ -23,19 +23,13 @@
     <Compile Include="**\*.cs" Exclude="obj/**" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="XyrusWorx.Foundation.Windows" Version="3.0.0" />
+    <PackageReference Include="XyrusWorx.Foundation" Version="3.0.0" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
-    <RootNamespace>XyrusWorx.Runtime.Graphics</RootNamespace>
+    <RootNamespace>XyrusWorx.Runtime</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

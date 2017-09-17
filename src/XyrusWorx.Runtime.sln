@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Graphics", "lib\XyrusWorx.Runtime.Graphics\XyrusWorx.Runtime.Graphics.csproj", "{2C065FAF-F0A9-4796-93BB-8C8B25F9AE4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Primitives", "lib\XyrusWorx.Runtime.Primitives\XyrusWorx.Runtime.Primitives.csproj", "{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -18,5 +20,9 @@ Global
 		{2C065FAF-F0A9-4796-93BB-8C8B25F9AE4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C065FAF-F0A9-4796-93BB-8C8B25F9AE4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C065FAF-F0A9-4796-93BB-8C8B25F9AE4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
