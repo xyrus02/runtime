@@ -7,6 +7,9 @@ namespace XyrusWorx.Runtime.Graphics
 	[PublicAPI]
 	public interface IReactorContext 
 	{
+		[NotNull]
+		ICache Cache { get; }
+		
 		void Kernel([NotNull] Action<int> kernel, [CanBeNull] ParallelOptions parallelOptions = null);
 
 		Float4 Rgba(Int2 pixel);
@@ -17,4 +20,5 @@ namespace XyrusWorx.Runtime.Graphics
 
 		Int2 GetBackBufferSize();
 	}
+
 }

@@ -42,6 +42,7 @@ namespace XyrusWorx.Runtime.Graphics
 				
 				var tIter = MaximumFramesPerSecond <= 0 ? double.NaN : 1.0 / MaximumFramesPerSecond;
 
+				Reactor?.InvalidateState();
 				fpsWatch.Start();
 
 				while (!cancellationToken.IsCancellationRequested)
