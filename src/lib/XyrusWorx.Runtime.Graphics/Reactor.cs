@@ -66,19 +66,16 @@ namespace XyrusWorx.Runtime.Graphics
 			
 				mReactor = reactor;
 			}
-			
-			public void Kernel(Action<Vector2> kernel, ParallelOptions parallelOptions = null)
+
+			public void GetBackBufferSize(out int width, out int height)
 			{
-				var bbw = mReactor.BackBufferWidth;
-				var bbh = mReactor.BackBufferHeight;
-				
-				Parallel.For(0, bbw * bbh, offs =>
-				{
-					var i = offs % bbw;
-					var j = offs / bbw;
-				
-					kernel(new Vector2(i / (float)bbw, j / (float)bbh));
-				});
+				width = mReactor.BackBufferWidth;
+				height = mReactor.BackBufferHeight;
+			}
+			
+			public void Kernel(Action<int> kernel, ParallelOptions parallelOptions = null)
+			{
+				Parallel.For(0, mReactor.BackBufferWidth * mReactor.BackBufferHeight, parallelOptions ?? new ParallelOptions(), kernel);
 			}
 
 			public void Map(Vector2 uv, out int x, out int y)
