@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{x}, {y}, {z}, {w}")]
-	public struct Byte4
+	public struct Byte4 : IEquatable<Byte4>, IComparable<Byte4>, IComparable
 	{
 		public byte x, y, z, w;
 
