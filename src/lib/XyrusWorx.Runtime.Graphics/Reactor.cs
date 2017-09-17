@@ -18,15 +18,7 @@ namespace XyrusWorx.Runtime.Graphics
 		public void InvalidateState()
 		{
 			mContext.Cache.Clear();
-			InvalidateStateOverride(mContext);
-		}
-		public void Update(IRenderLoop renderLoop)
-		{
-			if (renderLoop == null)
-			{
-				throw new ArgumentNullException(nameof(renderLoop));
-			}
-
+			
 			if (BackBuffer == IntPtr.Zero)
 			{
 				if (BackBufferWidth <= 0 || BackBufferHeight <= 0)
@@ -35,6 +27,15 @@ namespace XyrusWorx.Runtime.Graphics
 				}
 
 				BackBuffer = Marshal.AllocHGlobal(new IntPtr((long)((IReactor)this).BackBufferStride * BackBufferHeight));
+			}
+			
+			InvalidateStateOverride(mContext);
+		}
+		public void Update(IRenderLoop renderLoop)
+		{
+			if (renderLoop == null)
+			{
+				throw new ArgumentNullException(nameof(renderLoop));
 			}
 
 			UpdateOverride(renderLoop, mContext);

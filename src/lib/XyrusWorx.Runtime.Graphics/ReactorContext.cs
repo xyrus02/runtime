@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using XyrusWorx.Runtime.IO;
 
 namespace XyrusWorx.Runtime.Graphics 
 {

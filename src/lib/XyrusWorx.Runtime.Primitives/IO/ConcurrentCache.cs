@@ -1,9 +1,11 @@
 using System.Collections.Concurrent;
+using JetBrains.Annotations;
 using XyrusWorx.Collections;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime.IO 
 {
-	sealed class ConcurrentCache : ICache
+	[PublicAPI]
+	public sealed class ConcurrentCache : ICache
 	{
 		private readonly ConcurrentDictionary<object, object> mData;
 

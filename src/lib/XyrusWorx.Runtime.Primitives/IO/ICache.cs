@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime.IO 
 {
 	[PublicAPI]
 	public interface ICache
