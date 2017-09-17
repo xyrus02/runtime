@@ -10,9 +10,16 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{x}, {y}, {z}")]
-	public struct Byte3 : IEquatable<Byte3>, IComparable<Byte3>, IComparable
+	public struct Byte3 : IVectorType, IVectorType<byte>, IEquatable<Byte3>, IComparable<Byte3>, IComparable
 	{
 		public byte x, y, z;
+		
+		object[] IVectorType.GetComponents() => new object[] {x, y, z};
+		byte[] IVectorType<byte>.GetComponents() => new [] {x, y, z};
+		Type IVectorType.ComponentType
+		{
+			get => typeof(byte);
+		}
 
 		public Byte3(byte x = 0, byte y = 0, byte z = 0)
 		{
