@@ -16,9 +16,9 @@ namespace XyrusWorx.Runtime.Graphics
 		
 		private readonly IServiceLocator mServices = ServiceLocator.Default;
 
-		public double Clock { get; private set; }
-		public double FramesPerSecond { get; private set; }
-		public double MaximumFramesPerSecond { get; set; } = 60.0;
+		public float Clock { get; private set; }
+		public float FramesPerSecond { get; private set; }
+		public float MaximumFramesPerSecond { get; set; } = 60.0f;
 
 		[CanBeNull]
 		public TReactor Reactor { get; set; }
@@ -59,7 +59,7 @@ namespace XyrusWorx.Runtime.Graphics
 						}
 					}
 
-					var t = watch.Elapsed.TotalSeconds;
+					var t = (float)watch.Elapsed.TotalSeconds;
 					
 					if (!double.IsNaN(tIter))
 					{
@@ -72,10 +72,10 @@ namespace XyrusWorx.Runtime.Graphics
 
 					if (fpsWatch.ElapsedMilliseconds >= 1000)
 					{
-						var tt = watch.Elapsed.TotalSeconds;
-						var fps = 1.0 / tt;
+						var tt = (float)watch.Elapsed.TotalSeconds;
+						var fps = 1.0f / tt;
 					
-						FramesPerSecond = FramesPerSecond <= 0 ? fps : FramesPerSecond * 0.9 + fps * 0.1;
+						FramesPerSecond = FramesPerSecond <= 0 ? fps : FramesPerSecond * 0.9f + fps * 0.1f;
 						fpsWatch.Restart();
 					}
 					

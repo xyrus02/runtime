@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
@@ -7,25 +8,31 @@ using XyrusWorx.Runtime.IO;
 
 namespace XyrusWorx.Runtime.Graphics
 {
+
 	[PublicAPI]
 	public abstract class AcceleratedReactor : IReactor
 	{
 		private readonly AcceleratedComputationProvider mProvider;
-		private readonly IList<AcceleratedComputationKernel> mHardwareQueue;
-		private AcceleratedImagingKernel mOutputKernel;
+		private readonly IList<IComputationKernel> mHardwareQueue;
+		private readonly AcceleratedReactorContext mContext;
+		private IImagingKernel mOutputKernel;
 		private IntPtr mBackBuffer;
 
 		protected AcceleratedReactor([NotNull] AcceleratedComputationProvider provider)
 		{
 			mProvider = provider;
-			mHardwareQueue = new List<AcceleratedComputationKernel>();
+			mHardwareQueue = new List<IComputationKernel>();
+			mContext = new AcceleratedReactorContext(this);
 		}
+		
+		public abstract int BackBufferWidth { get; }
+		public abstract int BackBufferHeight { get; }
 		
 		public void InvalidateState()
 		{
 			foreach (var kernel in mHardwareQueue)
 			{
-				kernel.Dispose();
+				kernel.CastTo<IDisposable>()?.Dispose();
 			}
 
 			mHardwareQueue.Clear();
@@ -58,7 +65,7 @@ namespace XyrusWorx.Runtime.Graphics
 		}
 		public void Update(IRenderLoop renderLoop)
 		{
-			BeforeCompute(renderLoop);
+			BeforeCompute(renderLoop, mContext);
 			
 			foreach (var kernel in mHardwareQueue ?? new AcceleratedComputationKernel[0])
 			{
@@ -70,24 +77,29 @@ namespace XyrusWorx.Runtime.Graphics
 			{
 				return;
 			}
-			
-			AfterCompute(renderLoop, stream);
-			stream.Seek(0, SeekOrigin.Begin);
 
-			const int chunkSize = 65536;
-
-			var buffer = new byte[chunkSize];
-			var readBytes = stream.Read(buffer, 0, chunkSize);
-			
-			while (readBytes > 0)
+			using (stream)
 			{
-				Marshal.Copy(buffer, 0, mBackBuffer, readBytes);
-				readBytes = stream.Read(buffer, 0, chunkSize);
+				AfterCompute(renderLoop, mContext, stream);
+				stream.Seek(0, SeekOrigin.Begin);
+
+				const int chunkSize = 65536;
+
+				var buffer = new byte[chunkSize];
+				var readBytes = stream.Read(buffer, 0, chunkSize);
+				var backBufferOffset = 0;
+			
+				while (readBytes > 0)
+				{
+					Marshal.Copy(buffer, 0, mBackBuffer + backBufferOffset, readBytes);
+					backBufferOffset += readBytes;
+					readBytes = stream.Read(buffer, 0, chunkSize);
+				}
 			}
 		}
 
-		protected virtual void BeforeCompute(IRenderLoop renderLoop){}
-		protected virtual void AfterCompute(IRenderLoop renderLoop, IDataStream<Vector4<byte>> outputStream){}
+		protected virtual void BeforeCompute([NotNull] IRenderLoop renderLoop, [NotNull] IAcceleratedReactorContext context){}
+		protected virtual void AfterCompute([NotNull] IRenderLoop renderLoop, [NotNull] IAcceleratedReactorContext context, [NotNull] IDataStream<Vector4<byte>> outputStream){}
 
 		public void Dispose()
 		{
@@ -99,7 +111,7 @@ namespace XyrusWorx.Runtime.Graphics
 			
 			foreach (var kernel in mHardwareQueue)
 			{
-				kernel.Dispose();
+				kernel.CastTo<IDisposable>()?.Dispose();
 			}
 
 			mHardwareQueue.Clear();
@@ -110,13 +122,30 @@ namespace XyrusWorx.Runtime.Graphics
 		protected AcceleratedComputationProvider ComputationProvider => mProvider;
 		
 		[NotNull]
-		protected abstract AcceleratedImagingKernel CreateOutputKernel();
-		protected abstract void CreateComputeKernels([NotNull] IList<AcceleratedComputationKernel> computationQueue);
+		protected abstract IImagingKernel CreateOutputKernel();
+		protected virtual void CreateComputeKernels([NotNull] IList<IComputationKernel> computationQueue){}
 		
 		IntPtr IReactor.BackBuffer => mBackBuffer;
 		int IReactor.BackBufferStride => BackBufferWidth << 2;
-		
-		public abstract int BackBufferWidth { get; }
-		public abstract int BackBufferHeight { get; }
+
+		class AcceleratedReactorContext : IAcceleratedReactorContext
+		{
+			private readonly AcceleratedReactor mReactor;
+			private ReadOnlyCollection<IComputationKernel> mComputationKernels;
+
+			public AcceleratedReactorContext([NotNull] AcceleratedReactor reactor)
+			{
+				if (reactor == null)
+				{
+					throw new ArgumentNullException(nameof(reactor));
+				}
+				
+				mReactor = reactor;
+				mComputationKernels = new ReadOnlyCollection<IComputationKernel>(mReactor.mHardwareQueue);
+			}
+
+			public IImagingKernel ImagingKernel => mReactor.mOutputKernel;
+			public IReadOnlyList<IComputationKernel> ComputationQueue => mComputationKernels;
+		}
 	}
 }

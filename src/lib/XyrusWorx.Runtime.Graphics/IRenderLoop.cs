@@ -12,8 +12,8 @@ namespace XyrusWorx.Runtime.Graphics
 		[CanBeNull]
 		IReactor CurrentReactor { get; }
 		
-		double Clock { get; }
-		double FramesPerSecond { get; }
-		double MaximumFramesPerSecond { get; set; }
+		float Clock { get; }
+		float FramesPerSecond { get; }
+		float MaximumFramesPerSecond { get; set; }
 	}
 }
