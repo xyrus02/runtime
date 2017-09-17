@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -10,12 +9,12 @@ namespace XyrusWorx.Runtime.Graphics
 	{
 		void Kernel([NotNull] Action<int> kernel, [CanBeNull] ParallelOptions parallelOptions = null);
 
-		Vector4 Rgba(int x, int y);
-		void Rgba(int x, int y, Vector4 rgba);
+		Float4 Rgba(Int2 pixel);
+		void Rgba(Int2 pixel, Float4 rgba);
 		
-		void Map(Vector2 uv, out int x, out int y);
-		void Map(int x, int y, out Vector2 uv);
+		Int2 Map(Float2 uv);
+		Float2 Map(Int2 pixel);
 
-		void GetBackBufferSize(out int width, out int height);
+		Int2 GetBackBufferSize();
 	}
 }

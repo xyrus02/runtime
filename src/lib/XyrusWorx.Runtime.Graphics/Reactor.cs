@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -67,34 +66,31 @@ namespace XyrusWorx.Runtime.Graphics
 				mReactor = reactor;
 			}
 
-			public void GetBackBufferSize(out int width, out int height)
-			{
-				width = mReactor.BackBufferWidth;
-				height = mReactor.BackBufferHeight;
-			}
-			
+			public Int2 GetBackBufferSize() => new Int2(
+				mReactor.BackBufferWidth,
+				mReactor.BackBufferHeight);
+
 			public void Kernel(Action<int> kernel, ParallelOptions parallelOptions = null)
 			{
 				Parallel.For(0, mReactor.BackBufferWidth * mReactor.BackBufferHeight, parallelOptions ?? new ParallelOptions(), kernel);
 			}
 
-			public void Map(Vector2 uv, out int x, out int y)
-			{
-				x = (int)(uv.X * mReactor.BackBufferWidth) % mReactor.BackBufferWidth;
-				y = (int)(uv.Y * mReactor.BackBufferHeight) % mReactor.BackBufferHeight;
-			}
-			public void Map(int x, int y, out Vector2 uv)
-			{
-				uv = new Vector2(
-					x / (float)mReactor.BackBufferWidth,
-					y / (float)mReactor.BackBufferHeight);
-			}
+			public Int2 Map(Float2 uv) => new Int2(
+				(int)(uv.x * mReactor.BackBufferWidth) % mReactor.BackBufferWidth,
+				(int)(uv.y * mReactor.BackBufferHeight) % mReactor.BackBufferHeight);
 
-			public Vector4 Rgba(int x, int y)
+			public Float2 Map(Int2 pixel) => new Float2(
+				pixel.x / (float)mReactor.BackBufferWidth,
+				pixel.y / (float)mReactor.BackBufferHeight);
+
+			public Float4 Rgba(Int2 pixel)
 			{
+				var x = pixel.x;
+				var y = pixel.y;
+				
 				if (x < 0 || y < 0 || x >= mReactor.BackBufferWidth || y >= mReactor.BackBufferHeight)
 				{
-					return new Vector4(0, 0, 0, 0);
+					return new Float4();
 				}
 
 				var addr = (x << 2) + y * ((IReactor)mReactor).BackBufferStride;
@@ -103,14 +99,17 @@ namespace XyrusWorx.Runtime.Graphics
 				Marshal.Copy(mReactor.BackBuffer + addr, p, 0, p.Length);
 			
 				// BGRA --> RGBA
-				return new Vector4(
+				return new Float4(
 					p[2] / 255f, 
 					p[1] / 255f,
 					p[0] / 255f,
 					p[3] / 255f);
 			}
-			public void Rgba(int x, int y, Vector4 rgba)
+			public void Rgba(Int2 pixel, Float4 rgba)
 			{
+				var x = pixel.x;
+				var y = pixel.y;
+				
 				if (x < 0 || y < 0 || x >= mReactor.BackBufferWidth || y >= mReactor.BackBufferHeight)
 				{
 					return;
@@ -121,10 +120,10 @@ namespace XyrusWorx.Runtime.Graphics
 				// RGBA --> BGRA
 				var p = new[]
 				{
-					(byte)(rgba.Z * 255f),
-					(byte)(rgba.Y * 255f),
-					(byte)(rgba.X * 255f),
-					(byte)(rgba.W * 255f)
+					(byte)(rgba.z * 255f),
+					(byte)(rgba.y * 255f),
+					(byte)(rgba.x * 255f),
+					(byte)(rgba.w * 255f)
 				};
 			
 				Marshal.Copy(p, 0, mReactor.BackBuffer + addr, p.Length);
