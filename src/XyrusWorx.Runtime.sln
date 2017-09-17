@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Graphics"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Primitives", "lib\XyrusWorx.Runtime.Primitives\XyrusWorx.Runtime.Primitives.csproj", "{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Graphics.Acceleration", "lib\XyrusWorx.Runtime.Graphics.Acceleration\XyrusWorx.Runtime.Graphics.Acceleration.csproj", "{21641FA1-884A-4B12-9009-87429F07D787}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -24,5 +26,9 @@ Global
 		{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21641FA1-884A-4B12-9009-87429F07D787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21641FA1-884A-4B12-9009-87429F07D787}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21641FA1-884A-4B12-9009-87429F07D787}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21641FA1-884A-4B12-9009-87429F07D787}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

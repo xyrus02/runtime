@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using XyrusWorx.Runtime.Native;
 
 namespace XyrusWorx.Runtime.IO
 {
@@ -16,7 +15,7 @@ namespace XyrusWorx.Runtime.IO
 	}
 
 	[PublicAPI]
-	public class MemoryBlock<T> : HardwareResource, IDataStream<T>, IUnmanagedBuffer where T : struct
+	public class MemoryBlock<T> : Resource, IDataStream<T>, IUnmanagedBuffer where T : struct
 	{
 		private int mCurrentOffset;
 		private readonly int mSize;
@@ -171,16 +170,24 @@ namespace XyrusWorx.Runtime.IO
 		{
 		}
 
-		protected override void OnCleanup()
+		protected virtual void OnCleanup(){}
+		protected sealed override void DisposeOverride()
 		{
 			if (mPtr == IntPtr.Zero)
 			{
 				return;
 			}
 
-			Marshal.FreeHGlobal(mPtr);
-			mPtr = IntPtr.Zero;
-			mCurrentOffset = 0;
+			try
+			{
+				OnCleanup();
+			}
+			finally
+			{
+				Marshal.FreeHGlobal(mPtr);
+				mPtr = IntPtr.Zero;
+				mCurrentOffset = 0;
+			}
 		}
 	}
 }
