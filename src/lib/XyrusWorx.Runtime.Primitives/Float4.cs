@@ -74,6 +74,8 @@ namespace XyrusWorx.Runtime
 		public static bool operator >(Float4 left, Float4 right) => left.CompareTo(right) > 0;
 		public static bool operator <=(Float4 left, Float4 right) => left.CompareTo(right) <= 0;
 		public static bool operator >=(Float4 left, Float4 right) => left.CompareTo(right) >= 0;
+		public static implicit operator Vector4<float>(Float4 source) => new Vector4<float>(source.x, source.y); 
+		public static implicit operator Float4(Vector2<float> source) => new Float4(source.x, source.y); 
 		
 		public float RadiusSquared() => x * x + y * y + z * z + w * w;
 		public float Radius() => (float)Math.Sqrt(x * x + y * y + z * z + w * w);

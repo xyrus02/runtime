@@ -51,6 +51,8 @@ namespace XyrusWorx.Runtime
 		public static bool operator >(Int2 left, Int2 right) => left.CompareTo(right) > 0;
 		public static bool operator <=(Int2 left, Int2 right) => left.CompareTo(right) <= 0;
 		public static bool operator >=(Int2 left, Int2 right) => left.CompareTo(right) >= 0;
+		public static implicit operator Vector2<int>(Int2 source) => new Vector2<int>(source.x, source.y); 
+		public static implicit operator Int2(Vector2<int> source) => new Int2(source.x, source.y); 
 
 		public Byte2 Byte() => new Byte2((byte)x, (byte)y);
 		
