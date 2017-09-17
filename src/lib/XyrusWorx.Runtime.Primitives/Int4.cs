@@ -46,9 +46,6 @@ namespace XyrusWorx.Runtime
 		public Int4(int x, Int3 yzw) : this(x, yzw.x, yzw.y, yzw.z)
 		{
 		}
-		public Int4(Byte4 xyzw) : this(xyzw.x, xyzw.y, xyzw.z, xyzw.w)
-		{
-		}
 		public Int4(Int4 xyzw) : this(xyzw.x, xyzw.y, xyzw.z, xyzw.w)
 		{
 		}
@@ -71,10 +68,11 @@ namespace XyrusWorx.Runtime
 		public static bool operator >(Int4 left, Int4 right) => left.CompareTo(right) > 0;
 		public static bool operator <=(Int4 left, Int4 right) => left.CompareTo(right) <= 0;
 		public static bool operator >=(Int4 left, Int4 right) => left.CompareTo(right) >= 0;
-		public static implicit operator Vector4<int>(Int4 source) => new Vector4<int>(source.x, source.y); 
-		public static implicit operator Int4(Vector2<int> source) => new Int4(source.x, source.y); 
+		public static implicit operator Vector4<int>(Int4 source) => new Vector4<int>(source.x, source.y, source.z, source.w); 
+		public static implicit operator Int4(Vector4<int> source) => new Int4(source.x, source.y, source.z, source.w); 
+		public static implicit operator Float4(Int4 source) => source.Float(); 
 
-		public Byte4 Byte() => new Byte4((byte)x, (byte)y, (byte)z, (byte)w);
+		public Float4 Float() => new Float4(x, y, z, w);
 		
 		public Int2 xy
 		{

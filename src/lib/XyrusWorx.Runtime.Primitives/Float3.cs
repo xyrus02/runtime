@@ -33,12 +33,6 @@ namespace XyrusWorx.Runtime
 		public Float3(float x, Float2 yz) : this(x, yz.x, yz.y)
 		{
 		}
-		public Float3(Byte3 xyz) : this(xyz.x, xyz.y, xyz.z)
-		{
-		}
-		public Float3(Int3 xyz) : this(xyz.x, xyz.y, xyz.z)
-		{
-		}
 		public Float3(Float3 xyz) : this(xyz.x, xyz.y, xyz.z)
 		{
 		}
@@ -61,13 +55,13 @@ namespace XyrusWorx.Runtime
 		public static bool operator >(Float3 left, Float3 right) => left.CompareTo(right) > 0;
 		public static bool operator <=(Float3 left, Float3 right) => left.CompareTo(right) <= 0;
 		public static bool operator >=(Float3 left, Float3 right) => left.CompareTo(right) >= 0;
-		public static implicit operator Vector3<float>(Float3 source) => new Vector3<float>(source.x, source.y); 
-		public static implicit operator Float3(Vector2<float> source) => new Float3(source.x, source.y); 
+		public static implicit operator Vector3<float>(Float3 source) => new Vector3<float>(source.x, source.y, source.z); 
+		public static implicit operator Float3(Vector3<float> source) => new Float3(source.x, source.y, source.z); 
+		public static explicit operator Int3(Float3 source) => source.Int(); 
 
 		public float RadiusSquared() => x * x + y * y + z * z;
 		public float Radius() => (float)Math.Sqrt(x * x + y * y + z * z);
 
-		public Byte3 Byte() => new Byte3((byte)x, (byte)y, (byte)z);
 		public Int3 Int() => new Int3((int)x, (int)y, (int)z);
 		
 		public Float2 xy

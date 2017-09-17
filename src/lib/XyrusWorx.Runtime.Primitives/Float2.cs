@@ -25,12 +25,6 @@ namespace XyrusWorx.Runtime
 			this.x = x;
 			this.y = y;
 		}
-		public Float2(Byte2 xy) : this(xy.x, xy.y)
-		{
-		}
-		public Float2(Int2 xy) : this(xy.x, xy.y)
-		{
-		}
 		public Float2(Float2 xy) : this(xy.x, xy.y)
 		{
 		}
@@ -54,12 +48,12 @@ namespace XyrusWorx.Runtime
 		public static bool operator <=(Float2 left, Float2 right) => left.CompareTo(right) <= 0;
 		public static bool operator >=(Float2 left, Float2 right) => left.CompareTo(right) >= 0;
 		public static implicit operator Vector2<float>(Float2 source) => new Vector2<float>(source.x, source.y); 
-		public static implicit operator Float2(Vector2<float> source) => new Float2(source.x, source.y); 
+		public static implicit operator Float2(Vector2<float> source) => new Float2(source.x, source.y);  
+		public static explicit operator Int2(Float2 source) => source.Int(); 
 
 		public float RadiusSquared() => x * x + y * y;
 		public float Radius() => (float)Math.Sqrt(x * x + y * y);
 
-		public Byte2 Byte() => new Byte2((byte)x, (byte)y);
 		public Int2 Int() => new Int2((int)x, (int)y);
 
 		public Float2 yx

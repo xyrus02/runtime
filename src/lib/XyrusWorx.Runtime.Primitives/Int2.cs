@@ -26,9 +26,6 @@ namespace XyrusWorx.Runtime
 			this.x = x;
 			this.y = y;
 		}
-		public Int2(Byte2 xy) : this(xy.x, xy.y)
-		{
-		}
 		public Int2(Int2 xy) : this(xy.x, xy.y)
 		{
 		}
@@ -53,8 +50,9 @@ namespace XyrusWorx.Runtime
 		public static bool operator >=(Int2 left, Int2 right) => left.CompareTo(right) >= 0;
 		public static implicit operator Vector2<int>(Int2 source) => new Vector2<int>(source.x, source.y); 
 		public static implicit operator Int2(Vector2<int> source) => new Int2(source.x, source.y); 
+		public static implicit operator Float2(Int2 source) => source.Float(); 
 
-		public Byte2 Byte() => new Byte2((byte)x, (byte)y);
+		public Float2 Float() => new Float2(x, y);
 		
 		public Int2 yx
 		{

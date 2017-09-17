@@ -46,12 +46,6 @@ namespace XyrusWorx.Runtime
 		public Float4(float x, Float3 yzw) : this(x, yzw.x, yzw.y, yzw.z)
 		{
 		}
-		public Float4(Byte4 xyzw) : this(xyzw.x, xyzw.y, xyzw.z, xyzw.w)
-		{
-		}
-		public Float4(Int4 xyzw) : this(xyzw.x, xyzw.y, xyzw.z, xyzw.w)
-		{
-		}
 		public Float4(Float4 xyzw) : this(xyzw.x, xyzw.y, xyzw.z, xyzw.w)
 		{
 		}
@@ -74,13 +68,13 @@ namespace XyrusWorx.Runtime
 		public static bool operator >(Float4 left, Float4 right) => left.CompareTo(right) > 0;
 		public static bool operator <=(Float4 left, Float4 right) => left.CompareTo(right) <= 0;
 		public static bool operator >=(Float4 left, Float4 right) => left.CompareTo(right) >= 0;
-		public static implicit operator Vector4<float>(Float4 source) => new Vector4<float>(source.x, source.y); 
-		public static implicit operator Float4(Vector2<float> source) => new Float4(source.x, source.y); 
+		public static implicit operator Vector4<float>(Float4 source) => new Vector4<float>(source.x, source.y, source.z, source.w); 
+		public static implicit operator Float4(Vector4<float> source) => new Float4(source.x, source.y, source.z, source.w); 
+		public static explicit operator Int4(Float4 source) => source.Int(); 
 		
 		public float RadiusSquared() => x * x + y * y + z * z + w * w;
 		public float Radius() => (float)Math.Sqrt(x * x + y * y + z * z + w * w);
 		
-		public Byte4 Byte() => new Byte4((byte)x, (byte)y, (byte)z, (byte)w);
 		public Int4 Int() => new Int4((int)x, (int)y, (int)z, (int)w);
 
 		public Float2 xy
