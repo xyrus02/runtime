@@ -103,20 +103,29 @@ namespace XyrusWorx.Runtime.Graphics
 
 		public void Dispose()
 		{
-			if (mBackBuffer != IntPtr.Zero)
+			try
 			{
-				Marshal.FreeHGlobal(mBackBuffer);
-				mBackBuffer = IntPtr.Zero;
+				DisposeOverride();
 			}
+			finally
+			{
+				if (mBackBuffer != IntPtr.Zero)
+				{
+					Marshal.FreeHGlobal(mBackBuffer);
+					mBackBuffer = IntPtr.Zero;
+				}
 			
-			foreach (var kernel in mHardwareQueue)
-			{
-				kernel.CastTo<IDisposable>()?.Dispose();
-			}
+				foreach (var kernel in mHardwareQueue)
+				{
+					kernel.CastTo<IDisposable>()?.Dispose();
+				}
 
-			mHardwareQueue.Clear();
-			mOutputKernel?.Dispose();
+				mHardwareQueue.Clear();
+				mOutputKernel?.Dispose();
+			}
 		}
+		
+		protected virtual void DisposeOverride(){}
 
 		[NotNull]
 		protected AcceleratedComputationProvider ComputationProvider => mProvider;
