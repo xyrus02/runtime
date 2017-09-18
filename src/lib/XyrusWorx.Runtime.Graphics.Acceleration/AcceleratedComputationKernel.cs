@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using SlimDX.Direct3D11;
 using XyrusWorx.Runtime.Graphics.IO;
@@ -112,7 +113,15 @@ namespace XyrusWorx.Runtime.Graphics
 
 			protected override void SetElement(IStructuredBuffer item, int index)
 			{
-				mParent.Provider.HardwareDevice.ImmediateContext.ComputeShader.SetShaderResource(item?.CastTo<StructuredHardwareBufferResource>()?.View, index);
+				var rv = new[]
+				{
+					item.CastTo<HardwareTexture2D>()?.ResourceView,
+					item.CastTo<StructuredHardwareBufferResource>()?.View
+				};
+
+				var rvv = rv.FirstOrDefault();
+				
+				mParent.Provider.HardwareDevice.ImmediateContext.ComputeShader.SetShaderResource(rvv, index);
 			}
 		}
 		class UnorderedAccessResourceList : AcceleratedKernelResourceList<IDeviceBuffer>

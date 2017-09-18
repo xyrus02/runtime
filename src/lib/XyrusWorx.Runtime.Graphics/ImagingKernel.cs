@@ -17,7 +17,7 @@ namespace XyrusWorx.Runtime.Graphics
 			mParallelOptions = new ParallelOptions();
 
 			Constants = new List<IStructuredReadWriteBuffer>();
-			Resources = new List<ITexture2D>();
+			Resources = new List<IStructuredBuffer>();
 		}
 
 		[NotNull]
@@ -36,7 +36,7 @@ namespace XyrusWorx.Runtime.Graphics
 		}
 
 		public IList<IStructuredReadWriteBuffer> Constants { get; }
-		public IList<ITexture2D> Resources { get; }
+		public IList<IStructuredBuffer> Resources { get; }
 
 		public IDataStream<Vector4<byte>> Compute(int arrayWidth, int arrayHeight)
 		{

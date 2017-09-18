@@ -8,7 +8,7 @@ namespace XyrusWorx.Runtime.Graphics
 	[PublicAPI]
 	public interface IImagingKernel : IDisposable
 	{
-		IList<ITexture2D> Resources { get; }
+		IList<IStructuredBuffer> Resources { get; }
 		IList<IStructuredReadWriteBuffer> Constants { get; }
 		IDataStream<Vector4<byte>> Compute(int arrayWidth, int arrayHeight);
 	}

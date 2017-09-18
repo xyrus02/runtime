@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using SlimDX;
@@ -36,7 +37,7 @@ namespace XyrusWorx.Runtime.Graphics
 			Resources = new ShaderResourceList(this);
 		}
 
-		public IList<ITexture2D> Resources { get; }
+		public IList<IStructuredBuffer> Resources { get; }
 		public IDataStream<Vector4<byte>> Compute(int arrayWidth, int arrayHeight)
 		{
 			if (arrayWidth <= 0)
@@ -223,7 +224,7 @@ namespace XyrusWorx.Runtime.Graphics
 			}
 		}
 
-		class ShaderResourceList : AcceleratedKernelResourceList<ITexture2D>
+		class ShaderResourceList : AcceleratedKernelResourceList<IStructuredBuffer>
 		{
 			private readonly AcceleratedImagingKernel mParent;
 
@@ -232,9 +233,17 @@ namespace XyrusWorx.Runtime.Graphics
 				mParent = parent;
 			}
 
-			protected override void SetElement(ITexture2D item, int index)
+			protected override void SetElement(IStructuredBuffer item, int index)
 			{
-				mParent.Provider.HardwareDevice.ImmediateContext.PixelShader.SetShaderResource(item?.CastTo<HardwareTexture2D>()?.ResourceView, index);
+				var rv = new[]
+				{
+					item.CastTo<HardwareTexture2D>()?.ResourceView,
+					item.CastTo<StructuredHardwareBufferResource>()?.View
+				};
+
+				var rvv = rv.FirstOrDefault();
+				
+				mParent.Provider.HardwareDevice.ImmediateContext.PixelShader.SetShaderResource(rvv, index);
 			}
 		}
 	}
