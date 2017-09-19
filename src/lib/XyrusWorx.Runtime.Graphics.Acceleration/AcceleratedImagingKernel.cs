@@ -241,7 +241,7 @@ namespace XyrusWorx.Runtime.Graphics
 					item.CastTo<StructuredHardwareBufferResource>()?.View
 				};
 
-				var rvv = rv.FirstOrDefault();
+				var rvv = rv.FirstOrDefault(x => x != null);
 				
 				mParent.Provider.HardwareDevice.ImmediateContext.PixelShader.SetShaderResource(rvv, index);
 			}

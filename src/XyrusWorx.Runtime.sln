@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Primitive
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Graphics.Acceleration", "lib\XyrusWorx.Runtime.Graphics.Acceleration\XyrusWorx.Runtime.Graphics.Acceleration.csproj", "{21641FA1-884A-4B12-9009-87429F07D787}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.ComputeShaderTest", "workbench\XyrusWorx.Runtime.ComputeShaderTest\XyrusWorx.Runtime.ComputeShaderTest.csproj", "{994C732F-4CF5-4FF5-B336-70F61AE4AEC7}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -30,5 +32,9 @@ Global
 		{21641FA1-884A-4B12-9009-87429F07D787}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21641FA1-884A-4B12-9009-87429F07D787}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21641FA1-884A-4B12-9009-87429F07D787}.Release|Any CPU.Build.0 = Release|Any CPU
+		{994C732F-4CF5-4FF5-B336-70F61AE4AEC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{994C732F-4CF5-4FF5-B336-70F61AE4AEC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{994C732F-4CF5-4FF5-B336-70F61AE4AEC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{994C732F-4CF5-4FF5-B336-70F61AE4AEC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

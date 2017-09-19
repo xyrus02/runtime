@@ -119,7 +119,7 @@ namespace XyrusWorx.Runtime.Graphics
 					item.CastTo<StructuredHardwareBufferResource>()?.View
 				};
 
-				var rvv = rv.FirstOrDefault();
+				var rvv = rv.FirstOrDefault(x => x != null);
 				
 				mParent.Provider.HardwareDevice.ImmediateContext.ComputeShader.SetShaderResource(rvv, index);
 			}
@@ -135,7 +135,14 @@ namespace XyrusWorx.Runtime.Graphics
 
 			protected override void SetElement(IDeviceBuffer item, int index)
 			{
-				mParent.Provider.HardwareDevice.ImmediateContext.ComputeShader.SetUnorderedAccessView(item?.CastTo<StructuredHardwareOutputBufferResource>()?.AccessView, index);
+				var rv = new[]
+				{
+					item?.CastTo<StructuredHardwareOutputBufferResource>()?.AccessView
+				};
+
+				var rvv = rv.FirstOrDefault(x => x != null);
+				
+				mParent.Provider.HardwareDevice.ImmediateContext.ComputeShader.SetUnorderedAccessView(rvv, index);
 			}
 		}
 	}
