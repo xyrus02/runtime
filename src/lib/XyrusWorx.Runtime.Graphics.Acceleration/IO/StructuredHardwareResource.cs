@@ -14,6 +14,10 @@ namespace XyrusWorx.Runtime.Graphics.IO
 
 		internal abstract D3DBuffer HardwareBuffer { get; }
 
+		public void Write(IntPtr rawData, int byteOffset)
+		{
+			WriteUnmanaged(rawData, byteOffset);
+		}
 		public void Write<T>(T data, int index = 0) where T : struct
 		{
 			if (index < 0 || index >= ElementCount)
