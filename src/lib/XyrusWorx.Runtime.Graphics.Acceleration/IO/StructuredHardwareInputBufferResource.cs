@@ -11,6 +11,7 @@ namespace XyrusWorx.Runtime.Graphics.IO
 	[PublicAPI]
 	public abstract class StructuredHardwareInputBufferResource : StructuredHardwareBufferResource, IStructuredWriteOnlyBuffer
 	{
+		public abstract void Write(IntPtr rawData, int index, int count);
 		public abstract void Write<T>(T data, int index = 0) where T : struct;
 	}
 
@@ -88,13 +89,16 @@ namespace XyrusWorx.Runtime.Graphics.IO
 		}
 		public void Write(IntPtr ptr)
 		{
+			Write(ptr, 0, mArrayLength);
+		}
+		public override void Write(IntPtr rawData, int index, int count)
+		{
 			var context = mDevice.HardwareDevice.ImmediateContext;
 			var box = context.MapSubresource(mHardwareBuffer, MapMode.WriteDiscard, MapFlags.None);
 
-			box.Data.WriteRange(ptr, mArrayLength * mElementSize);
+			box.Data.WriteRange(rawData + index * mElementSize, count * mElementSize);
 			context.UnmapSubresource(mHardwareBuffer, 0);
 		}
-
 		public override void Write<TElement>(TElement data, int index = 0)
 		{
 			if (index < 0 || index >= ElementCount)

@@ -14,10 +14,28 @@ namespace XyrusWorx.Runtime.Graphics.IO
 
 		internal abstract D3DBuffer HardwareBuffer { get; }
 
-		public void Write(IntPtr rawData, int byteOffset)
+		void IStructuredReadOnlyBuffer.Read(IntPtr buffer, int index, int count)
 		{
-			WriteUnmanaged(rawData, byteOffset);
+			var temp = IntPtr.Zero;
+			try
+			{
+				var elementSize = BufferSize / ElementCount;
+				temp = ReadUnmanaged(index * elementSize);
+				CopyMemory(buffer, temp, elementSize * count);
+			}
+			finally
+			{
+				if (temp != IntPtr.Zero)
+				{
+					Marshal.FreeHGlobal(temp);
+				}
+			}
 		}
+		void IStructuredWriteOnlyBuffer.Write(IntPtr rawData, int index, int count)
+		{
+			WriteUnmanaged(rawData, index * (BufferSize/ElementCount));
+		}
+		
 		public void Write<T>(T data, int index = 0) where T : struct
 		{
 			if (index < 0 || index >= ElementCount)
@@ -126,13 +144,15 @@ namespace XyrusWorx.Runtime.Graphics.IO
 
 		protected sealed override IntPtr ReadUnmanaged(int offset)
 		{
-			var mem = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
-			Marshal.StructureToPtr(mData, mem, false);
+			var size = Marshal.SizeOf<T>();
+			var mem = Marshal.AllocHGlobal(size);
+			Marshal.StructureToPtr(mData, mem + offset * size, false);
 			return mem;
 		}
 		protected override void WriteUnmanaged(IntPtr memory, int offset)
 		{
-			mData = Marshal.PtrToStructure<T>(memory);
+			var size = Marshal.SizeOf<T>();
+			mData = Marshal.PtrToStructure<T>(memory + offset * size);
 		}
 	}
 }

@@ -10,6 +10,7 @@ namespace XyrusWorx.Runtime.Graphics.IO
 	[PublicAPI]
 	public abstract class ComputationSwapBufferResource : StructuredHardwareBufferResource, IStructuredReadOnlyBuffer
 	{
+		public abstract void Read(IntPtr buffer, int index, int count);
 		public abstract TElement Read<TElement>(int index = 0) where TElement : struct;
 	}
 
@@ -98,6 +99,15 @@ namespace XyrusWorx.Runtime.Graphics.IO
 		internal sealed override D3DBuffer HardwareBuffer => mHardwareBuffer;
 		internal sealed override ShaderResourceView View => null;
 
+		public override void Read(IntPtr buffer, int index, int count)
+		{
+			using (var stream = Read())
+			{
+				var sizeOfElement = BufferSize / ElementCount;
+				var offset = stream.Data + index * sizeOfElement;
+				CopyMemory(buffer, offset, sizeOfElement * count);
+			}
+		}
 		public override TElement Read<TElement>(int index = 0)
 		{
 			if (index < 0 || index >= ElementCount)
