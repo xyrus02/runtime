@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
+using SlimDX;
 using SlimDX.Direct3D11;
 using XyrusWorx.Runtime.IO;
 using D3DBuffer = SlimDX.Direct3D11.Buffer;
@@ -52,7 +53,7 @@ namespace XyrusWorx.Runtime.Graphics.IO
 
 			mHardwareBuffer = new D3DBuffer(provider.HardwareDevice, description);
 		}
-
+		
 		public ComputationDataStream<T> Read()
 		{
 			if (mBufferedReadStream != null)
@@ -101,11 +102,21 @@ namespace XyrusWorx.Runtime.Graphics.IO
 
 		public override void Read(IntPtr buffer, int index, int count)
 		{
-			using (var stream = Read())
+			DataBox mappedResource = null;
+			try
 			{
 				var sizeOfElement = BufferSize / ElementCount;
-				var offset = stream.Data + index * sizeOfElement;
-				CopyMemory(buffer, offset, sizeOfElement * count);
+				var offset = index * sizeOfElement;
+				
+				mappedResource = mProvider.HardwareDevice.ImmediateContext.MapSubresource(mHardwareBuffer, MapMode.Read, MapFlags.None);
+				CopyMemory(buffer, mappedResource.Data.DataPointer + offset, Math.Min((int)mappedResource.Data.Length, count));
+			}
+			finally
+			{
+				if (mappedResource != null)
+				{
+					mProvider.HardwareDevice.ImmediateContext.UnmapSubresource(mHardwareBuffer, 0);
+				}
 			}
 		}
 		public override TElement Read<TElement>(int index = 0)

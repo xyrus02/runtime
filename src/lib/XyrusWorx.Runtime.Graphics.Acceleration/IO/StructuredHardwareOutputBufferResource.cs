@@ -2,18 +2,53 @@ using System;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using SlimDX.Direct3D11;
+using XyrusWorx.Runtime.IO;
 using D3DBuffer = SlimDX.Direct3D11.Buffer;
 
 namespace XyrusWorx.Runtime.Graphics.IO
 {
 	[PublicAPI]
-	public abstract class StructuredHardwareOutputBufferResource : StructuredHardwareBufferResource, IDeviceBuffer
+	public abstract class StructuredHardwareOutputBufferResource : StructuredHardwareBufferResource, IDeviceBuffer, IStructuredReadOnlyBuffer
 	{
 		internal abstract UnorderedAccessView AccessView { get; }
 
 		protected override void OnCleanup()
 		{
 			AccessView?.Dispose();
+		}
+
+		public abstract void Read(IntPtr buffer, int index, int count);
+		T IStructuredReadOnlyBuffer.Read<T>(int index)
+		{
+			if (index < 0 || index >= ElementCount)
+			{
+				throw new IndexOutOfRangeException();
+			}
+			
+			var buffer = IntPtr.Zero;
+			try
+			{
+				var sizeOfTarget = Marshal.SizeOf<T>();
+				var sizeOfElement = BufferSize/ElementCount;
+
+				if (sizeOfTarget != sizeOfElement)
+				{
+					throw new ArgumentException($"The type \"{typeof(T).FullName}\" does not have the expected size of {sizeOfElement} bytes");
+				}
+
+				buffer = Marshal.AllocHGlobal(sizeOfElement);
+				Read(buffer, index * sizeOfElement, 1);
+
+				return Marshal.PtrToStructure<T>(buffer);
+				
+			}
+			finally
+			{
+				if (buffer != IntPtr.Zero)
+				{
+					Marshal.FreeHGlobal(buffer);
+				}
+			}
 		}
 	}
 
@@ -79,6 +114,15 @@ namespace XyrusWorx.Runtime.Graphics.IO
 		internal sealed override ShaderResourceView View => mView;
 		internal sealed override UnorderedAccessView AccessView => mAccessView;
 
+		public override void Read(IntPtr buffer, int index, int count)
+		{
+			using (var swap = new ComputationSwapBufferResource<T>(mProvider, ElementCount))
+			{
+				swap.FetchResource(this);
+				swap.Read(buffer, index, count);
+			}
+		}
+		
 		public void Clear()
 		{
 			using (var input = new StructuredHardwareInputBufferResource<T>(mProvider, mArrayLength))
