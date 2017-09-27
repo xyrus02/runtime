@@ -2,7 +2,8 @@ using System;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime {
+namespace XyrusWorx.Runtime 
+{
 	[PublicAPI]
 	public sealed class ArrayView<T> where T : struct
 	{
