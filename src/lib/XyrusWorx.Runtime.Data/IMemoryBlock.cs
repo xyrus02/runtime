@@ -1,10 +1,12 @@
+using System;
 using JetBrains.Annotations;
 
 namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
-	public interface IUnmanagedBlock : IUnmanagedMemory
+	public interface IMemoryBlock
 	{
+		IntPtr GetPointer();
 		long Size { get; }
 	}
 }

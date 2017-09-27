@@ -5,9 +5,9 @@ using JetBrains.Annotations;
 namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
-	public class UnmanagedArray : Resource, IUnmanagedArray
+	public class UnmanagedArray : Resource, IUnmanagedArray, IReadableMemory, IWritableMemory
 	{
-		private readonly IUnmanagedMemory mAllocatedMemory;
+		private readonly UnmanagedBlock mAllocatedMemory;
 		
 		public UnmanagedArray(int elementSize, int length)
 		{
@@ -46,16 +46,20 @@ namespace XyrusWorx.Runtime
 		
 		public int Length { get; }
 		public int ElementSize { get; }
+		
 		public IntPtr Pointer => mAllocatedMemory.Pointer;
 		
-		public bool IsAllocated
-		{
-			get => mAllocatedMemory.Pointer != IntPtr.Zero;
-		}
+		public bool IsAllocated => mAllocatedMemory.IsAllocated;
+		public long Size => (long)Length * ElementSize;
+		
+		public void Read(IntPtr target, int readOffset, long bytesToRead) => mAllocatedMemory.Read(target, readOffset, bytesToRead);
+		public void Write(IntPtr source, int writeOffset, long bytesToWrite) => mAllocatedMemory.Write(source, writeOffset, bytesToWrite);
 		
 		protected override void DisposeOverride()
 		{
 			mAllocatedMemory.Dispose();
 		}
+
+		IntPtr IMemoryBlock.GetPointer() => Pointer;
 	}
 }
