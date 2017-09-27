@@ -1,10 +1,11 @@
 ﻿using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime.Graphics.Imaging
 {
 	[PublicAPI]
 	public interface ITexture : IMemoryBlock
 	{
+		TextureFormat Format { get; }
 		int Stride { get; }
 		int Height { get; }
 	}

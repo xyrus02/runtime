@@ -1,35 +1,29 @@
 using System;
-using System.Runtime.InteropServices;
 using JetBrains.Annotations;
+using XyrusWorx.Runtime.Graphics.Imaging;
 
 namespace XyrusWorx.Runtime.Graphics 
 {
-
 	[PublicAPI]
 	public abstract class Reactor : IReactor
 	{
-		private readonly IReactorContext mContext;
-
-		protected Reactor()
-		{
-			mContext = new ReactorContext(this);
-		}
+		private UnmanagedBlock mBackBufferMemory;
+		private TextureView mBackBuffer;
 
 		public void InvalidateState()
 		{
-			mContext.Cache.Clear();
-			
-			if (BackBuffer == IntPtr.Zero)
+			if (mBackBuffer == null)
 			{
 				if (BackBufferWidth <= 0 || BackBufferHeight <= 0)
 				{
 					throw new InvalidOperationException("The buffer dimensions are invalid.");
 				}
 
-				BackBuffer = Marshal.AllocHGlobal(new IntPtr((long)((IReactor)this).BackBufferStride * BackBufferHeight));
+				mBackBufferMemory = new UnmanagedBlock(BackBufferWidth * BackBufferHeight * 4);
+				mBackBuffer = new TextureView(mBackBufferMemory, BackBufferWidth << 2, TextureFormat.Bgra);
 			}
 			
-			InvalidateStateOverride(mContext);
+			InvalidateStateOverride();
 		}
 		public void Update(IRenderLoop renderLoop)
 		{
@@ -38,27 +32,22 @@ namespace XyrusWorx.Runtime.Graphics
 				throw new ArgumentNullException(nameof(renderLoop));
 			}
 
-			UpdateOverride(renderLoop, mContext);
+			UpdateOverride(renderLoop);
 		}
 		public void Dispose()
 		{
-			mContext.Cache.Clear();
-			
-			if (BackBuffer != IntPtr.Zero)
-			{
-				Marshal.FreeHGlobal(BackBuffer);
-				BackBuffer = IntPtr.Zero;
-			}
+			mBackBufferMemory?.Dispose();
+			mBackBufferMemory = null;
+			mBackBuffer = null;
 		}
 
-		protected abstract void InvalidateStateOverride([NotNull] IReactorContext context);
-		protected abstract void UpdateOverride([NotNull] IRenderLoop renderLoop, [NotNull] IReactorContext context);
+		protected abstract void InvalidateStateOverride();
+		protected abstract void UpdateOverride([NotNull] IRenderLoop renderLoop);
 
-		public IntPtr BackBuffer { get; private set; }
+		public IReadWriteTexture BackBuffer => mBackBuffer;
+		
 		public abstract int BackBufferWidth { get; }
 		public abstract int BackBufferHeight { get; }
-
-		int IReactor.BackBufferStride => BackBufferWidth * 4;
 	}
 
 }

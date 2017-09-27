@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime.Graphics.Imaging
 {
 	[PublicAPI]
 	public static class TextureExtensions

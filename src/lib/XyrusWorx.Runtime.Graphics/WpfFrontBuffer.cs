@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -74,11 +73,11 @@ namespace XyrusWorx.Runtime.Graphics
 				return;
 			}
 
-			var width = reactor.BackBufferStride >> 2;
-			mFrontBuffer = new WriteableBitmap(width, reactor.BackBufferHeight, 96.0, 96.0, PixelFormats.Bgra32, null);
+			var width = reactor.BackBuffer.Stride >> 2;
+			mFrontBuffer = new WriteableBitmap(width, reactor.BackBuffer.Height, 96.0, 96.0, PixelFormats.Bgra32, null);
 			
 			Width = width;
-			Height = reactor.BackBufferHeight;
+			Height = reactor.BackBuffer.Height;
 		}
 	
 		void IPresenter.Present(IReactor reactor, IRenderLoop renderLoop)
@@ -105,10 +104,10 @@ namespace XyrusWorx.Runtime.Graphics
 				if (mFrontBuffer != null)
 				{
 					var fbArea = new Int32Rect(0, 0, mFrontBuffer.PixelWidth, mFrontBuffer.PixelHeight);
-					var fbLength = reactor.BackBufferStride * reactor.BackBufferHeight;
+					var fbLength = reactor.BackBuffer.Stride * reactor.BackBuffer.Height;
 					var fbStride = mFrontBuffer.PixelWidth * 4;
 				
-					mFrontBuffer.WritePixels(fbArea, reactor.BackBuffer, fbLength, fbStride);
+					mFrontBuffer.WritePixels(fbArea, reactor.BackBuffer.GetPointer(), fbLength, fbStride);
 				}
 			
 				InvalidateVisual();

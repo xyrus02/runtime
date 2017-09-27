@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
-	public sealed class WriteOnlyArrayView<T> where T : struct
+	public sealed class WriteOnlyArrayView<T> : IView where T : struct
 	{
 		private readonly IWritableMemory mMemory;
 		private readonly bool mReadable;
@@ -26,6 +26,8 @@ namespace XyrusWorx.Runtime
 			mLength = memory.Size / mSizeOfT;
 		}
 
+		public IMemoryBlock RawMemory => mMemory;
+		
 		public T this[int index]
 		{
 			set

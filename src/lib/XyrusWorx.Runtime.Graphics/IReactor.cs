@@ -1,5 +1,6 @@
 using System;
 using JetBrains.Annotations;
+using XyrusWorx.Runtime.Graphics.Imaging;
 
 namespace XyrusWorx.Runtime.Graphics 
 {
@@ -10,9 +11,7 @@ namespace XyrusWorx.Runtime.Graphics
 		void InvalidateState();
 		void Update([NotNull] IRenderLoop renderLoop);
 		
-		IntPtr BackBuffer { get; }
-		
-		int BackBufferStride { get; }
-		int BackBufferHeight { get; }
+		[NotNull]
+		IReadWriteTexture BackBuffer { get; }
 	}
 }

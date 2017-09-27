@@ -4,8 +4,9 @@ using JetBrains.Annotations;
 
 namespace XyrusWorx.Runtime 
 {
+
 	[PublicAPI]
-	public sealed class ArrayView<T> where T : struct
+	public sealed class ArrayView<T> : IView where T : struct
 	{
 		private readonly IMemoryBlock mMemory;
 		private readonly bool mReadable;
@@ -35,6 +36,8 @@ namespace XyrusWorx.Runtime
 			}
 		}
 
+		public IMemoryBlock RawMemory => mMemory;
+		
 		public T this[int index]
 		{
 			get

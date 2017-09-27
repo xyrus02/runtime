@@ -1,10 +1,10 @@
 using System;
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime.Graphics.Imaging 
 {
 	[PublicAPI]
-	public class WriteOnlyTextureView : IWritableTexture
+	public class WriteOnlyTextureView : IWritableTexture, IView
 	{
 		private readonly IWritableMemory mMemory;
 		private readonly TextureFormat mFormat;
@@ -36,6 +36,13 @@ namespace XyrusWorx.Runtime.Graphics
 			mHeight = (int)(memory.Size / stride);
 		}
 
+		public IMemoryBlock RawMemory => mMemory;
+		public TextureFormat Format => mFormat;
+		
+		public int Width => mWidth;
+		public int Stride => mStride;
+		public int Height => mHeight;
+		
 		public Vector4<byte> this[Int2 xy]
 		{
 			set => this[xy.x, xy.y] = value;
