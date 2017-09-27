@@ -4,7 +4,7 @@ using System.Threading;
 using JetBrains.Annotations;
 using XyrusWorx.Windows.ViewModels;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
 	public class RenderLoop<TReactor, TPresenter> : ViewModel, IRenderLoop 

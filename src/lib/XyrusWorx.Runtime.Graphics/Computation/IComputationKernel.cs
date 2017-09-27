@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Graphics.Computation
+namespace XyrusWorx.Runtime.Computation
 {
 
 	[PublicAPI]

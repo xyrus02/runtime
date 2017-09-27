@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using XyrusWorx.Threading;
 using XyrusWorx.Windows.Runtime;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
 	public abstract class WpfGraphicsApplication<TReactor> : WpfApplication<WpfFrontBuffer, RenderLoop<TReactor, WpfFrontBuffer>> where TReactor: class, IReactor

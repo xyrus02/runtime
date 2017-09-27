@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Graphics.Imaging
+namespace XyrusWorx.Runtime.Imaging
 {
 	[PublicAPI]
 	public abstract class SoftwareImagingKernel : Resource, IImagingKernel

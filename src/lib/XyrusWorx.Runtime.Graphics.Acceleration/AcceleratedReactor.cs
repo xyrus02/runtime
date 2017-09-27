@@ -4,8 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using XyrusWorx.Runtime.Graphics.Computation;
-using XyrusWorx.Runtime.Graphics.Imaging;
+using XyrusWorx.Runtime.Computation;
 using XyrusWorx.Runtime.IO;
 
 namespace XyrusWorx.Runtime.Graphics

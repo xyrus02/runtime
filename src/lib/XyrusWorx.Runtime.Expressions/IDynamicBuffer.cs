@@ -1,7 +1,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.IO 
+namespace XyrusWorx.Runtime.Expressions 
 {
 	[PublicAPI]
 	public interface IDynamicBuffer : IDisposable
@@ -10,6 +10,6 @@ namespace XyrusWorx.Runtime.IO
 		IDynamicBuffer SetValue([NotNull] string fieldName, [CanBeNull] object value);
 
 		[NotNull]
-		IStructuredReadWriteBuffer GetUnmanagedBuffer();
+		IWritableMemory GetUnmanagedBuffer();
 	}
 }

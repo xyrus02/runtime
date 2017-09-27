@@ -8,6 +8,7 @@ namespace XyrusWorx.Runtime.ComputeShaderTest
 	{
 		public static void Main()
 		{
+			/*
 			var provider = new AcceleratedComputationProvider();
 			var source = new AcceleratedKernelSource(@"
 
@@ -55,6 +56,7 @@ namespace XyrusWorx.Runtime.ComputeShaderTest
 			}
 			
 			Console.ReadKey();
+			*/
 		}
 	}
 }

@@ -1,8 +1,8 @@
 using System;
 using JetBrains.Annotations;
-using XyrusWorx.Runtime.Graphics.Imaging;
+using XyrusWorx.Runtime.Imaging;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime 
 {
 
 	[PublicAPI]

@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
 	public interface IResourcePool<in T> where T: class, IMemoryBlock

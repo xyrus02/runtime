@@ -1,7 +1,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Graphics.Imaging 
+namespace XyrusWorx.Runtime.Imaging 
 {
 	[PublicAPI]
 	public struct TextureFormat : IEquatable<TextureFormat>

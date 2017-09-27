@@ -1,7 +1,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.IO 
+namespace XyrusWorx.Runtime.Expressions 
 {
 	[PublicAPI]
 	public interface IDynamicBufferBuilder : IDynamicBufferAppender, IDisposable

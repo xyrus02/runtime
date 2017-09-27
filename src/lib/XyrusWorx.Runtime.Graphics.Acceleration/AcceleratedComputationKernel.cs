@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using SlimDX.Direct3D11;
-using XyrusWorx.Runtime.Graphics.Computation;
+using XyrusWorx.Runtime.Computation;
 using XyrusWorx.Runtime.Graphics.IO;
 using XyrusWorx.Runtime.IO;
 

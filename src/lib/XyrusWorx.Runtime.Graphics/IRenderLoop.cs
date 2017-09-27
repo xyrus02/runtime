@@ -1,7 +1,7 @@
 using System.Threading;
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
 	public interface IRenderLoop

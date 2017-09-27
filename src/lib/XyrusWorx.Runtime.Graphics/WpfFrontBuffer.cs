@@ -6,7 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime
 {
 	[PublicAPI]
 	public sealed class WpfFrontBuffer : Control, IPresenter
