@@ -59,7 +59,7 @@ namespace XyrusWorx.Runtime
 		public void Read(IntPtr target, int readOffset, long bytesToRead) => Copy(Pointer, target, readOffset, 0, bytesToRead);
 		public void Write(IntPtr source, int writeOffset, long bytesToWrite) => Copy(source, Pointer, 0, writeOffset, bytesToWrite);
 
-		internal static unsafe void Copy(IntPtr source, IntPtr target, int sourceOffset, int targetOffset, long size)
+		public static unsafe void Copy(IntPtr source, IntPtr target, int sourceOffset, int targetOffset, long size)
 		{
 			if (source == IntPtr.Zero || target == IntPtr.Zero)
 			{
