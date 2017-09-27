@@ -4,9 +4,9 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyName>XyrusWorx.Runtime.Primitives</AssemblyName>
-    <AssemblyTitle>XyrusWorx Runtime - Primitives</AssemblyTitle>
-    <Description>Offers a range of numeric primitives for XyrusWorx Runtime</Description>
+    <AssemblyName>XyrusWorx.Runtime.Data</AssemblyName>
+    <AssemblyTitle>XyrusWorx Runtime - Memory Management</AssemblyTitle>
+    <Description>Contains structures and classes to manage raw memory blocks</Description>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
@@ -18,6 +18,7 @@
     <GenerateAssemblyInformationalVersionAttribute>true</GenerateAssemblyInformationalVersionAttribute>
     <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
     <DefineConstants>$(DefineConstants);JETBRAINS_ANNOTATIONS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" Exclude="obj/**" />
