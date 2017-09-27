@@ -8,4 +8,5 @@ namespace XyrusWorx.Runtime
 	{
 		void Write(IntPtr source, int writeOffset, long bytesToWrite);
 	}
+
 }

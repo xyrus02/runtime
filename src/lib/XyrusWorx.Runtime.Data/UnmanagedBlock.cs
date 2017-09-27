@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace XyrusWorx.Runtime
 {
 	[PublicAPI]
-	public sealed class UnmanagedBlock : Resource, IReadableMemory, IWritableMemory
+	public sealed class UnmanagedBlock : Resource, IReadWriteMemory
 	{
 		public UnmanagedBlock(long size)
 		{
