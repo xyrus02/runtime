@@ -106,8 +106,12 @@ namespace XyrusWorx.Runtime
 					var fbArea = new Int32Rect(0, 0, mFrontBuffer.PixelWidth, mFrontBuffer.PixelHeight);
 					var fbLength = reactor.BackBuffer.Stride * reactor.BackBuffer.Height;
 					var fbStride = mFrontBuffer.PixelWidth * 4;
-				
-					mFrontBuffer.WritePixels(fbArea, reactor.BackBuffer.GetPointer(), fbLength, fbStride);
+
+					using (var pixBuffer = new UnmanagedBlock(fbStride * mFrontBuffer.PixelHeight))
+					{
+						reactor.BackBuffer.Read(pixBuffer);
+						mFrontBuffer.WritePixels(fbArea, pixBuffer, fbLength, fbStride);
+					}
 				}
 			
 				InvalidateVisual();
