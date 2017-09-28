@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
+using XyrusWorx.Runtime.Expressions;
 using XyrusWorx.Runtime.Graphics.IO;
 using XyrusWorx.Runtime.IO;
 
@@ -13,7 +14,7 @@ namespace XyrusWorx.Runtime.Graphics
 	[PublicAPI]
 	public class AcceleratedDynamicBuffer : Resource, IDynamicBufferBuilder, IDynamicBuffer
 	{
-		private readonly AcceleratedComputationProvider mProvider;
+		private readonly AccelerationDevice mProvider;
 		private readonly AcceleratedDynamicBufferContext mContext;
 		private readonly string mTypeName;
 		

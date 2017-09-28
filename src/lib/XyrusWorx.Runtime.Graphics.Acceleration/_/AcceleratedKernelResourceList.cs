@@ -11,7 +11,7 @@ namespace XyrusWorx.Runtime.Graphics
 		internal abstract void FlushContext();
 	}
 
-	abstract class AcceleratedKernelResourceList<T> : AcceleratedKernelResourceList, IList<T> where T : class, IDisposable
+	abstract class AcceleratedKernelResourceList<T> : AcceleratedKernelResourceList, IList<T> where T : class
 	{
 		private readonly T[] mItems = new T[1024];
 		private int mCount;

@@ -1,150 +1,76 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
-using SlimDX.Direct3D11;
 using XyrusWorx.Runtime.Computation;
-using XyrusWorx.Runtime.Graphics.IO;
-using XyrusWorx.Runtime.IO;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime.Graphics 
 {
 	[PublicAPI]
-	public class AcceleratedComputationKernel : AcceleratedKernel, IComputationKernel
+	public sealed class AcceleratedComputationKernel : AcceleratedKernel, IComputationKernel
 	{
-		private ComputeShader mComputeShader;
+		private ComputeShaderConstantBufferList mConstants;
+		private ComputeShaderResourceList mTextures;
+		private ComputeShaderUnorderedAccessList mOutputs;
 
-		private int mThreadGroupCountX;
-		private int mThreadGroupCountY;
-		private int mThreadGroupCountZ;
-
-		public AcceleratedComputationKernel([NotNull] AcceleratedComputationProvider provider, [NotNull] AcceleratedKernelBytecode bytecode) : base(provider, bytecode)
+		private AcceleratedComputationKernel([NotNull] AccelerationDevice device) : base(device)
 		{
-			if (bytecode.KernelType != AcceleratedComputationKernelType.ComputeShader)
-			{
-				throw new ArgumentException("A compute shader kernel source was expected.");
-			}
-
-			ThreadGroupCountX = 32;
-			ThreadGroupCountY = 32;
-			ThreadGroupCountZ = 1;
-
-			Resources = new ShaderResourceList(this);
-			Outputs = new UnorderedAccessResourceList(this);
-		}
-
-		public IList<IStructuredBuffer> Resources { get; }
-		public IList<IDeviceBuffer> Outputs { get; }
-
-		public int ThreadGroupCountX
-		{
-			get { return mThreadGroupCountX; }
-			set
-			{
-				if (value <= 0 || value > 1024)
-				{
-					throw new ArgumentOutOfRangeException(nameof(value));
-				}
-				mThreadGroupCountX = value;
-			}
-		}
-		public int ThreadGroupCountY
-		{
-			get { return mThreadGroupCountY; }
-			set
-			{
-				if (value <= 0 || value > 1024)
-				{
-					throw new ArgumentOutOfRangeException(nameof(value));
-				}
-				mThreadGroupCountY = value;
-			}
-		}
-		public int ThreadGroupCountZ
-		{
-			get { return mThreadGroupCountZ; }
-			set
-			{
-				if (value <= 0 || value > 1024)
-				{
-					throw new ArgumentOutOfRangeException(nameof(value));
-				}
-				mThreadGroupCountZ = value;
-			}
+			mConstants = new ComputeShaderConstantBufferList(this);
+			mTextures = new ComputeShaderResourceList(this);
+			mOutputs = new ComputeShaderUnorderedAccessList(this);
 		}
 		
-		protected override void OnInitialize()
+		public Vector3<uint> ThreadGroupCount { get; set; }
+		public IResourcePool<IWritable> Constants => mConstants;
+		public IResourcePool<IWritable> Textures => mTextures;
+		public IResourcePool<IReadable> Outputs => mOutputs;
+		
+		public void Execute()
 		{
-			var device = Provider.HardwareDevice;
-			var context = device.ImmediateContext;
-
-			mComputeShader = new ComputeShader(device, Bytecode.HardwareBytecode);
-			context.ComputeShader.Set(mComputeShader);
+			Device.ImmediateContext.Dispatch((int)ThreadGroupCount.x, (int)ThreadGroupCount.y, (int)ThreadGroupCount.z);
 		}
-		protected override void OnDestroy()
+		
+		[NotNull]
+		public static AcceleratedComputationKernel FromBytecode([NotNull] AccelerationDevice device, [NotNull] IReadableMemory bytecode)
 		{
-			Constants?.Clear();
-			Resources?.Clear();
-			Outputs?.Clear();
-
-			Provider?.HardwareDevice.ImmediateContext.ComputeShader.Set(null);
-
-			mComputeShader?.Dispose();
-			mComputeShader = null;
-		}
-
-		protected override void SetConstant(StructuredHardwareResource constant, int address)
-		{
-			Provider.HardwareDevice.ImmediateContext.ComputeShader.SetConstantBuffer(constant?.HardwareBuffer, address);
-		}
-
-		public void Compute()
-		{
-			Provider.HardwareDevice.ImmediateContext.Dispatch(ThreadGroupCountX, ThreadGroupCountY, ThreadGroupCountZ);
-		}
-
-		class ShaderResourceList : AcceleratedKernelResourceList<IStructuredBuffer>
-		{
-			private readonly AcceleratedComputationKernel mParent;
-
-			public ShaderResourceList(AcceleratedComputationKernel parent)
+			if (device == null)
 			{
-				mParent = parent;
+				throw new ArgumentNullException(nameof(device));
+			}
+			
+			if (bytecode == null)
+			{
+				throw new ArgumentNullException(nameof(bytecode));
 			}
 
-			protected override void SetElement(IStructuredBuffer item, int index)
-			{
-				var rv = new[]
-				{
-					item.CastTo<HardwareTexture2D>()?.ResourceView,
-					item.CastTo<StructuredHardwareBufferResource>()?.View
-				};
-
-				var rvv = rv.FirstOrDefault(x => x != null);
-				
-				mParent.Provider.HardwareDevice.ImmediateContext.ComputeShader.SetShaderResource(rvv, index);
-			}
+			var kernel = new AcceleratedComputationKernel(device);
+			kernel.Load(bytecode);
+			return kernel;
 		}
-		class UnorderedAccessResourceList : AcceleratedKernelResourceList<IDeviceBuffer>
+		
+		[NotNull]
+		public static AcceleratedComputationKernel FromSource([NotNull] AccelerationDevice device, [NotNull] AcceleratedKernelSourceWriter source, CompilerContext context = null)
 		{
-			private readonly AcceleratedComputationKernel mParent;
-
-			public UnorderedAccessResourceList(AcceleratedComputationKernel parent)
+			if (device == null)
 			{
-				mParent = parent;
+				throw new ArgumentNullException(nameof(device));
+			}
+			
+			if (source == null)
+			{
+				throw new ArgumentNullException(nameof(source));
 			}
 
-			protected override void SetElement(IDeviceBuffer item, int index)
-			{
-				var rv = new[]
-				{
-					item?.CastTo<StructuredHardwareOutputBufferResource>()?.AccessView
-				};
-
-				var rvv = rv.FirstOrDefault(x => x != null);
-				
-				mParent.Provider.HardwareDevice.ImmediateContext.ComputeShader.SetUnorderedAccessView(rvv, index);
-			}
+			var kernel = new AcceleratedComputationKernel(device);
+			context = context ?? new CompilerContext();
+			kernel.Compile(source, context);
+			return kernel;
 		}
+
+		protected override void Deallocate()
+		{
+			mConstants.Clear();
+			mTextures.Clear();
+			mOutputs.Clear();
+		}
+		protected override string GetProfileName() => "cs_5_0";
 	}
 }

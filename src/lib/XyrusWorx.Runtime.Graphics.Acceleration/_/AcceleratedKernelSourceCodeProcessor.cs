@@ -32,14 +32,14 @@ namespace XyrusWorx.Runtime.Graphics
 		}
 
 		[NotNull]
-		public AcceleratedKernelSource GetSource()
+		public string GetSource()
 		{
 			var result = new StringBuilder();
 
 			result.AppendLine(mContext.GetProgramHeader());
 			result.AppendLine(mOutput.ToString());
 
-			return new AcceleratedKernelSource(result.ToString());
+			return result.ToString();
 		}
 	}
 }

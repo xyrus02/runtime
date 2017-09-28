@@ -1,65 +1,220 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using SlimDX;
 using SlimDX.D3DCompiler;
 using SlimDX.Direct3D11;
 using SlimDX.DXGI;
-using XyrusWorx.Runtime.Graphics.IO;
-using XyrusWorx.Runtime.IO;
+using XyrusWorx.Runtime.Graphics.Imaging;
+using XyrusWorx.Runtime.Imaging;
 using XyrusWorx.Windows;
-using D3DBuffer = SlimDX.Direct3D11.Buffer;
-using Device = SlimDX.Direct3D11.Device;
+using Buffer = SlimDX.Direct3D11.Buffer;
+using Format = SlimDX.DXGI.Format;
 using MapFlags = SlimDX.Direct3D11.MapFlags;
+using PixelShader = SlimDX.Direct3D11.PixelShader;
+using ShaderBytecode = SlimDX.D3DCompiler.ShaderBytecode;
+using ShaderFlags = SlimDX.D3DCompiler.ShaderFlags;
+using SwapChain = SlimDX.DXGI.SwapChain;
+using Usage = SlimDX.DXGI.Usage;
+using VertexShader = SlimDX.Direct3D11.VertexShader;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime.Graphics 
 {
 	[PublicAPI]
-	public class AcceleratedImagingKernel : AcceleratedKernel, IImagingKernel
+	public interface IAcceleratedImagingKernelConfiguration
 	{
+		[NotNull]
+		AcceleratedImagingKernel TextureSize(Int2 size);
+		
+		[NotNull]
+		AcceleratedImagingKernel TextureSize(int width, int height);
+	}
+	
+	[PublicAPI]
+	public sealed class AcceleratedImagingKernel : AcceleratedKernel, IImagingKernel
+	{
+		[NotNull]
+		private readonly AccelerationDevice mDevice;
+		private static readonly ShaderBytecode mVertexShaderBytecode;
+		
+		private int mWidth;
+		private int mHeight;
+		
 		private Form mOffScreenWindow;
-		private PixelShader mPixelShader;
 		private SwapChain mSwapChain;
+		private PixelShader mPixelShader;
 		private VertexShader mVertexShader;
-		private ShaderBytecode mVsByteCode;
-		private D3DBuffer mVertexBuffer;
+		private Buffer mVertexBuffer;
 		private DataStream mVertices;
+		private HardwareRenderTarget mRenderTarget;
+		private UnmanagedBlock mOutputTextureMemory;
+		private ReadOnlyTextureView mOutputTexture;
 
-		public AcceleratedImagingKernel([NotNull] AcceleratedComputationProvider provider, [NotNull] AcceleratedKernelBytecode bytecode) : base(provider, bytecode)
+		static AcceleratedImagingKernel()
 		{
-			if (bytecode.KernelType != AcceleratedComputationKernelType.PixelShader)
-			{
-				throw new ArgumentException("A pixel shader kernel source was expected.");
-			}
+			var vsSource =
+				@"struct VS_INPUT{
+					float3 pos : POSITION;
+					float2 tex : TEXCOORD;
+				};
+				struct PS_INPUT{
+					float4 pos : SV_POSITION;
+					float2 tex : TEXCOORD;
+				};
 
-			Resources = new ShaderResourceList(this);
+				PS_INPUT main(VS_INPUT input)
+				{
+					PS_INPUT output=(PS_INPUT)0;
+
+					output.pos = float4(input.pos,0.5);
+					output.tex = float2(1 - input.tex.y, input.tex.x);
+
+					return output;
+				}
+				";
+			mVertexShaderBytecode = ShaderBytecode.Compile(vsSource, "main", "vs_5_0", ShaderFlags.None, EffectFlags.None);
+		}
+		internal AcceleratedImagingKernel([NotNull] AccelerationDevice device, int width, int height) : base(device)
+		{
+			mDevice = device;
+			CreateView(width, height);
+			
+			// todo: resource lists
 		}
 
-		public IList<IStructuredBuffer> Resources { get; }
-		public IDataStream<Vector4<byte>> Compute(int arrayWidth, int arrayHeight)
+		public IResourcePool<IWritableMemory> Constants { get; }
+		public IResourcePool<IWritableMemory> Textures { get; }
+		public IReadableTexture Output { get; }
+		
+		public void Execute()
 		{
-			if (arrayWidth <= 0)
+			var context = Device.ImmediateContext;
+			var view = mRenderTarget.GetRenderTargetView();
+			
+			context.ClearRenderTargetView(view, new Color4(0, 0, 0));
+			context.InputAssembler.InputLayout = new InputLayout(Device, ShaderSignature.GetInputSignature(mVertexShaderBytecode), new[]
 			{
-				throw new ArgumentOutOfRangeException(nameof(arrayWidth));
-			}
+				new InputElement("POSITION", 0, Format.R32G32B32_Float, 0),
+				new InputElement("TEXCOORD", 0, Format.R32G32_Float, 12, 0, InputClassification.PerVertexData, 0)
+			});
+			context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+			context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(mVertexBuffer, 20, 0));
 
-			if (arrayHeight <= 0)
+			context.VertexShader.Set(mVertexShader);
+			context.PixelShader.Set(mPixelShader);
+
+			Constants.CastTo<AcceleratedKernelResourceList>()?.SendContext();
+			Textures.CastTo<AcceleratedKernelResourceList>()?.SendContext();
+
+			context.PixelShader.SetSampler(SamplerState.FromDescription(Device, new SamplerDescription
 			{
-				throw new ArgumentOutOfRangeException(nameof(arrayHeight));
+				AddressU = TextureAddressMode.Wrap,
+				AddressV = TextureAddressMode.Wrap,
+				AddressW = TextureAddressMode.Wrap,
+				Filter = Filter.MinPointMagMipLinear
+			}), 0);
+
+			context.OutputMerger.SetTargets(view);
+			context.Draw(4, 0);
+
+			mSwapChain.Present(0, PresentFlags.None);
+
+			context.VertexShader.Set(null);
+			context.PixelShader.Set(null);
+			
+			var sourceDescription = mRenderTarget.GetTexture2D().Description;
+
+			sourceDescription.BindFlags = 0;
+			sourceDescription.CpuAccessFlags = CpuAccessFlags.Read | CpuAccessFlags.Write;
+			sourceDescription.Usage = ResourceUsage.Staging;
+
+			// todo: maybe we don't need to copy the texture?
+			using (var buffer = new Texture2D(Device, sourceDescription))
+			{
+				context.CopyResource(mRenderTarget.GetTexture2D(), buffer);
+
+				DataBox box = null;
+				try
+				{
+					box = context.MapSubresource(buffer, 0, MapMode.Read, MapFlags.None);
+					mOutputTextureMemory.Read(box.Data.DataPointer, 0, mWidth * mHeight * 4);
+				}
+				finally
+				{
+					if (box != null)
+					{
+						context.UnmapSubresource(buffer, 0);
+					}
+				}
 			}
-
-			var device = Provider.HardwareDevice;
-			var context = device.ImmediateContext;
-
-			return ComputeUsingPsProfile(device, context, arrayWidth, arrayHeight);
 		}
-
-		protected override void OnInitialize()
+		
+		[NotNull]
+		public static IAcceleratedImagingKernelConfiguration FromBytecode([NotNull] AccelerationDevice device, [NotNull] IReadableMemory bytecode)
 		{
-			var device = Provider.HardwareDevice;
+			if (device == null)
+			{
+				throw new ArgumentNullException(nameof(device));
+			}
+			
+			if (bytecode == null)
+			{
+				throw new ArgumentNullException(nameof(bytecode));
+			}
 
+			return new AcceleratedImagingKernelConfiguration(device, k => k.Load(bytecode));
+		}
+		
+		[NotNull]
+		public static IAcceleratedImagingKernelConfiguration FromSource([NotNull] AccelerationDevice device, [NotNull] AcceleratedKernelSourceWriter source, CompilerContext context = null)
+		{
+			if (device == null)
+			{
+				throw new ArgumentNullException(nameof(device));
+			}
+			
+			if (source == null)
+			{
+				throw new ArgumentNullException(nameof(source));
+			}
+
+			context = context ?? new CompilerContext();
+			return new AcceleratedImagingKernelConfiguration(device, k => k.Compile(source, context));
+		}
+		
+		protected override string GetProfileName() => "ps_5_0";
+
+		private Buffer CreateVertexBuffer(out DataStream vertices)
+		{
+			vertices = new DataStream(20 * 4, true, true);
+
+			vertices.Write(new Vector3(-0.5f, -0.5f, 0.5f)); vertices.Write(new Vector2(1f, 1f));
+			vertices.Write(new Vector3(-0.5f,  0.5f, 0.5f)); vertices.Write(new Vector2(0f, 1f));
+			vertices.Write(new Vector3( 0.5f, -0.5f, 0.5f)); vertices.Write(new Vector2(1f, 0f));
+			vertices.Write(new Vector3( 0.5f,  0.5f, 0.5f)); vertices.Write(new Vector2(0f, 0f));
+
+			vertices.Position = 0;
+
+			return new Buffer(Device, vertices, (int)vertices.Length, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
+
+		}
+		private void CreateView(int width, int height)
+		{
+			if (width <= 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(width));
+			}
+			
+			if (height <= 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(height));
+			}
+			
+			Destroy();
+			
+			mWidth = width;
+			mHeight = height;
+			
 			Execution.ExecuteOnUiThread(() =>
 			{
 				mOffScreenWindow = new Form();
@@ -82,168 +237,83 @@ namespace XyrusWorx.Runtime.Graphics
 				Usage = Usage.RenderTargetOutput | Usage.Shared,
 				OutputHandle = mOffScreenWindow.Handle
 			};
-
-			var vsSource =
-				@"struct VS_INPUT{
-					float3 pos : POSITION;
-					float2 tex : TEXCOORD;
-				};
-				struct PS_INPUT{
-					float4 pos : SV_POSITION;
-					float2 tex : TEXCOORD;
-				};
-
-				PS_INPUT main(VS_INPUT input)
-				{
-					PS_INPUT output=(PS_INPUT)0;
-
-					output.pos = float4(input.pos,0.5);
-					output.tex = float2(1 - input.tex.y, input.tex.x);
-
-					return output;
-				}
-				";
-			var vsBytecode = ShaderBytecode.Compile(vsSource, "main", "vs_5_0", ShaderFlags.None, EffectFlags.None);
-
-			mSwapChain = Provider.CreateSwapChain(description);
-			mVsByteCode = vsBytecode;
-			mPixelShader = new PixelShader(device, Bytecode.HardwareBytecode);
-			mVertexShader = new VertexShader(device, vsBytecode);
-			mVertexBuffer = CreateVertexBuffer(device, out mVertices);
-		}
-		protected override void OnDestroy()
-		{
-			mOffScreenWindow?.Close();
-			mSwapChain?.Dispose();
-			mPixelShader?.Dispose();
-			mVertexShader?.Dispose();
-			mVsByteCode?.Dispose();
-			mVertexBuffer?.Dispose();
-			mVertices?.Dispose();
-
-			mOffScreenWindow = null;
-			mSwapChain = null;
-			mPixelShader = null;
-			mVertexShader = null;
-			mVsByteCode = null;
-			mVertexBuffer = null;
-			mVertices = null;
-		}
-
-		protected override void SetConstant(StructuredHardwareResource constant, int address)
-		{
-			Provider.HardwareDevice.ImmediateContext.PixelShader.SetConstantBuffer(constant?.HardwareBuffer, address);
-		}
-
-		private D3DBuffer CreateVertexBuffer(Device device, out DataStream vertices)
-		{
-			vertices = new DataStream(20 * 4, true, true);
-
-			vertices.Write(new Vector3(-0.5f, -0.5f, 0.5f)); vertices.Write(new Vector2(1f, 1f));
-			vertices.Write(new Vector3(-0.5f,  0.5f, 0.5f)); vertices.Write(new Vector2(0f, 1f));
-			vertices.Write(new Vector3( 0.5f, -0.5f, 0.5f)); vertices.Write(new Vector2(1f, 0f));
-			vertices.Write(new Vector3( 0.5f,  0.5f, 0.5f)); vertices.Write(new Vector2(0f, 0f));
-
-			vertices.Position = 0;
-
-			return new D3DBuffer(device, vertices, (int)vertices.Length, ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 0);
-
-		}
-		private ImageOutputBuffer CreateRenderTargetBuffer(DeviceContext context, int arrayWidth, int arrayHeight)
-		{
+			
+			mSwapChain = mDevice.CreateSwapChain(description);
+			mPixelShader = new PixelShader(Device, Bytecode);
+			mVertexShader = new VertexShader(Device, mVertexShaderBytecode);
+			mVertexBuffer = CreateVertexBuffer(out mVertices);
+			
 			Execution.ExecuteOnUiThread(() =>
 			{
-				mOffScreenWindow.Width = arrayWidth;
-				mOffScreenWindow.Height = arrayHeight;
+				mOffScreenWindow.Width = mWidth;
+				mOffScreenWindow.Height = mHeight;
 			});
 
-			mSwapChain.ResizeBuffers(1, arrayWidth, arrayHeight, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
-			context.Rasterizer.SetViewports(new Viewport(0.0f, 0.0f, arrayWidth, arrayHeight));
+			mSwapChain.ResizeBuffers(1, mWidth, mHeight, Format.B8G8R8A8_UNorm, SwapChainFlags.None);
+			Device.ImmediateContext.Rasterizer.SetViewports(new Viewport(0.0f, 0.0f, mWidth, mHeight));
 
-			context.Rasterizer.State =
-				RasterizerState.FromDescription(context.Device,
+			Device.ImmediateContext.Rasterizer.State =
+				RasterizerState.FromDescription(Device,
 					new RasterizerStateDescription
 					{
 						CullMode = CullMode.None,
 						FillMode = FillMode.Solid
 					});
 
-			var buffer = new ImageOutputBuffer(Provider, mSwapChain);
+			mRenderTarget = new HardwareRenderTarget(mDevice, mSwapChain);
+			mOutputTextureMemory = new UnmanagedBlock(mWidth * mHeight * 4);
+			mOutputTexture = new ReadOnlyTextureView(mOutputTextureMemory, mWidth * 4, TextureFormat.Rgba);
 			
-			return buffer;
 		}
-		private IDataStream<Vector4<byte>> ComputeUsingPsProfile(Device device, DeviceContext context, int arrayWidth, int arrayHeight)
+		private void Destroy()
 		{
-			using (var output = CreateRenderTargetBuffer(context, arrayWidth, arrayHeight))
-			{
-				context.ClearRenderTargetView(output.View, new Color4(0, 0, 0));
-				context.InputAssembler.InputLayout = new InputLayout(device, ShaderSignature.GetInputSignature(mVsByteCode), new[]
-				{
-					new InputElement("POSITION", 0, Format.R32G32B32_Float, 0),
-					new InputElement("TEXCOORD", 0, Format.R32G32_Float, 12, 0, InputClassification.PerVertexData, 0)
-				});
-				context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
-				context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(mVertexBuffer, 20, 0));
+			mOffScreenWindow?.Close();
+			mSwapChain?.Dispose();
+			mPixelShader?.Dispose();
+			mVertexShader?.Dispose();
+			mVertexBuffer?.Dispose();
+			mVertices?.Dispose();
+			mRenderTarget?.Dispose();
+			mOutputTextureMemory?.Dispose();
 
-				context.VertexShader.Set(mVertexShader);
-				context.PixelShader.Set(mPixelShader);
-
-				Constants.CastTo<AcceleratedKernelResourceList>()?.SendContext();
-				Resources.CastTo<AcceleratedKernelResourceList>()?.SendContext();
-
-				context.PixelShader.SetSampler(SamplerState.FromDescription(device, new SamplerDescription
-				{
-					AddressU = TextureAddressMode.Wrap,
-					AddressV = TextureAddressMode.Wrap,
-					AddressW = TextureAddressMode.Wrap,
-					Filter = Filter.MinPointMagMipLinear
-				}), 0);
-
-				context.OutputMerger.SetTargets(output.View);
-				context.Draw(4, 0);
-
-				mSwapChain.Present(0, PresentFlags.None);
-
-				context.VertexShader.Set(null);
-				context.PixelShader.Set(null);
-
-				var sourceDescription = output.HardwareBuffer.Description;
-
-				sourceDescription.BindFlags = 0;
-				sourceDescription.CpuAccessFlags = CpuAccessFlags.Read | CpuAccessFlags.Write;
-				sourceDescription.Usage = ResourceUsage.Staging;
-
-				var emitBuffer = new Texture2D(device, sourceDescription);
-
-				context.CopyResource(output.HardwareBuffer, emitBuffer);
-
-				return new ComputationDataStream<Vector4<byte>>(Provider, context.MapSubresource(emitBuffer, 0, MapMode.Read, MapFlags.None).Data, emitBuffer, 0)
-				{
-					OwnedResource = emitBuffer
-				};
-			}
+			mOffScreenWindow = null;
+			mSwapChain = null;
+			mPixelShader = null;
+			mVertexShader = null;
+			mVertexBuffer = null;
+			mVertices = null;
+			mRenderTarget = null;
+			mOutputTextureMemory = null;
+			mOutputTexture = null;
 		}
-
-		class ShaderResourceList : AcceleratedKernelResourceList<IStructuredBuffer>
+		
+		sealed class AcceleratedImagingKernelConfiguration : IAcceleratedImagingKernelConfiguration
 		{
-			private readonly AcceleratedImagingKernel mParent;
+			private readonly AccelerationDevice mDevice;
+			private readonly Action<AcceleratedImagingKernel> mConstructor;
 
-			public ShaderResourceList(AcceleratedImagingKernel parent)
+			public AcceleratedImagingKernelConfiguration(AccelerationDevice device, Action<AcceleratedImagingKernel> constructor)
 			{
-				mParent = parent;
+				mDevice = device;
+				mConstructor = constructor;
 			}
-
-			protected override void SetElement(IStructuredBuffer item, int index)
+			
+			public AcceleratedImagingKernel TextureSize(Int2 size) => TextureSize(size.x, size.y);
+			public AcceleratedImagingKernel TextureSize(int width, int height)
 			{
-				var rv = new[]
+				if (width <= 0)
 				{
-					item.CastTo<HardwareTexture2D>()?.ResourceView,
-					item.CastTo<StructuredHardwareBufferResource>()?.View
-				};
-
-				var rvv = rv.FirstOrDefault(x => x != null);
-				
-				mParent.Provider.HardwareDevice.ImmediateContext.PixelShader.SetShaderResource(rvv, index);
+					throw new ArgumentOutOfRangeException(nameof(width));
+				}
+			
+				if (height <= 0)
+				{
+					throw new ArgumentOutOfRangeException(nameof(height));
+				}
+			
+				var kernel = new AcceleratedImagingKernel(mDevice, width, height);
+				mConstructor(kernel);
+				return kernel;
 			}
 		}
 	}

@@ -18,17 +18,17 @@ namespace XyrusWorx.Runtime.Graphics.IO
 	[PublicAPI]
 	public class StructuredHardwareInputBufferResource<T> : StructuredHardwareInputBufferResource where T : struct
 	{
-		private readonly AcceleratedComputationProvider mDevice;
+		private readonly AccelerationDevice mDevice;
 		private readonly ShaderResourceView mView;
 		private readonly D3DBuffer mHardwareBuffer;
 
 		private int mArrayLength;
 		private int mElementSize;
 
-		public StructuredHardwareInputBufferResource([NotNull] AcceleratedComputationProvider device, int arrayLength) : this(device, arrayLength, IntPtr.Zero)
+		public StructuredHardwareInputBufferResource([NotNull] AccelerationDevice device, int arrayLength) : this(device, arrayLength, IntPtr.Zero)
 		{
 		}
-		public StructuredHardwareInputBufferResource([NotNull] AcceleratedComputationProvider device, int arrayLength, IntPtr sourcePointer)
+		public StructuredHardwareInputBufferResource([NotNull] AccelerationDevice device, int arrayLength, IntPtr sourcePointer)
 		{
 			if (device == null)
 			{

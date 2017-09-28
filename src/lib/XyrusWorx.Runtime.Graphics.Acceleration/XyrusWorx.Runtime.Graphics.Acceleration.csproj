@@ -18,6 +18,7 @@
     <GenerateAssemblyInformationalVersionAttribute>true</GenerateAssemblyInformationalVersionAttribute>
     <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
     <DefineConstants>$(DefineConstants);JETBRAINS_ANNOTATIONS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" Exclude="obj/**" />
@@ -31,6 +32,7 @@
     <PackageReference Include="XyrusWorx.Foundation" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\XyrusWorx.Runtime.Expressions\XyrusWorx.Runtime.Expressions.csproj" />
     <ProjectReference Include="..\XyrusWorx.Runtime.Graphics\XyrusWorx.Runtime.Graphics.csproj" />
     <ProjectReference Include="..\XyrusWorx.Runtime.Primitives\XyrusWorx.Runtime.Primitives.csproj" />
   </ItemGroup>

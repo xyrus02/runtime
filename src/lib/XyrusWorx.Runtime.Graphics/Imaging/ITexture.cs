@@ -3,7 +3,7 @@
 namespace XyrusWorx.Runtime.Imaging
 {
 	[PublicAPI]
-	public interface ITexture : IMemoryBlock
+	public interface ITexture
 	{
 		TextureFormat Format { get; }
 		int Stride { get; }

@@ -1,11 +1,11 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
-	public interface IReadableMemory : IMemoryBlock
+	public interface IReadableMemory : IReadable, IMemoryBlock
 	{
-		void Read(IntPtr target, int readOffset, long bytesToRead);
+		
 	}
+
 }

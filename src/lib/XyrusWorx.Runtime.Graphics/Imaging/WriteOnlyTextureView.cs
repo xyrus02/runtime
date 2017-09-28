@@ -58,9 +58,6 @@ namespace XyrusWorx.Runtime.Imaging
 			}
 		}
 
-		IntPtr IMemoryBlock.GetPointer() => mMemory.GetPointer();
-		long IMemoryBlock.Size => mStride * mHeight;
-
 		public void Write(IntPtr source, int writeOffset, long bytesToWrite) => UnmanagedBlock.Copy(source, mMemory.GetPointer(), 0, writeOffset, bytesToWrite);
 	}
 }

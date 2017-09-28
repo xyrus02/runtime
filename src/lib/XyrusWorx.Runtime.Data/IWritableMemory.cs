@@ -1,12 +1,11 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
-	public interface IWritableMemory : IMemoryBlock
+	public interface IWritableMemory : IWritable, IMemoryBlock
 	{
-		void Write(IntPtr source, int writeOffset, long bytesToWrite);
+		
 	}
 
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using SlimDX.Direct3D11;
 using SlimDX.DXGI;
@@ -8,72 +7,50 @@ using Device = SlimDX.Direct3D11.Device;
 namespace XyrusWorx.Runtime.Graphics
 {
 	[PublicAPI]
-	public class AcceleratedComputationProvider : Resource
+	public sealed class AccelerationDevice : Resource
 	{
 		private Device mDevice;
 		private Factory mFactory;
 		
-		public AcceleratedComputationProvider()
+		public AccelerationDevice()
 		{
 			mFactory = new Factory();
 		}
 
-		public void Initialize()
+		internal Device GetDevice()
 		{
-			Create();
-		}
-		public async Task InitializeAsync()
-		{
-			await Task.Run(new Action(Initialize));
-		}
-
-		public void Invalidate()
-		{
-			Destroy();
-		}
-		public async Task InvalidateAsync()
-		{
-			await Task.Run(new Action(Invalidate));
-		}
-
-		internal Device HardwareDevice
-		{
-			get
+			if (mFactory == null)
 			{
-				if (mDevice == null)
-				{
-					Create();
-				}
-
-				return mDevice;
+				throw new ObjectDisposedException(nameof(AccelerationDevice));
 			}
+			
+			EnsureDevicePresent();
+			return mDevice;
 		}
-		internal SwapChain CreateSwapChain(SwapChainDescription description) => new SwapChain(mFactory, mDevice, description);
-
-		protected virtual void OnCleanup(){}
-		protected sealed override void DisposeOverride()
+		internal SwapChain CreateSwapChain(SwapChainDescription description)
 		{
-			try
+			if (mFactory == null)
 			{
-				OnCleanup();
+				throw new ObjectDisposedException(nameof(AccelerationDevice));
 			}
-			finally
-			{
-				Destroy();
-				mFactory?.Dispose();
-			}
+			
+			return new SwapChain(mFactory, mDevice, description);
 		}
 
-		private void Create()
+		private void EnsureDevicePresent()
 		{
-			Destroy();
-
+			if (mDevice != null)
+			{
+				return;
+			}
+			
 			var flags =
 				#if DEBUG
 					DeviceCreationFlags.Debug;
 				#else
 					DeviceCreationFlags.None;
 				#endif
+			
 			var adapterCount = mFactory.GetAdapterCount();
 			var error = (Exception)null;
 
@@ -108,13 +85,17 @@ namespace XyrusWorx.Runtime.Graphics
 					throw new Exception(string.Format(error.Message, error));
 				}
 
-				throw new Exception("Failed to create device.");
+				throw new NotSupportedException("At least one device is required which supports Direct3D 11.0-features.");
 			}
 		}
-		private void Destroy()
+		
+		protected override void DisposeOverride()
 		{
 			mDevice?.Dispose();
+			mFactory?.Dispose();
+			
 			mDevice = null;
+			mFactory = null;
 		}
 	}
 }

@@ -2,20 +2,19 @@ using JetBrains.Annotations;
 
 namespace XyrusWorx.Runtime.Computation
 {
-
 	[PublicAPI]
 	public interface IComputationKernel
 	{
 		Vector3<uint> ThreadGroupCount { get; set; }
 		
 		[NotNull]
-		IResourcePool<IWritableMemory> Constants { get; }
+		IResourcePool<IWritable> Constants { get; }
 		
 		[NotNull]
-		IResourcePool<IWritableMemory> Textures { get; }
+		IResourcePool<IWritable> Textures { get; }
 		
 		[NotNull]
-		IResourcePool<IReadableMemory> Outputs { get; }
+		IResourcePool<IReadable> Outputs { get; }
 
 		void Execute();
 	}

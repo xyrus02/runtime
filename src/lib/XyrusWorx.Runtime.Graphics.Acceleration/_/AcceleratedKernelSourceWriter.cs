@@ -46,21 +46,10 @@ namespace XyrusWorx.Runtime.Graphics
 			mProcessor.WriteFunction(function);
 		}
 
+		[NotNull]
 		public AcceleratedKernelWriterContext Context => mContext;
 
-		public AcceleratedKernelBytecode Compile()
-		{
-			var source = mProcessor.GetSource();
-
-			source.KernelProfile = mProfile;
-			source.EntryPoint = mEntryPoint;
-
-			var byteCode = source.Compile();
-
-			return byteCode;
-		}
-		public override string ToString() => mProcessor.GetSource().Source;
-
+		internal string SourceCode => mProcessor.GetSource();
 		internal static string EntryPointName = mEntryPoint;
 	}
 }

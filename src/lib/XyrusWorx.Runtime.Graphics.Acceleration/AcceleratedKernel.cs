@@ -1,72 +1,125 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using XyrusWorx.Runtime.Graphics.IO;
-using XyrusWorx.Runtime.IO;
+using SlimDX;
+using SlimDX.D3DCompiler;
+using SlimDX.Direct3D11;
+using XyrusWorx.Diagnostics;
 
 namespace XyrusWorx.Runtime.Graphics
 {
 	[PublicAPI]
 	public abstract class AcceleratedKernel : Resource
 	{
-		private readonly AcceleratedComputationProvider mProvider;
-		private bool mIsInitialized;
+		private ShaderBytecode mBytecode;
+		private Device mDevice;
 
-		protected AcceleratedKernel([NotNull] AcceleratedComputationProvider provider, [NotNull] AcceleratedKernelBytecode bytecode)
+		internal AcceleratedKernel([NotNull] AccelerationDevice device)
 		{
-			if (provider == null)
+			if (device == null)
 			{
-				throw new ArgumentNullException(nameof(provider));
+				throw new ArgumentNullException(nameof(device));
 			}
+			
+			mDevice = device.GetDevice();
+		}
+		
+		internal Device Device => mDevice;
+		internal ShaderBytecode Bytecode => mBytecode;
+		
+		protected abstract string GetProfileName();
+		protected virtual void Deallocate(){}
 
+		protected sealed override void DisposeOverride()
+		{
+			try
+			{
+				Deallocate();
+			}
+			finally
+			{
+				mBytecode?.Dispose();
+				mBytecode = null;
+				mDevice = null;
+			}
+		}
+
+		protected void Load([NotNull] IReadableMemory bytecode)
+		{
 			if (bytecode == null)
 			{
 				throw new ArgumentNullException(nameof(bytecode));
 			}
-
-			mProvider = provider;
-
-			Constants = new ConstantResourceList(this);
-			Bytecode = bytecode;
-
-			Initialize();
+			
+			var bytecodeData = new byte[bytecode.Size];
+			
+			bytecode.CopyTo(bytecodeData);
+			mBytecode = new ShaderBytecode(new DataStream(bytecodeData, true, false));
 		}
-
-		public IList<IStructuredReadWriteBuffer> Constants { get; }
-		public AcceleratedKernelBytecode Bytecode { get; }
-
-		protected AcceleratedComputationProvider Provider => mProvider;
-
-		protected abstract void OnInitialize();
-		protected abstract void OnDestroy();
-
-		protected abstract void SetConstant(StructuredHardwareResource constant, int address);
-
-		private void Initialize()
+		protected void Compile([NotNull] AcceleratedKernelSourceWriter source, [NotNull] CompilerContext context)
 		{
-			Destroy();
-			OnInitialize();
-			mIsInitialized = true;
-		}
-		private void Destroy()
-		{
-			OnDestroy();
-			mIsInitialized = false;
-		}
-
-		class ConstantResourceList : AcceleratedKernelResourceList<IStructuredReadWriteBuffer>
-		{
-			private readonly AcceleratedKernel mParent;
-
-			public ConstantResourceList(AcceleratedKernel parent)
+			if (source == null)
 			{
-				mParent = parent;
+				throw new ArgumentNullException(nameof(source));
+			}
+			
+			if (context == null)
+			{
+				throw new ArgumentNullException(nameof(context));
+			}
+			
+			mBytecode = ShaderBytecode.Compile(
+				source.SourceCode, AcceleratedKernelSourceWriter.EntryPointName, GetProfileName(), 
+				ShaderFlags.PackMatrixRowMajor | ShaderFlags.OptimizationLevel3, 
+				EffectFlags.None, null, null, out var output);
+
+			var parseRegex = new Regex(
+				@"^(?:(?:\b[a-z]:|\\\\[a-z0-9 %._-]+\\[a-z0-9 $%._-]+)\\|\\?[^\\/:*?""<>|\x00-\x1F]+\\?)(?:[^\\/:*?""<>"
+				+ @"|\x00-\x1F]+\\)*[^\\/:*?""<>|\x00-\x1F]*Shader@0x[a-f0-9]{8}\((\d+),(\d+)\):\s((?:warning)|(?:error))\"
+				+ @"sX(\d+):\s(.*?)$", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+			
+			var matches = parseRegex.Matches(output).OfType<Match>();
+			var messages =
+				from match in matches
+
+				let lineNumber = match.Groups[1].Value.TryDeserialize<int>()
+				let columnNumber = match.Groups[2].Value.TryDeserialize<int>()
+				let type = match.Groups[3].Value.TryDeserialize<LogMessageClass>()
+				let code = match.Groups[4].Value.TryDeserialize<uint>()
+				let message = match.Groups[5].Value
+
+				select new
+				{
+					Type = type,
+					Text = message //match.Groups[0].Value
+				};
+
+			var hasError = false;
+			var errors = new List<string>();
+
+			foreach (var message in messages)
+			{
+				context.Writer.Write(message.Text, message.Type);
+
+				if (message.Type == LogMessageClass.Error)
+				{
+					hasError = true;
+					errors.Add(message.Text);
+				}
 			}
 
-			protected override void SetElement(IStructuredReadWriteBuffer item, int index)
+			if (!hasError)
 			{
-				mParent.SetConstant(item.CastTo<StructuredHardwareResource>(), index);
+				return;
 			}
+			
+			mBytecode?.Dispose();
+			mBytecode = null;
+				
+			throw new Exception($"The source code contains errors:\r\n{string.Join("\r\n", errors)}");
 		}
 	}
+
 }

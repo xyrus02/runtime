@@ -96,13 +96,13 @@ namespace XyrusWorx.Runtime.Graphics.IO
 	[PublicAPI]
 	public class StructuredHardwareResource<T> : StructuredHardwareResource where T : struct
 	{
-		private readonly AcceleratedComputationProvider mProvider;
+		private readonly AccelerationDevice mProvider;
 		private readonly D3DBuffer mHardwareBuffer;
 
 		private int mElementSize;
 		private T mData;
 
-		public StructuredHardwareResource(AcceleratedComputationProvider provider, T data = default(T))
+		public StructuredHardwareResource(AccelerationDevice provider, T data = default(T))
 		{
 			mProvider = provider;
 			mElementSize = Marshal.SizeOf(typeof(T));

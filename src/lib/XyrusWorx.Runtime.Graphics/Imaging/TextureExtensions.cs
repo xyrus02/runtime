@@ -6,7 +6,7 @@ namespace XyrusWorx.Runtime.Imaging
 	[PublicAPI]
 	public static class TextureExtensions
 	{
-		public static void Read([NotNull] this IReadableMemory readableMemory, [NotNull] IWritableMemory targetMemory)
+		public static void Read([NotNull] this IReadable readableMemory, [NotNull] IWritableMemory targetMemory)
 		{
 			if (readableMemory == null)
 			{
@@ -20,7 +20,7 @@ namespace XyrusWorx.Runtime.Imaging
 
 			readableMemory.Read(targetMemory.GetPointer(), 0, targetMemory.Size);
 		}
-		public static void Write([NotNull] this IWritableMemory writableMemory, [NotNull] IReadableMemory sourceMemory)
+		public static void Write([NotNull] this IWritable writableMemory, [NotNull] IReadableMemory sourceMemory)
 		{
 			if (writableMemory == null)
 			{

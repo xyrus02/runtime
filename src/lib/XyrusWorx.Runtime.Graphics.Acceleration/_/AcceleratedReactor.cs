@@ -13,13 +13,13 @@ namespace XyrusWorx.Runtime.Graphics
 	[PublicAPI]
 	public abstract class AcceleratedReactor : IReactor
 	{
-		private readonly AcceleratedComputationProvider mProvider;
+		private readonly AccelerationDevice mProvider;
 		private readonly IList<IComputationKernel> mHardwareQueue;
 		private readonly AcceleratedReactorContext mContext;
 		private IImagingKernel mOutputKernel;
 		private IntPtr mBackBuffer;
 
-		protected AcceleratedReactor([NotNull] AcceleratedComputationProvider provider)
+		protected AcceleratedReactor([NotNull] AccelerationDevice provider)
 		{
 			mProvider = provider;
 			mHardwareQueue = new List<IComputationKernel>();
@@ -129,7 +129,7 @@ namespace XyrusWorx.Runtime.Graphics
 		protected virtual void DisposeOverride(){}
 
 		[NotNull]
-		protected AcceleratedComputationProvider ComputationProvider => mProvider;
+		protected AccelerationDevice ComputationProvider => mProvider;
 		
 		[NotNull]
 		protected abstract IImagingKernel CreateOutputKernel();

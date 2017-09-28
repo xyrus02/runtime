@@ -13,13 +13,13 @@ namespace XyrusWorx.Runtime.Graphics
 	public class AcceleratedDynamicBufferContext : Resource
 	{
 		[NotNull]
-		private readonly AcceleratedComputationProvider mProvider;
+		private readonly AccelerationDevice mProvider;
 		private static readonly string mAssemblyName = $"{typeof(AcceleratedDynamicBufferContext).Namespace}.Dynamic.BufferStructures";
 		
 		private readonly Dictionary<StringKey, AcceleratedDynamicBuffer> mInstances;
 		private ModuleBuilder mModuleBuilder;
 
-		public AcceleratedDynamicBufferContext([NotNull] AcceleratedComputationProvider provider, [NotNull] string typeNamespace)
+		public AcceleratedDynamicBufferContext([NotNull] AccelerationDevice provider, [NotNull] string typeNamespace)
 		{
 			if (provider == null)
 			{
@@ -53,7 +53,7 @@ namespace XyrusWorx.Runtime.Graphics
 			}
 		}
 
-		internal AcceleratedComputationProvider GetProvider() => mProvider;
+		internal AccelerationDevice GetProvider() => mProvider;
 		internal ModuleBuilder GetModuleBuilder() => mModuleBuilder;
 
 		protected override void DisposeOverride()
