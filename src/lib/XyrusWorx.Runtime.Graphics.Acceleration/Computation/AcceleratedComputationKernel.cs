@@ -1,10 +1,9 @@
 using System;
 using JetBrains.Annotations;
-using XyrusWorx.Runtime.Computation;
 using XyrusWorx.Runtime.Expressions;
 using XyrusWorx.Runtime.Imaging;
 
-namespace XyrusWorx.Runtime 
+namespace XyrusWorx.Runtime.Computation 
 {
 	[PublicAPI]
 	public sealed class AcceleratedComputationKernel : AcceleratedKernel, IComputationKernel

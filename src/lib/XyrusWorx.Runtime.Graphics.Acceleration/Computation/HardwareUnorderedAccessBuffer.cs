@@ -2,7 +2,7 @@ using JetBrains.Annotations;
 using SlimDX.Direct3D11;
 using Buffer = SlimDX.Direct3D11.Buffer;
 
-namespace XyrusWorx.Runtime 
+namespace XyrusWorx.Runtime.Computation 
 {
 
 	[PublicAPI]
