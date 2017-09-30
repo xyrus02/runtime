@@ -1,7 +1,6 @@
 using System;
 using JetBrains.Annotations;
 using XyrusWorx.Runtime.Expressions;
-using XyrusWorx.Runtime.Imaging;
 
 namespace XyrusWorx.Runtime.Computation 
 {
