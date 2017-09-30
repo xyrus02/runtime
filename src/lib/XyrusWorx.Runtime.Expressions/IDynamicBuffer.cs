@@ -10,6 +10,6 @@ namespace XyrusWorx.Runtime.Expressions
 		IDynamicBuffer SetValue([NotNull] string fieldName, [CanBeNull] object value);
 
 		[NotNull]
-		IWritableMemory GetUnmanagedBuffer();
+		IWritable GetUnmanagedBuffer();
 	}
 }

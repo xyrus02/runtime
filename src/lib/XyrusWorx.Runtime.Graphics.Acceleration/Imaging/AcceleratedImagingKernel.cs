@@ -5,12 +5,10 @@ using SlimDX;
 using SlimDX.D3DCompiler;
 using SlimDX.Direct3D11;
 using SlimDX.DXGI;
-using XyrusWorx.Runtime.Graphics.Imaging;
-using XyrusWorx.Runtime.Imaging;
+using XyrusWorx.Runtime.Expressions;
 using XyrusWorx.Windows;
 using Buffer = SlimDX.Direct3D11.Buffer;
 using Format = SlimDX.DXGI.Format;
-using MapFlags = SlimDX.Direct3D11.MapFlags;
 using PixelShader = SlimDX.Direct3D11.PixelShader;
 using ShaderBytecode = SlimDX.D3DCompiler.ShaderBytecode;
 using ShaderFlags = SlimDX.D3DCompiler.ShaderFlags;
@@ -18,24 +16,14 @@ using SwapChain = SlimDX.DXGI.SwapChain;
 using Usage = SlimDX.DXGI.Usage;
 using VertexShader = SlimDX.Direct3D11.VertexShader;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime.Imaging 
 {
-	[PublicAPI]
-	public interface IAcceleratedImagingKernelConfiguration
-	{
-		[NotNull]
-		AcceleratedImagingKernel TextureSize(Int2 size);
-		
-		[NotNull]
-		AcceleratedImagingKernel TextureSize(int width, int height);
-	}
-	
+
 	[PublicAPI]
 	public sealed class AcceleratedImagingKernel : AcceleratedKernel, IImagingKernel
 	{
-		[NotNull]
-		private readonly AccelerationDevice mDevice;
 		private static readonly ShaderBytecode mVertexShaderBytecode;
+		private readonly AccelerationDevice mDevice;
 		
 		private int mWidth;
 		private int mHeight;
@@ -47,8 +35,8 @@ namespace XyrusWorx.Runtime.Graphics
 		private Buffer mVertexBuffer;
 		private DataStream mVertices;
 		private HardwareRenderTarget mRenderTarget;
-		private UnmanagedBlock mOutputTextureMemory;
-		private ReadOnlyTextureView mOutputTexture;
+		private DelegatedHardwareResourceList<HardwareConstantBuffer> mConstants;
+		private DelegatedHardwareResourceList<HardwareTexture> mTextures;
 
 		static AcceleratedImagingKernel()
 		{
@@ -74,17 +62,22 @@ namespace XyrusWorx.Runtime.Graphics
 				";
 			mVertexShaderBytecode = ShaderBytecode.Compile(vsSource, "main", "vs_5_0", ShaderFlags.None, EffectFlags.None);
 		}
-		internal AcceleratedImagingKernel([NotNull] AccelerationDevice device, int width, int height) : base(device)
+		private AcceleratedImagingKernel([NotNull] AccelerationDevice device, int width, int height) : base(device)
 		{
 			mDevice = device;
-			CreateView(width, height);
 			
-			// todo: resource lists
+			mConstants = new DelegatedHardwareResourceList<HardwareConstantBuffer>(this, (dc, res, slot) => dc.PixelShader.SetConstantBuffer(res.GetBuffer(), slot));
+			mTextures = new DelegatedHardwareResourceList<HardwareTexture>(this, (dc, res, slot) => dc.PixelShader.SetShaderResource(res.GetShaderResourceView(), slot));
+			
+			CreateView(width, height);
 		}
+		
+		public IResourcePool<HardwareConstantBuffer> Constants => mConstants;
+		public IResourcePool<HardwareTexture> Textures => mTextures;
+		public IReadable Output => mRenderTarget;
 
-		public IResourcePool<IWritableMemory> Constants { get; }
-		public IResourcePool<IWritableMemory> Textures { get; }
-		public IReadableTexture Output { get; }
+		IResourcePool<IWritable> IImagingKernel.Constants => mConstants;
+		IResourcePool<IWritable> IImagingKernel.Textures => mTextures;
 		
 		public void Execute()
 		{
@@ -103,8 +96,8 @@ namespace XyrusWorx.Runtime.Graphics
 			context.VertexShader.Set(mVertexShader);
 			context.PixelShader.Set(mPixelShader);
 
-			Constants.CastTo<AcceleratedKernelResourceList>()?.SendContext();
-			Textures.CastTo<AcceleratedKernelResourceList>()?.SendContext();
+			Constants.CastTo<DelegatedResourceList>()?.SendContext();
+			Textures.CastTo<DelegatedResourceList>()?.SendContext();
 
 			context.PixelShader.SetSampler(SamplerState.FromDescription(Device, new SamplerDescription
 			{
@@ -127,26 +120,6 @@ namespace XyrusWorx.Runtime.Graphics
 			sourceDescription.BindFlags = 0;
 			sourceDescription.CpuAccessFlags = CpuAccessFlags.Read | CpuAccessFlags.Write;
 			sourceDescription.Usage = ResourceUsage.Staging;
-
-			// todo: maybe we don't need to copy the texture?
-			using (var buffer = new Texture2D(Device, sourceDescription))
-			{
-				context.CopyResource(mRenderTarget.GetTexture2D(), buffer);
-
-				DataBox box = null;
-				try
-				{
-					box = context.MapSubresource(buffer, 0, MapMode.Read, MapFlags.None);
-					mOutputTextureMemory.Read(box.Data.DataPointer, 0, mWidth * mHeight * 4);
-				}
-				finally
-				{
-					if (box != null)
-					{
-						context.UnmapSubresource(buffer, 0);
-					}
-				}
-			}
 		}
 		
 		[NotNull]
@@ -166,7 +139,7 @@ namespace XyrusWorx.Runtime.Graphics
 		}
 		
 		[NotNull]
-		public static IAcceleratedImagingKernelConfiguration FromSource([NotNull] AccelerationDevice device, [NotNull] AcceleratedKernelSourceWriter source, CompilerContext context = null)
+		public static IAcceleratedImagingKernelConfiguration FromSource([NotNull] AccelerationDevice device, [NotNull] KernelSourceWriter source, CompilerContext context = null)
 		{
 			if (device == null)
 			{
@@ -261,8 +234,6 @@ namespace XyrusWorx.Runtime.Graphics
 					});
 
 			mRenderTarget = new HardwareRenderTarget(mDevice, mSwapChain);
-			mOutputTextureMemory = new UnmanagedBlock(mWidth * mHeight * 4);
-			mOutputTexture = new ReadOnlyTextureView(mOutputTextureMemory, mWidth * 4, TextureFormat.Rgba);
 			
 		}
 		private void Destroy()
@@ -274,7 +245,6 @@ namespace XyrusWorx.Runtime.Graphics
 			mVertexBuffer?.Dispose();
 			mVertices?.Dispose();
 			mRenderTarget?.Dispose();
-			mOutputTextureMemory?.Dispose();
 
 			mOffScreenWindow = null;
 			mSwapChain = null;
@@ -283,8 +253,6 @@ namespace XyrusWorx.Runtime.Graphics
 			mVertexBuffer = null;
 			mVertices = null;
 			mRenderTarget = null;
-			mOutputTextureMemory = null;
-			mOutputTexture = null;
 		}
 		
 		sealed class AcceleratedImagingKernelConfiguration : IAcceleratedImagingKernelConfiguration

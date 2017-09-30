@@ -7,8 +7,9 @@ using SlimDX;
 using SlimDX.D3DCompiler;
 using SlimDX.Direct3D11;
 using XyrusWorx.Diagnostics;
+using XyrusWorx.Runtime.Expressions;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime
 {
 	[PublicAPI]
 	public abstract class AcceleratedKernel : Resource
@@ -58,7 +59,7 @@ namespace XyrusWorx.Runtime.Graphics
 			bytecode.CopyTo(bytecodeData);
 			mBytecode = new ShaderBytecode(new DataStream(bytecodeData, true, false));
 		}
-		protected void Compile([NotNull] AcceleratedKernelSourceWriter source, [NotNull] CompilerContext context)
+		protected void Compile([NotNull] KernelSourceWriter source, [NotNull] CompilerContext context)
 		{
 			if (source == null)
 			{
@@ -71,7 +72,7 @@ namespace XyrusWorx.Runtime.Graphics
 			}
 			
 			mBytecode = ShaderBytecode.Compile(
-				source.SourceCode, AcceleratedKernelSourceWriter.EntryPointName, GetProfileName(), 
+				source.SourceCode, KernelSourceWriter.EntryPointName, GetProfileName(), 
 				ShaderFlags.PackMatrixRowMajor | ShaderFlags.OptimizationLevel3, 
 				EffectFlags.None, null, null, out var output);
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using XyrusWorx.Runtime.Computation;
+using XyrusWorx.Runtime.Imaging;
 
 namespace XyrusWorx.Runtime.Graphics 
 {

@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.IO 
+namespace XyrusWorx.Runtime.Expressions 
 {
 	[PublicAPI]
 	public static class DynamicBufferExtensions

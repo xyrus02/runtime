@@ -3,15 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime
 {
-	abstract class AcceleratedKernelResourceList
+	abstract class DelegatedResourceList
 	{
 		internal abstract void SendContext();
 		internal abstract void FlushContext();
 	}
 
-	abstract class AcceleratedKernelResourceList<T> : AcceleratedKernelResourceList, IList<T> where T : class
+	abstract class DelegatedResourceList<T> : DelegatedResourceList, IList<T> where T : class
 	{
 		private readonly T[] mItems = new T[1024];
 		private int mCount;

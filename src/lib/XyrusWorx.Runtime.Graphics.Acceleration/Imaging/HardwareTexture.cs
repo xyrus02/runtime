@@ -3,11 +3,10 @@ using JetBrains.Annotations;
 using SlimDX.Direct3D11;
 using SlimDX.DXGI;
 
-namespace XyrusWorx.Runtime.Graphics.Imaging
+namespace XyrusWorx.Runtime.Imaging
 {
-
 	[PublicAPI]
-	public class HardwareTexture : HardwareResource
+	public class HardwareTexture : HardwareResource, IWritable
 	{
 		private Texture2D mTexture;
 		private ShaderResourceView mResourceView;
@@ -35,7 +34,7 @@ namespace XyrusWorx.Runtime.Graphics.Imaging
 				ArraySize = 1,
 				MipLevels = 1,
 				BindFlags = BindFlags.ShaderResource,
-				Format = SlimDX.DXGI.Format.R32G32B32A32_Float,
+				Format = Format.R32G32B32A32_Float,
 				CpuAccessFlags = CpuAccessFlags.Write,
 				Width = width,
 				Height = height,
@@ -57,5 +56,13 @@ namespace XyrusWorx.Runtime.Graphics.Imaging
 		[NotNull]
 		internal Texture2D GetTexture2D() => mTexture;
 		internal override ShaderResourceView GetShaderResourceView() => mResourceView;
+
+		void IWritable.Write(IntPtr source, int writeOffset, long bytesToWrite)
+		{
+			using (var bits = LockBits())
+			{
+				bits.Write(source, writeOffset, bytesToWrite);
+			}
+		}
 	}
 }

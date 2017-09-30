@@ -1,16 +1,15 @@
 using System;
 using System.Text;
 using JetBrains.Annotations;
-using XyrusWorx.Runtime.Expressions;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime.Expressions
 {
-	class AcceleratedKernelSourceCodeProcessor
+	class KernelSourceProcessor
 	{
-		private readonly AcceleratedKernelWriterContext mContext;
+		private readonly KernelSourceWriterContext mContext;
 		private readonly StringBuilder mOutput;
 		
-		public AcceleratedKernelSourceCodeProcessor([NotNull] AcceleratedKernelWriterContext context)
+		public KernelSourceProcessor([NotNull] KernelSourceWriterContext context)
 		{
 			if (context == null)
 			{

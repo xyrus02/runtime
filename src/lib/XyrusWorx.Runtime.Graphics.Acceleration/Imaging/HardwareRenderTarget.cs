@@ -4,11 +4,11 @@ using SlimDX.Direct3D11;
 using SlimDX.DXGI;
 using Device = SlimDX.Direct3D11.Device;
 
-namespace XyrusWorx.Runtime.Graphics.Imaging
+namespace XyrusWorx.Runtime.Imaging
 {
 
 	[PublicAPI]
-	public class HardwareRenderTarget : Resource
+	public class HardwareRenderTarget : Resource, IReadable
 	{
 		private Device mDevice;
 		private Texture2D mTexture;
@@ -47,6 +47,14 @@ namespace XyrusWorx.Runtime.Graphics.Imaging
 			mRenderTargetView = null;
 			mTexture = null;
 			mDevice = null;
+		}
+		
+		void IReadable.Read(IntPtr target, int readOffset, long bytesToRead)
+		{
+			using (var bits = LockBits())
+			{
+				bits.Read(target, readOffset, bytesToRead);
+			}
 		}
 	}
 }

@@ -2,7 +2,7 @@ using System;
 using JetBrains.Annotations;
 using SlimDX.Direct3D11;
 
-namespace XyrusWorx.Runtime.Graphics.Imaging 
+namespace XyrusWorx.Runtime.Imaging 
 {
 	[PublicAPI]
 	public abstract class HardwareResource : Resource

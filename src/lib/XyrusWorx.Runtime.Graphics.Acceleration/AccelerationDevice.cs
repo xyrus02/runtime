@@ -4,7 +4,7 @@ using SlimDX.Direct3D11;
 using SlimDX.DXGI;
 using Device = SlimDX.Direct3D11.Device;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime
 {
 	[PublicAPI]
 	public sealed class AccelerationDevice : Resource

@@ -6,15 +6,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
-using XyrusWorx.Runtime.Expressions;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime.Expressions
 {
-
 	[PublicAPI]
-	public class AcceleratedKernelWriterContext : IKernelWriterContext
+	public class KernelSourceWriterContext : IKernelWriterContext
 	{
-		internal AcceleratedKernelWriterContext()
+		internal KernelSourceWriterContext()
 		{
 			Defines = new SymbolScope<Expression>();
 			ConstantBuffers = new SymbolScope<ConstantBufferDefinition>();
@@ -29,7 +27,7 @@ namespace XyrusWorx.Runtime.Graphics
 
 		public Expression ResolveMethodCall(MethodInfo method, IList arguments)
 		{
-			if (method.DeclaringType == typeof(AcceleratedKernelWriterContext))
+			if (method.DeclaringType == typeof(KernelSourceWriterContext))
 			{
 				if (method.Name == nameof(Define))
 				{
@@ -118,7 +116,7 @@ namespace XyrusWorx.Runtime.Graphics
 		{
 			if (arguments.Count != 1 || !(arguments[0] is ConstantExpression))
 			{
-				throw new AcceleratedKernelWriterException("Failed to obtain preprocessor definition: invalid access to surrogate method.");
+				throw new KernelSourceException("Failed to obtain preprocessor definition: invalid access to surrogate method.");
 			}
 
 			var defineName = (((ConstantExpression)arguments[0]).Value as string)?.Trim();
@@ -126,7 +124,7 @@ namespace XyrusWorx.Runtime.Graphics
 
 			if (string.IsNullOrWhiteSpace(defineName))
 			{
-				throw new AcceleratedKernelWriterException($"Unknown preprocessor definition: \"{defineName ?? "<null>"}\"");
+				throw new KernelSourceException($"Unknown preprocessor definition: \"{defineName ?? "<null>"}\"");
 			}
 
 			Symbol.Check(defineName);
@@ -135,7 +133,7 @@ namespace XyrusWorx.Runtime.Graphics
 			var define = Defines[defineName];
 			if (define == null)
 			{
-				throw new AcceleratedKernelWriterException($"Unknown preprocessor definition: \"{defineName}\"");
+				throw new KernelSourceException($"Unknown preprocessor definition: \"{defineName}\"");
 			}
 
 			if (requestedType != define.Type)
@@ -144,12 +142,12 @@ namespace XyrusWorx.Runtime.Graphics
 				{
 					if (requestedType != typeof(double) && requestedType != typeof(float))
 					{
-						throw new AcceleratedKernelWriterException($"The preprocessor definition points to an expression of type \"{Function.IntrinsicTypes[define.Type]}\" but an expression of type \"{Function.IntrinsicTypes[requestedType]}\" was requested.");
+						throw new KernelSourceException($"The preprocessor definition points to an expression of type \"{Function.IntrinsicTypes[define.Type]}\" but an expression of type \"{Function.IntrinsicTypes[requestedType]}\" was requested.");
 					}
 				}
 				else
 				{
-					throw new AcceleratedKernelWriterException($"The preprocessor definition points to an expression of type \"{Function.IntrinsicTypes[define.Type]}\" but an expression of type \"{Function.IntrinsicTypes[requestedType]}\" was requested.");
+					throw new KernelSourceException($"The preprocessor definition points to an expression of type \"{Function.IntrinsicTypes[define.Type]}\" but an expression of type \"{Function.IntrinsicTypes[requestedType]}\" was requested.");
 				}
 			}
 
@@ -159,7 +157,7 @@ namespace XyrusWorx.Runtime.Graphics
 		{
 			if (arguments.Count != 1 || !(arguments[0] is ConstantExpression))
 			{
-				throw new AcceleratedKernelWriterException("Failed to obtain preprocessor definition: invalid access to surrogate method.");
+				throw new KernelSourceException("Failed to obtain preprocessor definition: invalid access to surrogate method.");
 			}
 
 			var constantName = (((ConstantExpression)arguments[0]).Value as string)?.Trim();
@@ -167,7 +165,7 @@ namespace XyrusWorx.Runtime.Graphics
 
 			if (string.IsNullOrWhiteSpace(constantName))
 			{
-				throw new AcceleratedKernelWriterException($"Invalid preprocessor definition access: \"{constantName ?? "<null>"}\" is not a valid definition label.");
+				throw new KernelSourceException($"Invalid preprocessor definition access: \"{constantName ?? "<null>"}\" is not a valid definition label.");
 			}
 
 			Symbol.Check(constantName);
@@ -178,7 +176,7 @@ namespace XyrusWorx.Runtime.Graphics
 
 			if (constant == null)
 			{
-				throw new AcceleratedKernelWriterException($"Unknown preprocessor definition: \"{constantName}\"");
+				throw new KernelSourceException($"Unknown preprocessor definition: \"{constantName}\"");
 			}
 
 			if (requestedType != constant.Type)
@@ -187,12 +185,12 @@ namespace XyrusWorx.Runtime.Graphics
 				{
 					if (requestedType != typeof(double) && requestedType != typeof(float))
 					{
-						throw new AcceleratedKernelWriterException($"The preprocessor definition points to an expression of type \"{Function.IntrinsicTypes[constant.Type]}\" but an expression of type \"{Function.IntrinsicTypes[requestedType]}\" was requested.");
+						throw new KernelSourceException($"The preprocessor definition points to an expression of type \"{Function.IntrinsicTypes[constant.Type]}\" but an expression of type \"{Function.IntrinsicTypes[requestedType]}\" was requested.");
 					}
 				}
 				else
 				{
-					throw new AcceleratedKernelWriterException($"The preprocessor definition points to an expression of type \"{Function.IntrinsicTypes[constant.Type]}\" but an expression of type \"{Function.IntrinsicTypes[requestedType]}\" was requested.");
+					throw new KernelSourceException($"The preprocessor definition points to an expression of type \"{Function.IntrinsicTypes[constant.Type]}\" but an expression of type \"{Function.IntrinsicTypes[requestedType]}\" was requested.");
 				}
 			}
 

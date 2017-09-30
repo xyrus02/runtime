@@ -8,8 +8,8 @@ namespace XyrusWorx.Runtime.Imaging
 	[PublicAPI]
 	public abstract class SoftwareImagingKernel : Resource, IImagingKernel
 	{
-		private readonly ResourceList<IWritableMemory> mConstants;
-		private readonly ResourceList<IWritableMemory> mTextures;
+		private readonly ResourceList<IWritable> mConstants;
+		private readonly ResourceList<IWritable> mTextures;
 		
 		private ParallelOptions mParallelOptions;
 		private TextureView mOutput;
@@ -19,8 +19,8 @@ namespace XyrusWorx.Runtime.Imaging
 		{
 			mParallelOptions = new ParallelOptions();
 
-			mConstants = new ResourceList<IWritableMemory>();
-			mTextures = new ResourceList<IWritableMemory>();
+			mConstants = new ResourceList<IWritable>();
+			mTextures = new ResourceList<IWritable>();
 		}
 		
 		public abstract Int2 TextureSize { get; }
@@ -40,9 +40,9 @@ namespace XyrusWorx.Runtime.Imaging
 			}
 		}
 
-		public IResourcePool<IWritableMemory> Constants => mConstants;
-		public IResourcePool<IWritableMemory> Textures => mTextures;
-		public IReadableTexture Output
+		public IResourcePool<IWritable> Constants => mConstants;
+		public IResourcePool<IWritable> Textures => mTextures;
+		public IReadable Output
 		{
 			get
 			{
@@ -97,7 +97,7 @@ namespace XyrusWorx.Runtime.Imaging
 			mOutput = new TextureView(mOutputMemory, TextureSize.x << 2, TextureFormat.Bgra);
 		}
 		
-		class ResourceList<T> : List<T>, IResourcePool<T> where T: class, IMemoryBlock
+		class ResourceList<T> : List<T>, IResourcePool<T> where T: class
 		{
 		}
 	}

@@ -1,27 +1,34 @@
 using System;
 using JetBrains.Annotations;
 using XyrusWorx.Runtime.Computation;
+using XyrusWorx.Runtime.Expressions;
+using XyrusWorx.Runtime.Imaging;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
 	public sealed class AcceleratedComputationKernel : AcceleratedKernel, IComputationKernel
 	{
-		private ComputeShaderConstantBufferList mConstants;
-		private ComputeShaderResourceList mTextures;
-		private ComputeShaderUnorderedAccessList mOutputs;
+		private DelegatedHardwareResourceList<HardwareConstantBuffer> mConstants;
+		private DelegatedHardwareResourceList<HardwareTexture> mTextures;
+		private DelegatedHardwareResourceList<HardwareUnorderedAccessBuffer> mOutputs;
 
 		private AcceleratedComputationKernel([NotNull] AccelerationDevice device) : base(device)
 		{
-			mConstants = new ComputeShaderConstantBufferList(this);
-			mTextures = new ComputeShaderResourceList(this);
-			mOutputs = new ComputeShaderUnorderedAccessList(this);
+			mConstants = new DelegatedHardwareResourceList<HardwareConstantBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetConstantBuffer(res.GetBuffer(), slot));
+			mTextures = new DelegatedHardwareResourceList<HardwareTexture>(this, (dc, res, slot) => dc.ComputeShader.SetShaderResource(res.GetShaderResourceView(), slot));
+			mOutputs = new DelegatedHardwareResourceList<HardwareUnorderedAccessBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetUnorderedAccessView(res.GetUnorderedAccessView(), slot));
 		}
 		
 		public Vector3<uint> ThreadGroupCount { get; set; }
-		public IResourcePool<IWritable> Constants => mConstants;
-		public IResourcePool<IWritable> Textures => mTextures;
-		public IResourcePool<IReadable> Outputs => mOutputs;
+
+		public IResourcePool<HardwareConstantBuffer> Constants => mConstants;
+		public IResourcePool<HardwareTexture> Textures => mTextures;
+		public IResourcePool<HardwareUnorderedAccessBuffer> Outputs => mOutputs;
+		
+		IResourcePool<IWritable> IComputationKernel.Constants => mConstants;
+		IResourcePool<IWritable> IComputationKernel.Textures => mTextures;
+		IResourcePool<IReadable> IComputationKernel.Outputs => mOutputs;
 		
 		public void Execute()
 		{
@@ -47,7 +54,7 @@ namespace XyrusWorx.Runtime.Graphics
 		}
 		
 		[NotNull]
-		public static AcceleratedComputationKernel FromSource([NotNull] AccelerationDevice device, [NotNull] AcceleratedKernelSourceWriter source, CompilerContext context = null)
+		public static AcceleratedComputationKernel FromSource([NotNull] AccelerationDevice device, [NotNull] KernelSourceWriter source, CompilerContext context = null)
 		{
 			if (device == null)
 			{

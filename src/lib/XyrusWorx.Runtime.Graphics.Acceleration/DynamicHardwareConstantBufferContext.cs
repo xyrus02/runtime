@@ -5,21 +5,21 @@ using System.Reflection;
 using System.Reflection.Emit;
 using JetBrains.Annotations;
 using XyrusWorx.Collections;
-using XyrusWorx.Runtime.IO;
+using XyrusWorx.Runtime.Expressions;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime
 {
 	[PublicAPI]
-	public class AcceleratedDynamicBufferContext : Resource
+	public class DynamicHardwareConstantBufferContext : Resource
 	{
 		[NotNull]
 		private readonly AccelerationDevice mProvider;
-		private static readonly string mAssemblyName = $"{typeof(AcceleratedDynamicBufferContext).Namespace}.Dynamic.BufferStructures";
+		private static readonly string mAssemblyName = $"{typeof(DynamicHardwareConstantBufferContext).Namespace}.Dynamic.BufferStructures";
 		
 		private readonly Dictionary<StringKey, AcceleratedDynamicBuffer> mInstances;
 		private ModuleBuilder mModuleBuilder;
 
-		public AcceleratedDynamicBufferContext([NotNull] AccelerationDevice provider, [NotNull] string typeNamespace)
+		public DynamicHardwareConstantBufferContext([NotNull] AccelerationDevice provider, [NotNull] string typeNamespace)
 		{
 			if (provider == null)
 			{

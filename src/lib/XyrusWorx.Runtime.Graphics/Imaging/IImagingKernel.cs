@@ -6,13 +6,13 @@ namespace XyrusWorx.Runtime.Imaging
 	public interface IImagingKernel
 	{
 		[NotNull]
-		IResourcePool<IWritableMemory> Constants { get; }
+		IResourcePool<IWritable> Constants { get; }
 		
 		[NotNull]
-		IResourcePool<IWritableMemory> Textures { get; }
+		IResourcePool<IWritable> Textures { get; }
 		
 		[NotNull]
-		IReadableTexture Output { get; }
+		IReadable Output { get; }
 
 		void Execute();
 	}

@@ -37,7 +37,7 @@
     <ProjectReference Include="..\XyrusWorx.Runtime.Primitives\XyrusWorx.Runtime.Primitives.csproj" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
-    <RootNamespace>XyrusWorx.Runtime.Graphics</RootNamespace>
+    <RootNamespace>XyrusWorx.Runtime</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

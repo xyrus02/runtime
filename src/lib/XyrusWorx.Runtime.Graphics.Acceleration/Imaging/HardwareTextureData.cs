@@ -2,9 +2,8 @@ using System;
 using JetBrains.Annotations;
 using SlimDX;
 using SlimDX.Direct3D11;
-using XyrusWorx.Runtime.Imaging;
 
-namespace XyrusWorx.Runtime.Graphics.Imaging 
+namespace XyrusWorx.Runtime.Imaging 
 {
 	[PublicAPI]
 	public sealed class HardwareTextureData : Resource, IWritableTexture, IView, IMemoryBlock

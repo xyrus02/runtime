@@ -1,24 +1,21 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using XyrusWorx.Runtime.Expressions;
 
-namespace XyrusWorx.Runtime.Graphics
+namespace XyrusWorx.Runtime.Expressions
 {
 	[PublicAPI]
-	public class AcceleratedKernelSourceWriter
+	public class KernelSourceWriter
 	{
 		private const string mEntryPoint = "__main";
-		private AcceleratedComputationKernelProfile mProfile;
 
-		private AcceleratedKernelWriterContext mContext;
-		private AcceleratedKernelSourceCodeProcessor mProcessor;
+		private KernelSourceWriterContext mContext;
+		private KernelSourceProcessor mProcessor;
 
-		public AcceleratedKernelSourceWriter()
+		public KernelSourceWriter()
 		{
-			mContext = new AcceleratedKernelWriterContext();
-			mProfile = AcceleratedComputationKernelProfile.DirectCompute5;
-			mProcessor = new AcceleratedKernelSourceCodeProcessor(mContext);
+			mContext = new KernelSourceWriterContext();
+			mProcessor = new KernelSourceProcessor(mContext);
 		}
 
 		public void Add([NotNull] Define define)
@@ -47,7 +44,7 @@ namespace XyrusWorx.Runtime.Graphics
 		}
 
 		[NotNull]
-		public AcceleratedKernelWriterContext Context => mContext;
+		public KernelSourceWriterContext Context => mContext;
 
 		internal string SourceCode => mProcessor.GetSource();
 		internal static string EntryPointName = mEntryPoint;

@@ -3,7 +3,8 @@ using System.Collections.ObjectModel;
 using JetBrains.Annotations;
 using XyrusWorx.Diagnostics;
 
-namespace XyrusWorx.Runtime.Graphics {
+namespace XyrusWorx.Runtime 
+{
 	[PublicAPI]
 	public sealed class CompilerContext
 	{

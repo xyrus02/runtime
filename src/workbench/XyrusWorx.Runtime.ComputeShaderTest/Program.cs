@@ -1,6 +1,5 @@
 ﻿using System;
 using XyrusWorx.Runtime.Graphics;
-using XyrusWorx.Runtime.Graphics.IO;
 
 namespace XyrusWorx.Runtime.ComputeShaderTest
 {
