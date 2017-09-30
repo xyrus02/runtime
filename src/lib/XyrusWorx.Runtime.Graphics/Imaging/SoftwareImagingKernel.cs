@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -86,8 +85,8 @@ namespace XyrusWorx.Runtime.Imaging
 			mOutputMemory?.Dispose();
 			mOutput = null;
 			
-			mConstants.Clear();
-			mTextures.Clear();
+			mConstants.Reset();
+			mTextures.Reset();
 		}
 
 		private void CreateOutputTexture()
@@ -97,8 +96,35 @@ namespace XyrusWorx.Runtime.Imaging
 			mOutput = new TextureView(mOutputMemory, TextureSize.x << 2, TextureFormat.Bgra);
 		}
 		
-		class ResourceList<T> : List<T>, IResourcePool<T> where T: class
+		class ResourceList<T> : IResourcePool<T> where T: class
 		{
+			private T[] mElements = new T[1024];
+
+			public T this[int slot]
+			{
+				set => AssignToSlot(slot, value);
+			}
+			public void Submit()
+			{
+			}
+			
+			public void Reset()
+			{
+				for (var i = 0; i < 1024; i++)
+				{
+					mElements[i] = null;
+				}
+			}
+
+			private void AssignToSlot(int slot, T item)
+			{
+				if (slot >= 1024)
+				{
+					throw new ArgumentOutOfRangeException(nameof(slot));
+				}
+
+				mElements[slot] = item;
+			}
 		}
 	}
 }

@@ -73,9 +73,9 @@ namespace XyrusWorx.Runtime.Computation
 
 		protected override void Deallocate()
 		{
-			mConstants.Clear();
-			mResources.Clear();
-			mOutputs.Clear();
+			mConstants.Reset();
+			mResources.Reset();
+			mOutputs.Reset();
 		}
 		protected override string GetProfileName() => "cs_5_0";
 	}

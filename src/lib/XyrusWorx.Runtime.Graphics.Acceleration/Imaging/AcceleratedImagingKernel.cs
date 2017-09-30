@@ -97,8 +97,8 @@ namespace XyrusWorx.Runtime.Imaging
 			context.VertexShader.Set(mVertexShader);
 			context.PixelShader.Set(mPixelShader);
 
-			Constants.CastTo<DelegatedResourceList>()?.SendContext();
-			Resources.CastTo<DelegatedResourceList>()?.SendContext();
+			Constants.Submit();
+			Resources.Submit();
 
 			context.PixelShader.SetSampler(SamplerState.FromDescription(Device, new SamplerDescription
 			{

@@ -7,5 +7,7 @@ namespace XyrusWorx.Runtime
 	{
 		[CanBeNull]
 		T this[int slot] { set; }
+
+		void Submit();
 	}
 }
