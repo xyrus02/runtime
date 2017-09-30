@@ -20,7 +20,7 @@ namespace XyrusWorx.Runtime
 				}
 
 				mBackBufferMemory = new UnmanagedBlock(BackBufferWidth * BackBufferHeight * 4);
-				mBackBuffer = new TextureView(mBackBufferMemory, BackBufferWidth << 2, TextureFormat.Bgra);
+				mBackBuffer = new TextureView(mBackBufferMemory, BackBufferWidth << 2, TextureFormat.Rgba);
 			}
 			
 			InvalidateStateOverride();

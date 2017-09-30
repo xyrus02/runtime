@@ -52,6 +52,11 @@ namespace XyrusWorx.Runtime.Imaging
 		public int Stride => mStride;
 		public int Height => mHeight;
 		
+		public unsafe uint this[int address]
+		{
+			get => *((uint*)(void*)(mMemory.GetPointer() + address));
+			set => *((uint*)(void*)(mMemory.GetPointer() + address)) = value;
+		}
 		public Vector4<byte> this[Int2 xy]
 		{
 			get => this[xy.x, xy.y];

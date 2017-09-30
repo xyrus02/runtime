@@ -32,6 +32,10 @@ namespace XyrusWorx.Runtime.Imaging
 		public void Read(IntPtr target, int readOffset, long bytesToRead)
 			=> UnmanagedBlock.Copy(mBox.Data.DataPointer, target, readOffset, 0, bytesToRead);
 
+		public unsafe uint this[int address]
+		{
+			get => *((uint*)(void*)(mBox.Data.DataPointer + address));
+		}
 		public Vector4<byte> this[Int2 xy]
 		{
 			get => this[xy.x, xy.y];

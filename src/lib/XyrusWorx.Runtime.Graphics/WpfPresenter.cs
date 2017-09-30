@@ -1,31 +1,33 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using JetBrains.Annotations;
+using XyrusWorx.Runtime.Imaging;
 
 namespace XyrusWorx.Runtime
 {
 	[PublicAPI]
-	public sealed class WpfFrontBuffer : Control, IPresenter
+	public sealed class WpfPresenter : Control, IPresenter
 	{
-		public static DependencyProperty MeasuresFontFamilyProperty = DependencyProperty.Register("MeasuresFontFamily", typeof(FontFamily), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(new FontFamily("Courier"), FrameworkPropertyMetadataOptions.AffectsRender, OnMeasuresFontFamilyChanged));
+		public static DependencyProperty MeasuresFontFamilyProperty = DependencyProperty.Register("MeasuresFontFamily", typeof(FontFamily), typeof(WpfPresenter), new FrameworkPropertyMetadata(new FontFamily("Courier"), FrameworkPropertyMetadataOptions.AffectsRender, OnMeasuresFontFamilyChanged));
 
-		public static DependencyProperty MeasuresFontSizeProperty = DependencyProperty.Register("MeasuresFontSize", typeof(double), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(14.0, FrameworkPropertyMetadataOptions.AffectsRender));
-		public static DependencyProperty MeasuresForegroundProperty = DependencyProperty.Register("MeasuresForeground", typeof(Brush), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(Brushes.White, FrameworkPropertyMetadataOptions.AffectsRender));
-		public static DependencyProperty MeasuresBackgroundProperty = DependencyProperty.Register("MeasuresBackground", typeof(Brush), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(Brushes.Transparent, FrameworkPropertyMetadataOptions.AffectsRender));
-		public static DependencyProperty ShowFramesPerSecondProperty = DependencyProperty.Register("ShowFramesPerSecond", typeof(bool), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
-		public static DependencyProperty ShowClockProperty = DependencyProperty.Register("ShowClock", typeof(bool), typeof(WpfFrontBuffer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
+		public static DependencyProperty MeasuresFontSizeProperty = DependencyProperty.Register("MeasuresFontSize", typeof(double), typeof(WpfPresenter), new FrameworkPropertyMetadata(14.0, FrameworkPropertyMetadataOptions.AffectsRender));
+		public static DependencyProperty MeasuresForegroundProperty = DependencyProperty.Register("MeasuresForeground", typeof(Brush), typeof(WpfPresenter), new FrameworkPropertyMetadata(Brushes.White, FrameworkPropertyMetadataOptions.AffectsRender));
+		public static DependencyProperty MeasuresBackgroundProperty = DependencyProperty.Register("MeasuresBackground", typeof(Brush), typeof(WpfPresenter), new FrameworkPropertyMetadata(Brushes.Transparent, FrameworkPropertyMetadataOptions.AffectsRender));
+		public static DependencyProperty ShowFramesPerSecondProperty = DependencyProperty.Register("ShowFramesPerSecond", typeof(bool), typeof(WpfPresenter), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
+		public static DependencyProperty ShowClockProperty = DependencyProperty.Register("ShowClock", typeof(bool), typeof(WpfPresenter), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 
 		private readonly Scope mPresentationScope = new Scope();
 		
 		private Typeface mMeasuresTypeFace;
-		private WriteableBitmap mFrontBuffer;
+		private WriteableBitmap mBitmap;
 		private IRenderLoop mRenderLoop;
 
-		public WpfFrontBuffer()
+		public WpfPresenter()
 		{
 			DataContextChanged += OnDataContextChanged;
 		}
@@ -69,18 +71,18 @@ namespace XyrusWorx.Runtime
 
 			if (reactor == null)
 			{
-				mFrontBuffer = null;
+				mBitmap = null;
 				return;
 			}
 
 			var width = reactor.BackBuffer.Stride >> 2;
-			mFrontBuffer = new WriteableBitmap(width, reactor.BackBuffer.Height, 96.0, 96.0, PixelFormats.Bgra32, null);
+			mBitmap = new WriteableBitmap(width, reactor.BackBuffer.Height, 96.0, 96.0, PixelFormats.Bgra32, null);
 			
 			Width = width;
 			Height = reactor.BackBuffer.Height;
 		}
 	
-		void IPresenter.Present(IReactor reactor, IRenderLoop renderLoop)
+		unsafe void IPresenter.Present(IReactor reactor, IRenderLoop renderLoop)
 		{
 			if (reactor == null)
 			{
@@ -101,9 +103,12 @@ namespace XyrusWorx.Runtime
 			{
 				mRenderLoop = renderLoop;
 				
-				if (mFrontBuffer != null)
+				if (mBitmap != null)
 				{
-					reactor.BackBuffer.Read(mFrontBuffer.BackBuffer, 0, mFrontBuffer.BackBufferStride * mFrontBuffer.PixelHeight);
+					Parallel.For(0, mBitmap.BackBufferStride * mBitmap.PixelHeight, i => 
+						*((uint*)mBitmap.BackBuffer.ToPointer()) = TextureFormat.Bgra.Map(reactor.BackBuffer[i], TextureFormat.Rgba));
+					
+					reactor.BackBuffer.Read(mBitmap.BackBuffer, 0, mBitmap.BackBufferStride * mBitmap.PixelHeight);
 				}
 			
 				InvalidateVisual();
@@ -117,9 +122,9 @@ namespace XyrusWorx.Runtime
 			
 			drawingContext.DrawRectangle(Background, null, area);
 			
-			if (mFrontBuffer != null)
+			if (mBitmap != null)
 			{
-				drawingContext.DrawImage(mFrontBuffer, area);
+				drawingContext.DrawImage(mBitmap, area);
 			}
 
 			double measuresOffset = 5;
@@ -162,7 +167,7 @@ namespace XyrusWorx.Runtime
 		}
 		private static void OnMeasuresFontFamilyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
-			d.CastTo<WpfFrontBuffer>()?.UpdateTypeFace();
+			d.CastTo<WpfPresenter>()?.UpdateTypeFace();
 		}
 	}
 

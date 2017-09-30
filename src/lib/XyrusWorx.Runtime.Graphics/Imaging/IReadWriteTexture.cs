@@ -5,6 +5,7 @@ namespace XyrusWorx.Runtime.Imaging
 	[PublicAPI]
 	public interface IReadWriteTexture : IReadableTexture, IWritableTexture
 	{
+		new uint this[int address] { get; set; }
 		new Vector4<byte> this[Int2 xy] { get; set; }
 		new Vector4<byte> this[int x, int y] { get; set; }
 	}

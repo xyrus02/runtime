@@ -32,6 +32,10 @@ namespace XyrusWorx.Runtime.Imaging
 		public void Write(IntPtr source, int writeOffset, long bytesToWrite) 
 			=> UnmanagedBlock.Copy(source, mBox.Data.DataPointer, 0, writeOffset, bytesToWrite);
 
+		public unsafe uint this[int address]
+		{
+			set => *((uint*)(void*)(mBox.Data.DataPointer + address)) = value;
+		}
 		public Vector4<byte> this[Int2 xy]
 		{
 			set => this[xy.x, xy.y] = value;

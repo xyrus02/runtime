@@ -8,7 +8,7 @@ using XyrusWorx.Windows.Runtime;
 namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
-	public abstract class WpfGraphicsApplication<TReactor> : WpfApplication<WpfFrontBuffer, RenderLoop<TReactor, WpfFrontBuffer>> where TReactor: class, IReactor
+	public abstract class WpfGraphicsApplication<TReactor> : WpfApplication<WpfPresenter, RenderLoop<TReactor, WpfPresenter>> where TReactor: class, IReactor
 	{
 		private RelayOperation mRenderLoopThread;
 
@@ -17,17 +17,17 @@ namespace XyrusWorx.Runtime
 			get => GetViewModel<IRenderLoop>();
 		}
 
-		protected virtual void OnInitialize([NotNull] WpfFrontBuffer view, [NotNull] TReactor reactor){}
-		protected virtual void OnTerminate([NotNull] WpfFrontBuffer view, [NotNull] TReactor reactor){}
+		protected virtual void OnInitialize([NotNull] WpfPresenter view, [NotNull] TReactor reactor){}
+		protected virtual void OnTerminate([NotNull] WpfPresenter view, [NotNull] TReactor reactor){}
 		
 		protected sealed override void OnConfigureWindow(Window window)
 		{
 			window.SizeToContent = SizeToContent.WidthAndHeight;
 			window.ResizeMode = ResizeMode.NoResize;
 		}
-		protected sealed override Task OnInitialize(RenderLoop<TReactor, WpfFrontBuffer> viewModel)
+		protected sealed override Task OnInitialize(RenderLoop<TReactor, WpfPresenter> viewModel)
 		{
-			var view = GetView<WpfFrontBuffer>();
+			var view = GetView<WpfPresenter>();
 			
 			viewModel.Reactor = ServiceLocator.Default.CreateInstance<TReactor>();
 			viewModel.Presenter = view;
@@ -43,9 +43,9 @@ namespace XyrusWorx.Runtime
 			
 			return Task.CompletedTask;
 		}
-		protected sealed override Task OnShutdown(RenderLoop<TReactor, WpfFrontBuffer> viewModel)
+		protected sealed override Task OnShutdown(RenderLoop<TReactor, WpfPresenter> viewModel)
 		{
-			var view = GetView<WpfFrontBuffer>();
+			var view = GetView<WpfPresenter>();
 			viewModel.WaitForFrame();
 			
 			if (view != null)
