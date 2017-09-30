@@ -41,7 +41,7 @@ namespace XyrusWorx.Runtime.Imaging
 		}
 
 		public IResourcePool<IWritable> Constants => mConstants;
-		public IResourcePool<IWritable> Textures => mTextures;
+		public IResourcePool<IWritable> Resources => mTextures;
 		public IReadable Output
 		{
 			get

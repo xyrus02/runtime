@@ -9,24 +9,24 @@ namespace XyrusWorx.Runtime.Computation
 	public sealed class AcceleratedComputationKernel : AcceleratedKernel, IComputationKernel
 	{
 		private DelegatedHardwareResourceList<HardwareConstantBuffer> mConstants;
-		private DelegatedHardwareResourceList<HardwareTexture> mTextures;
-		private DelegatedHardwareResourceList<HardwareUnorderedAccessBuffer> mOutputs;
+		private DelegatedHardwareResourceList<HardwareInputBuffer> mResources;
+		private DelegatedHardwareResourceList<HardwareOutputBuffer> mOutputs;
 
 		private AcceleratedComputationKernel([NotNull] AccelerationDevice device) : base(device)
 		{
 			mConstants = new DelegatedHardwareResourceList<HardwareConstantBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetConstantBuffer(res.GetBuffer(), slot));
-			mTextures = new DelegatedHardwareResourceList<HardwareTexture>(this, (dc, res, slot) => dc.ComputeShader.SetShaderResource(res.GetShaderResourceView(), slot));
-			mOutputs = new DelegatedHardwareResourceList<HardwareUnorderedAccessBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetUnorderedAccessView(res.GetUnorderedAccessView(), slot));
+			mResources = new DelegatedHardwareResourceList<HardwareInputBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetShaderResource(res.GetShaderResourceView(), slot));
+			mOutputs = new DelegatedHardwareResourceList<HardwareOutputBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetUnorderedAccessView(res.GetUnorderedAccessView(), slot));
 		}
 		
 		public Vector3<uint> ThreadGroupCount { get; set; }
 
 		public IResourcePool<HardwareConstantBuffer> Constants => mConstants;
-		public IResourcePool<HardwareTexture> Textures => mTextures;
-		public IResourcePool<HardwareUnorderedAccessBuffer> Outputs => mOutputs;
+		public IResourcePool<HardwareInputBuffer> Resources => mResources;
+		public IResourcePool<HardwareOutputBuffer> Outputs => mOutputs;
 		
 		IResourcePool<IWritable> IComputationKernel.Constants => mConstants;
-		IResourcePool<IWritable> IComputationKernel.Textures => mTextures;
+		IResourcePool<IWritable> IComputationKernel.Resources => mResources;
 		IResourcePool<IReadable> IComputationKernel.Outputs => mOutputs;
 		
 		public void Execute()
@@ -74,7 +74,7 @@ namespace XyrusWorx.Runtime.Computation
 		protected override void Deallocate()
 		{
 			mConstants.Clear();
-			mTextures.Clear();
+			mResources.Clear();
 			mOutputs.Clear();
 		}
 		protected override string GetProfileName() => "cs_5_0";

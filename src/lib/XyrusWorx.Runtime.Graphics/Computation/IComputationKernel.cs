@@ -11,7 +11,7 @@ namespace XyrusWorx.Runtime.Computation
 		IResourcePool<IWritable> Constants { get; }
 		
 		[NotNull]
-		IResourcePool<IWritable> Textures { get; }
+		IResourcePool<IWritable> Resources { get; }
 		
 		[NotNull]
 		IResourcePool<IReadable> Outputs { get; }

@@ -56,6 +56,14 @@
     <Folder Include="Properties" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\lib\XyrusWorx.Runtime.Data\XyrusWorx.Runtime.Data.csproj">
+      <Project>{8ca92fab-f5b8-4302-889c-ee32132c609e}</Project>
+      <Name>XyrusWorx.Runtime.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\lib\XyrusWorx.Runtime.Expressions\XyrusWorx.Runtime.Expressions.csproj">
+      <Project>{466098f8-dd9e-429b-a172-54d6981f393a}</Project>
+      <Name>XyrusWorx.Runtime.Expressions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\lib\XyrusWorx.Runtime.Graphics.Acceleration\XyrusWorx.Runtime.Graphics.Acceleration.csproj">
       <Project>{21641fa1-884a-4b12-9009-87429f07d787}</Project>
       <Name>XyrusWorx.Runtime.Graphics.Acceleration</Name>

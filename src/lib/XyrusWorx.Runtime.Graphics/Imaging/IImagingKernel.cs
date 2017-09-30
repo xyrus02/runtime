@@ -9,7 +9,7 @@ namespace XyrusWorx.Runtime.Imaging
 		IResourcePool<IWritable> Constants { get; }
 		
 		[NotNull]
-		IResourcePool<IWritable> Textures { get; }
+		IResourcePool<IWritable> Resources { get; }
 		
 		[NotNull]
 		IReadable Output { get; }

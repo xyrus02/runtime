@@ -7,7 +7,7 @@ namespace XyrusWorx.Runtime.Expressions
 	[PublicAPI]
 	public class KernelSourceWriter
 	{
-		private const string mEntryPoint = "__main";
+		private const string mEntryPoint = "main";
 
 		private KernelSourceWriterContext mContext;
 		private KernelSourceProcessor mProcessor;
@@ -43,6 +43,11 @@ namespace XyrusWorx.Runtime.Expressions
 			mProcessor.WriteFunction(function);
 		}
 
+		public void Write(string source)
+		{
+			mProcessor.WriteRaw(source);
+		}
+		
 		[NotNull]
 		public KernelSourceWriterContext Context => mContext;
 

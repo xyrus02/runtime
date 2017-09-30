@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using JetBrains.Annotations;
 using XyrusWorx.Runtime.Computation;
-using XyrusWorx.Runtime.Graphics;
 using XyrusWorx.Runtime.Imaging;
 
 namespace XyrusWorx.Runtime

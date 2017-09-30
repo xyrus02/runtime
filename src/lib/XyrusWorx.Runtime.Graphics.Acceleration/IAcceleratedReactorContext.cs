@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using XyrusWorx.Runtime.Computation;
 using XyrusWorx.Runtime.Imaging;
 
-namespace XyrusWorx.Runtime.Graphics 
+namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
 	public interface IAcceleratedReactorContext

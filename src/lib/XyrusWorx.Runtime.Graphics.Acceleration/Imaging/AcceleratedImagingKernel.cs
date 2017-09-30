@@ -5,6 +5,7 @@ using SlimDX;
 using SlimDX.D3DCompiler;
 using SlimDX.Direct3D11;
 using SlimDX.DXGI;
+using XyrusWorx.Runtime.Computation;
 using XyrusWorx.Runtime.Expressions;
 using XyrusWorx.Windows;
 using Buffer = SlimDX.Direct3D11.Buffer;
@@ -36,7 +37,7 @@ namespace XyrusWorx.Runtime.Imaging
 		private DataStream mVertices;
 		private HardwareRenderTarget mRenderTarget;
 		private DelegatedHardwareResourceList<HardwareConstantBuffer> mConstants;
-		private DelegatedHardwareResourceList<HardwareTexture> mTextures;
+		private DelegatedHardwareResourceList<HardwareInputBuffer> mResources;
 
 		static AcceleratedImagingKernel()
 		{
@@ -67,17 +68,17 @@ namespace XyrusWorx.Runtime.Imaging
 			mDevice = device;
 			
 			mConstants = new DelegatedHardwareResourceList<HardwareConstantBuffer>(this, (dc, res, slot) => dc.PixelShader.SetConstantBuffer(res.GetBuffer(), slot));
-			mTextures = new DelegatedHardwareResourceList<HardwareTexture>(this, (dc, res, slot) => dc.PixelShader.SetShaderResource(res.GetShaderResourceView(), slot));
+			mResources = new DelegatedHardwareResourceList<HardwareInputBuffer>(this, (dc, res, slot) => dc.PixelShader.SetShaderResource(res.GetShaderResourceView(), slot));
 			
 			CreateView(width, height);
 		}
 		
 		public IResourcePool<HardwareConstantBuffer> Constants => mConstants;
-		public IResourcePool<HardwareTexture> Textures => mTextures;
+		public IResourcePool<HardwareInputBuffer> Resources => mResources;
 		public IReadable Output => mRenderTarget;
 
 		IResourcePool<IWritable> IImagingKernel.Constants => mConstants;
-		IResourcePool<IWritable> IImagingKernel.Textures => mTextures;
+		IResourcePool<IWritable> IImagingKernel.Resources => mResources;
 		
 		public void Execute()
 		{
@@ -97,7 +98,7 @@ namespace XyrusWorx.Runtime.Imaging
 			context.PixelShader.Set(mPixelShader);
 
 			Constants.CastTo<DelegatedResourceList>()?.SendContext();
-			Textures.CastTo<DelegatedResourceList>()?.SendContext();
+			Resources.CastTo<DelegatedResourceList>()?.SendContext();
 
 			context.PixelShader.SetSampler(SamplerState.FromDescription(Device, new SamplerDescription
 			{

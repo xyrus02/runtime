@@ -8,8 +8,6 @@ namespace XyrusWorx.Runtime
 	public sealed class WriteOnlyArrayView<T> : IView where T : struct
 	{
 		private readonly IWritableMemory mMemory;
-		private readonly bool mReadable;
-		private readonly bool mWritable;
 		private readonly int mSizeOfT;
 		private readonly long mLength;
 
@@ -44,4 +42,5 @@ namespace XyrusWorx.Runtime
 			}
 		}
 	}
+
 }

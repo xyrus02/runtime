@@ -1,5 +1,6 @@
 ﻿using System;
-using XyrusWorx.Runtime.Graphics;
+using XyrusWorx.Runtime.Computation;
+using XyrusWorx.Runtime.Expressions;
 
 namespace XyrusWorx.Runtime.ComputeShaderTest
 {
@@ -7,9 +8,10 @@ namespace XyrusWorx.Runtime.ComputeShaderTest
 	{
 		public static void Main()
 		{
-			/*
-			var provider = new AcceleratedComputationProvider();
-			var source = new AcceleratedKernelSource(@"
+			var device = new AccelerationDevice();
+
+			var kernelWriter = new KernelSourceWriter();
+			kernelWriter.Write(@"
 
 				cbuffer cb : register(b0) {
 					int x;
@@ -25,37 +27,32 @@ namespace XyrusWorx.Runtime.ComputeShaderTest
 
 			");
 			
-			var kernel = new AcceleratedComputationKernel(provider, source.Compile());
-			var cb = new StructuredHardwareResource<int>(provider);
-			var b_in = new StructuredHardwareInputBufferResource<int>(provider, 10);
-			var b_out = new StructuredHardwareOutputBufferResource<int>(provider, 10);
-
-			kernel.Constants.Add(cb);
-			kernel.Resources.Add(b_in);
-			kernel.Outputs.Add(b_out);
+			var kernel = AcceleratedComputationKernel.FromSource(device,kernelWriter);
 			
-			cb.Data = 2;
-			b_in.Write(new[]{1,2,3,4,5,6,7,8,9,10});
-			
-			kernel.Compute();
+			var cb = new HardwareConstantBuffer<int>(device);
+			var bIn = new HardwareInputBuffer(device, typeof(int), 10);
+			var bOut = new HardwareOutputBuffer(device, typeof(int), 10);
 
-			var sw = new ComputationSwapBufferResource<int>(provider, 10);
+			kernel.ThreadGroupCount = new Vector3<uint>(10);
+			kernel.Constants[0] = cb;
+			kernel.Resources[0] = bIn;
+			kernel.Outputs[0] = bOut;
 			
-			sw.FetchResource(b_out);
+			cb.Structure = 2;
+			
+			var bInArrayView = new ArrayWriter<int>(bIn);
+			var bOutArrayView = new ArrayReader<int>(bOut);
+			
+			bInArrayView.Write(0 /* <-- index | values --> */, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+			kernel.Execute();
 
-			using (var str = sw.Read())
+			var outArray = bOutArrayView.Read(0, 10);
+			for (var i = 0; i < 10; i++)
 			{
-				var out_buf = new int[10];
-				str.Read(out_buf, 0, 10);
-
-				for (var i = 0; i < 10; i++)
-				{
-					Console.WriteLine(out_buf[i]);
-				}
+				Console.WriteLine(outArray[i]);
 			}
 			
 			Console.ReadKey();
-			*/
 		}
 	}
 }

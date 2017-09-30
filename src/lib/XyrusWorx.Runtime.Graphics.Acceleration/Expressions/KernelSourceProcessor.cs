@@ -20,6 +20,10 @@ namespace XyrusWorx.Runtime.Expressions
 			mOutput = new StringBuilder();
 		}
 
+		public void WriteRaw(string source)
+		{
+			mOutput.AppendLine(source);
+		}
 		public void WriteFunction([NotNull] Function function)
 		{
 			if (function == null)
