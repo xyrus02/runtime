@@ -37,6 +37,9 @@ namespace XyrusWorx.Runtime.Imaging
 			}
 		}
 		protected virtual void DisposeResource(){}
+		
+		[NotNull]
+		protected IDeviceContext Context => mRegistry;
 
 		[NotNull]
 		internal Device Device

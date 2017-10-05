@@ -10,8 +10,9 @@ using Device = SlimDX.Direct3D11.Device;
 
 namespace XyrusWorx.Runtime
 {
+
 	[PublicAPI]
-	public sealed class AccelerationDevice : Resource
+	public sealed class AccelerationDevice : Resource, IDeviceContext
 	{
 		private Device mDevice;
 		private Factory mFactory;
@@ -29,7 +30,6 @@ namespace XyrusWorx.Runtime
 			#endif
 		}
 
-		[NotNull]
 		public ILogWriter DiagnosticsWriter { get; }
 
 		public bool IsDebugModeEnabled
