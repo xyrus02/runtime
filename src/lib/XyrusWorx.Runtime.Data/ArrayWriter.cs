@@ -18,28 +18,49 @@ namespace XyrusWorx.Runtime
 			}
 			
 			mMemory = memory;
-			
 			mSizeOfT = Marshal.SizeOf<T>();
 		}
 
 		public T this[int index]
 		{
-			set => Write(index, value);
+			set => Write(new[]{value}, index, 1);
 		}
-		public void Write(int index, params T[] elements)
+
+		public void Write(T[] source)
 		{
+			Write(source, 0, source.Length);
+		}
+		public void Write(T[] source, int index, int count)
+		{
+			if (source == null)
+			{
+				throw new ArgumentNullException(nameof(source));
+			}
+			
 			if (index < 0)
 			{
 				throw new IndexOutOfRangeException();
 			}
 
-			using (var buf = new UnmanagedBlock(mSizeOfT))
+			if (count <= 0)
 			{
-				for (int offset = index * mSizeOfT, i = 0; i < elements.Length; i++, offset += mSizeOfT)
+				return;
+			}
+				
+			using (var buf = new UnmanagedBlock(mSizeOfT * count))
+			{
+				for (int offset = index * mSizeOfT, i = 0; i < count; i++, offset += mSizeOfT)
 				{
-					Marshal.StructureToPtr(elements[i], buf, true);
-					mMemory.Write(buf, offset, mSizeOfT);
+					if (i >= source.Length)
+					{
+						break;
+					}
+					
+					var address = buf.Pointer + offset * mSizeOfT;
+					Marshal.StructureToPtr(source[i], address, true);
 				}
+				
+				mMemory.Write(buf.Pointer, 0, buf.Size);
 			}
 		}
 	}

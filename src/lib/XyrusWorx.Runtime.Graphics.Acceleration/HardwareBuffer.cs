@@ -1,12 +1,11 @@
 using System;
 using JetBrains.Annotations;
-using XyrusWorx.Runtime.Imaging;
 using Buffer = SlimDX.Direct3D11.Buffer;
 
 namespace XyrusWorx.Runtime 
 {
 	[PublicAPI]
-	public abstract class HardwareBuffer : HardwareResource
+	public abstract class HardwareBuffer : LinkableHardwareResource
 	{
 		internal HardwareBuffer([NotNull] AccelerationDevice provider, long size) : base(provider)
 		{

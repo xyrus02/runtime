@@ -1,5 +1,6 @@
 using System;
 using JetBrains.Annotations;
+using SlimDX.Direct3D11;
 using XyrusWorx.Runtime.Expressions;
 
 namespace XyrusWorx.Runtime.Computation 
@@ -10,6 +11,7 @@ namespace XyrusWorx.Runtime.Computation
 		private DelegatedHardwareResourceList<HardwareConstantBuffer> mConstants;
 		private DelegatedHardwareResourceList<HardwareInputBuffer> mResources;
 		private DelegatedHardwareResourceList<HardwareOutputBuffer> mOutputs;
+		private ComputeShader mShader;
 
 		private AcceleratedComputationKernel([NotNull] AccelerationDevice device) : base(device)
 		{
@@ -70,12 +72,20 @@ namespace XyrusWorx.Runtime.Computation
 			return kernel;
 		}
 
+		protected override void OnBytecodeLoaded()
+		{
+			mShader = new ComputeShader(Device, Bytecode);
+			Device.ImmediateContext.ComputeShader.Set(mShader);
+		}
+		protected override string GetProfileName() => "cs_5_0";
 		protected override void Deallocate()
 		{
 			mConstants.Reset();
 			mResources.Reset();
 			mOutputs.Reset();
+			
+			mShader?.Dispose();
+			mShader = null;
 		}
-		protected override string GetProfileName() => "cs_5_0";
 	}
 }

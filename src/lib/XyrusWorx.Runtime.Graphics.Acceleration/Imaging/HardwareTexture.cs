@@ -6,7 +6,7 @@ using SlimDX.DXGI;
 namespace XyrusWorx.Runtime.Imaging
 {
 	[PublicAPI]
-	public class HardwareTexture : HardwareResource, IWritable
+	public class HardwareTexture : LinkableHardwareResource, IWritable
 	{
 		private Texture2D mTexture;
 		private ShaderResourceView mResourceView;

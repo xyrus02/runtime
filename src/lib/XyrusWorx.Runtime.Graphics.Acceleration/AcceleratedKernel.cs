@@ -12,28 +12,21 @@ using XyrusWorx.Runtime.Expressions;
 namespace XyrusWorx.Runtime
 {
 	[PublicAPI]
-	public abstract class AcceleratedKernel : Resource
+	public abstract class AcceleratedKernel : LinkableHardwareResource
 	{
 		private ShaderBytecode mBytecode;
-		private Device mDevice;
 
-		internal AcceleratedKernel([NotNull] AccelerationDevice device)
+		internal AcceleratedKernel([NotNull] AccelerationDevice device) : base(device)
 		{
-			if (device == null)
-			{
-				throw new ArgumentNullException(nameof(device));
-			}
-			
-			mDevice = device.GetDevice();
 		}
-		
-		internal Device Device => mDevice;
 		internal ShaderBytecode Bytecode => mBytecode;
+		
+		internal override ShaderResourceView GetShaderResourceView() => throw new NotSupportedException("Shader resource views can't be created for kernels.");
 		
 		protected abstract string GetProfileName();
 		protected virtual void Deallocate(){}
 
-		protected sealed override void DisposeOverride()
+		protected sealed override void DisposeResource()
 		{
 			try
 			{
@@ -43,7 +36,6 @@ namespace XyrusWorx.Runtime
 			{
 				mBytecode?.Dispose();
 				mBytecode = null;
-				mDevice = null;
 			}
 		}
 
@@ -58,6 +50,7 @@ namespace XyrusWorx.Runtime
 			
 			bytecode.CopyTo(bytecodeData);
 			mBytecode = new ShaderBytecode(new DataStream(bytecodeData, true, false));
+			OnBytecodeLoaded();
 		}
 		protected void Compile([NotNull] KernelSourceWriter source, [NotNull] CompilerContext context)
 		{
@@ -113,6 +106,7 @@ namespace XyrusWorx.Runtime
 
 			if (!hasError)
 			{
+				OnBytecodeLoaded();
 				return;
 			}
 			
@@ -121,6 +115,8 @@ namespace XyrusWorx.Runtime
 				
 			throw new Exception($"The source code contains errors:\r\n{string.Join("\r\n", errors)}");
 		}
+
+		protected abstract void OnBytecodeLoaded();
 	}
 
 }

@@ -1,15 +1,31 @@
 ﻿using System;
+using System.Threading;
+using XyrusWorx.Diagnostics;
 using XyrusWorx.Runtime.Computation;
 using XyrusWorx.Runtime.Expressions;
 
 namespace XyrusWorx.Runtime.ComputeShaderTest
 {
-	class Program
+	class Program : ConsoleApplication
 	{
-		public static void Main()
+		public static void Main() => new Program().Run();
+		
+		protected override IResult Execute(CancellationToken cancellationToken)
 		{
-			var device = new AccelerationDevice();
+			Log.Verbosity = LogVerbosity.Debug;
+			
+			using (var device = new AccelerationDevice(Log))
+			{
+				Execute(device);
+			}
 
+			Console.ReadKey();
+			
+			return Result.Success;
+		}
+
+		private static AcceleratedComputationKernel GetKernel(AccelerationDevice device)
+		{
 			var kernelWriter = new KernelSourceWriter();
 			kernelWriter.Write(@"
 
@@ -27,8 +43,11 @@ namespace XyrusWorx.Runtime.ComputeShaderTest
 
 			");
 			
-			var kernel = AcceleratedComputationKernel.FromSource(device,kernelWriter);
-			
+			return AcceleratedComputationKernel.FromSource(device,kernelWriter);
+		}
+		private static void Execute(AccelerationDevice device)
+		{
+			var kernel = GetKernel(device);
 			var cb = new HardwareConstantBuffer<int>(device);
 			var bIn = new HardwareInputBuffer(device, typeof(int), 10);
 			var bOut = new HardwareOutputBuffer(device, typeof(int), 10);
@@ -37,22 +56,22 @@ namespace XyrusWorx.Runtime.ComputeShaderTest
 			kernel.Constants[0] = cb;
 			kernel.Resources[0] = bIn;
 			kernel.Outputs[0] = bOut;
-			
 			cb.Structure = 2;
+			
+			var inData = new[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+			var outData = new int[inData.Length];
 			
 			var bInArrayView = new ArrayWriter<int>(bIn);
 			var bOutArrayView = new ArrayReader<int>(bOut);
 			
-			bInArrayView.Write(0 /* <-- index | values --> */, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+			bInArrayView.Write(inData);
 			kernel.Execute();
+			bOutArrayView.Read(outData);
 
-			var outArray = bOutArrayView.Read(0, 10);
-			for (var i = 0; i < 10; i++)
+			using (WithColor(ConsoleColor.White, ConsoleColor.DarkBlue))
 			{
-				Console.WriteLine(outArray[i]);
+				Console.WriteLine($"[ {string.Join(", ", inData)} ] => [ {string.Join(", ", outData)}");
 			}
-			
-			Console.ReadKey();
 		}
 	}
 }

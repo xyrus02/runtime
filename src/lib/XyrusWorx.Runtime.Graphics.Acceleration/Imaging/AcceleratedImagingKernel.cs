@@ -25,6 +25,9 @@ namespace XyrusWorx.Runtime.Imaging
 	{
 		private static readonly ShaderBytecode mVertexShaderBytecode;
 		private readonly AccelerationDevice mDevice;
+		private readonly DelegatedHardwareResourceList<HardwareConstantBuffer> mConstants;
+		private readonly DelegatedHardwareResourceList<HardwareInputBuffer> mResources;
+		private PixelShader mShader;
 		
 		private int mWidth;
 		private int mHeight;
@@ -36,8 +39,6 @@ namespace XyrusWorx.Runtime.Imaging
 		private Buffer mVertexBuffer;
 		private DataStream mVertices;
 		private HardwareRenderTarget mRenderTarget;
-		private DelegatedHardwareResourceList<HardwareConstantBuffer> mConstants;
-		private DelegatedHardwareResourceList<HardwareInputBuffer> mResources;
 
 		static AcceleratedImagingKernel()
 		{
@@ -156,7 +157,22 @@ namespace XyrusWorx.Runtime.Imaging
 			return new AcceleratedImagingKernelConfiguration(device, k => k.Compile(source, context));
 		}
 		
+		protected override void OnBytecodeLoaded()
+		{
+			mShader = new PixelShader(Device, Bytecode);
+			Device.ImmediateContext.PixelShader.Set(mShader);
+		}
 		protected override string GetProfileName() => "ps_5_0";
+		protected override void Deallocate()
+		{
+			Destroy();
+			
+			mConstants.Reset();
+			mResources.Reset();
+			
+			mShader?.Dispose();
+			mShader = null;
+		}
 
 		private Buffer CreateVertexBuffer(out DataStream vertices)
 		{

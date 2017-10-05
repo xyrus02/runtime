@@ -24,9 +24,6 @@
     <Compile Include="**\*.cs" Exclude="obj/**" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.Core" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="XyrusWorx.Foundation" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>

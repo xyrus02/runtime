@@ -8,15 +8,19 @@ namespace XyrusWorx.Runtime.Imaging
 	public abstract class HardwareResource : Resource
 	{
 		private Device mDevice;
-		
+		private AccelerationDevice mRegistry;
+
 		internal HardwareResource([NotNull] AccelerationDevice device)
 		{
 			if (device == null)
 			{
 				throw new ArgumentNullException(nameof(device));
 			}
+
+			mRegistry = device;
+			mDevice = mRegistry.GetDevice();
 			
-			mDevice = device.GetDevice();
+			device.AddResource(this);
 		}
 
 		protected sealed override void DisposeOverride()
@@ -27,15 +31,17 @@ namespace XyrusWorx.Runtime.Imaging
 			}
 			finally
 			{
+				mRegistry?.RemoveResource(this);
+				mRegistry = null;
 				mDevice = null;
 			}
 		}
 		protected virtual void DisposeResource(){}
 
 		[NotNull]
-		internal Device Device => mDevice;
-		
-		[NotNull]
-		internal abstract ShaderResourceView GetShaderResourceView();
+		internal Device Device
+		{
+			get => mDevice ?? throw new ObjectDisposedException(GetType().Name);
+		}
 	}
 }
