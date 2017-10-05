@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using SlimDX;
 using SlimDX.Direct3D11;
+using XyrusWorx.Diagnostics;
 using Buffer = SlimDX.Direct3D11.Buffer;
 
 namespace XyrusWorx.Runtime.Computation 
@@ -37,6 +38,12 @@ namespace XyrusWorx.Runtime.Computation
 			try
 			{
 				mappedResource = Device.ImmediateContext.MapSubresource(buffer, MapMode.WriteDiscard, MapFlags.None);
+
+				if (Context.IsDebugModeEnabled)
+				{
+					Context.DiagnosticsWriter.WriteDebug("OP_COPY: CPU:{0:X16} => GPU:{1:X16}+{3}     {2:###,###,###,###,###,##0}B", source.ToInt64(), (mappedResource.Data.DataPointer + writeOffset).ToInt64(), bytesToWrite, writeOffset);
+				}
+				
 				UnmanagedBlock.Copy(source, mappedResource.Data.DataPointer, 0, writeOffset, bytesToWrite);
 			}
 			finally

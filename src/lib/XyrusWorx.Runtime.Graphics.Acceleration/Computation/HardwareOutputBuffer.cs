@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using SlimDX;
 using SlimDX.Direct3D11;
+using XyrusWorx.Diagnostics;
 using Buffer = SlimDX.Direct3D11.Buffer;
 
 namespace XyrusWorx.Runtime.Computation 
@@ -71,6 +72,12 @@ namespace XyrusWorx.Runtime.Computation
 			{
 				Device.ImmediateContext.CopyResource(mHardwareBuffer, mSwapBuffer);
 				mappedResource = Device.ImmediateContext.MapSubresource(mSwapBuffer, MapMode.Read, MapFlags.None);
+				
+				if (Context.IsDebugModeEnabled)
+				{
+					Context.DiagnosticsWriter.WriteDebug("OP_SWAP: GPU:{0:X16}+{3} => CPU:{1:X16}     {2:###,###,###,###,###,##0}B", mappedResource.Data.DataPointer.ToInt64(), target.ToInt64(), bytesToRead, readOffset);
+				}
+				
 				UnmanagedBlock.Copy(mappedResource.Data.DataPointer, target, readOffset, 0, bytesToRead);
 			}
 			finally
