@@ -46,6 +46,8 @@ namespace XyrusWorx.Runtime
 				
 			using (var buf = new UnmanagedBlock(mSizeOfT * count))
 			{
+				mMemory.Read(buf.Pointer, 0, mSizeOfT * count);
+
 				for (int offset = index * mSizeOfT, i = 0; i < count; i++, offset += mSizeOfT)
 				{
 					if (i >= target.Length)
@@ -53,8 +55,7 @@ namespace XyrusWorx.Runtime
 						break;
 					}
 					
-					mMemory.Read(buf.Pointer + offset * mSizeOfT, offset, mSizeOfT);
-					target[i] = Marshal.PtrToStructure<T>(buf);
+					target[i] = Marshal.PtrToStructure<T>(buf.Pointer + offset);
 				}
 			}
 		}
