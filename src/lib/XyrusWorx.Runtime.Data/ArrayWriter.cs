@@ -56,8 +56,7 @@ namespace XyrusWorx.Runtime
 						break;
 					}
 					
-					var address = buf.Pointer + offset * mSizeOfT;
-					Marshal.StructureToPtr(source[i], address, true);
+					Marshal.StructureToPtr(source[i], buf.Pointer + offset, true);
 				}
 				
 				mMemory.Write(buf.Pointer, 0, buf.Size);

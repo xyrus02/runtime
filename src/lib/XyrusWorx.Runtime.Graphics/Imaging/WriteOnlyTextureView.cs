@@ -9,9 +9,6 @@ namespace XyrusWorx.Runtime.Imaging
 		private readonly IWritableMemory mMemory;
 		private readonly TextureFormat mFormat;
 		
-		private readonly bool mReadable;
-		private readonly bool mWritable;
-		
 		private readonly int mWidth;
 		private readonly int mHeight;
 		private readonly int mStride;

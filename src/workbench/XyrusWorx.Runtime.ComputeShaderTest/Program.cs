@@ -3,6 +3,7 @@ using System.Threading;
 using XyrusWorx.Diagnostics;
 using XyrusWorx.Runtime.Computation;
 using XyrusWorx.Runtime.Expressions;
+using XyrusWorx.Runtime.Imaging;
 
 namespace XyrusWorx.Runtime.ComputeShaderTest
 {
@@ -16,7 +17,7 @@ namespace XyrusWorx.Runtime.ComputeShaderTest
 			
 			using (var device = new AccelerationDevice(Log))
 			{
-				Execute(device);
+				Execute(device, cancellationToken);
 			}
 
 			Console.ReadKey();
@@ -45,32 +46,35 @@ namespace XyrusWorx.Runtime.ComputeShaderTest
 			
 			return AcceleratedComputationKernel.FromSource(device,kernelWriter);
 		}
-		private static void Execute(AccelerationDevice device)
+		private static void Execute(AccelerationDevice device, CancellationToken cancellationToken)
 		{
-			var kernel = GetKernel(device);
-			var cb = new HardwareConstantBuffer<int>(device);
-			var bIn = new HardwareInputBuffer(device, typeof(int), 10);
-			var bOut = new HardwareOutputBuffer(device, typeof(int), 10);
-
-			kernel.ThreadGroupCount = new Vector3<uint>(10);
-			kernel.Constants[0] = cb;
-			kernel.Resources[0] = bIn;
-			kernel.Outputs[0] = bOut;
-			cb.Structure = 2;
-			
-			var inData = new[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-			var outData = new int[inData.Length];
-			
-			var bInArrayView = new ArrayWriter<int>(bIn);
-			var bOutArrayView = new ArrayReader<int>(bOut);
-			
-			bInArrayView.Write(inData);
-			kernel.Execute();
-			bOutArrayView.Read(outData);
-
-			using (WithColor(ConsoleColor.White, ConsoleColor.DarkBlue))
+			using (var kernel = GetKernel(device))
 			{
-				Console.WriteLine($"[ {string.Join(", ", inData)} ] => [ {string.Join(", ", outData)}");
+				using(var cb = new HardwareConstantBuffer<int>(device))
+				using(var bIn = new HardwareInputBuffer(device, typeof(int), 10))
+				using(var bOut = new HardwareOutputBuffer(device, typeof(int), 10))
+				{
+					kernel.ThreadGroupCount = new Vector3<uint>(10, 1, 1);
+					kernel.Constants[0] = cb;
+					kernel.Resources[0] = bIn;
+					kernel.Outputs[0] = bOut;
+					cb.Structure = 2;
+
+					var inData = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+					var outData = new int[inData.Length];
+
+					var bInArrayView = new ArrayWriter<int>(bIn);
+					var bOutArrayView = new ArrayReader<int>(bOut);
+
+					bInArrayView.Write(inData);
+					kernel.Execute();
+					bOutArrayView.Read(outData);
+
+					using (WithColor(ConsoleColor.White, ConsoleColor.DarkBlue))
+					{
+						Console.WriteLine($"[ {string.Join(", ", inData)} ] => [ {string.Join(", ", outData)} ]");
+					}
+				}
 			}
 		}
 	}

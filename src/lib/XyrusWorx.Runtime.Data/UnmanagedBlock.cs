@@ -7,6 +7,9 @@ namespace XyrusWorx.Runtime
 	[PublicAPI]
 	public sealed class UnmanagedBlock : Resource, IReadWriteMemory
 	{
+		//[DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+		//private static extern unsafe void CopyMemory(void* dest, void* src, uint count);
+		
 		public UnmanagedBlock(long size)
 		{
 			if (size <= 0)
@@ -90,6 +93,7 @@ namespace XyrusWorx.Runtime
 			var dst = (target + targetOffset).ToPointer();
 
 			Buffer.MemoryCopy(src, dst, size, size);
+			//CopyMemory(dst, src, (uint)size);
 		}
 
 		IntPtr IMemoryBlock.GetPointer() => Pointer;

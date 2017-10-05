@@ -16,13 +16,32 @@ namespace XyrusWorx.Runtime.Computation
 
 		public HardwareInputBuffer([NotNull] AccelerationDevice provider, [NotNull] Type itemType, int itemCount) : base(provider, Marshal.SizeOf(itemType) * itemCount)
 		{
+			if (itemType == null)
+			{
+				throw new ArgumentNullException(nameof(itemType));
+			}
+			
+			if (!itemType.IsValueType)
+			{
+				throw new ArgumentException("Can't use a reference type as buffer structure.", nameof(itemType));
+			}
+
+			var nStructure = Marshal.SizeOf(itemType);
+			var nBytes = nStructure * itemCount;
+
+			if (Context.IsDebugModeEnabled)
+			{
+				Context.DiagnosticsWriter.WriteDebug("Allocating {0:###,###,###,###,###,##0} bytes of UAV memory with a structure stride of {1:###,###,###,###,###,##0} bytes",
+					nBytes, nStructure);
+			}
+
 			var description = new BufferDescription
 			{
 				BindFlags = BindFlags.ShaderResource,
 				CpuAccessFlags = CpuAccessFlags.Write,
 				OptionFlags = ResourceOptionFlags.StructuredBuffer,
-				SizeInBytes = Marshal.SizeOf(itemType) * itemCount,
-				StructureByteStride = Marshal.SizeOf(itemType),
+				SizeInBytes = nBytes,
+				StructureByteStride = nStructure,
 				Usage = ResourceUsage.Dynamic
 			};
 
@@ -41,7 +60,13 @@ namespace XyrusWorx.Runtime.Computation
 
 				if (Context.IsDebugModeEnabled)
 				{
-					Context.DiagnosticsWriter.WriteDebug("OP_COPY: CPU:{0:X16} => GPU:{1:X16}+{3}     {2:###,###,###,###,###,##0}B", source.ToInt64(), (mappedResource.Data.DataPointer + writeOffset).ToInt64(), bytesToWrite, writeOffset);
+
+					Context.DiagnosticsWriter.WriteDebug(
+						"Writing {2:###,###,###,###,###,##0} bytes from RAM (0x{0:X16}) into device memory (0x{1:X16}+{3:X8})",  
+						source.ToInt64(),
+						(mappedResource.Data.DataPointer + writeOffset).ToInt64(), 
+						bytesToWrite, 
+						writeOffset);
 				}
 				
 				UnmanagedBlock.Copy(source, mappedResource.Data.DataPointer, 0, writeOffset, bytesToWrite);

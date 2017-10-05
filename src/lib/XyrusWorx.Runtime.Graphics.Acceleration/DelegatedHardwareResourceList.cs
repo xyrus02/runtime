@@ -30,7 +30,14 @@ namespace XyrusWorx.Runtime
 		{
 			for (var i = 0; i < 1024; i++)
 			{
-				mResourceSetter(mParent.Device.ImmediateContext, mElements[i], i);
+				var element = mElements[i];
+				if (element == null)
+				{
+					// notice gk: we interpret <null> as a terminator
+					break;
+				}
+
+				mResourceSetter(mParent.Device.ImmediateContext, element, i);
 			}
 		}
 

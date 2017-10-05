@@ -114,7 +114,9 @@ namespace XyrusWorx.Runtime
 
 			mResources?.Clear();
 			mResources = null;
-			
+
+			System.Diagnostics.Debug.Assert(!mDevice.Disposed);
+
 			mDevice?.Dispose();
 			mFactory?.Dispose();
 			

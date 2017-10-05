@@ -1,6 +1,7 @@
 using System;
 using JetBrains.Annotations;
 using SlimDX.Direct3D11;
+using XyrusWorx.Diagnostics;
 using XyrusWorx.Runtime.Expressions;
 
 namespace XyrusWorx.Runtime.Computation 
@@ -15,9 +16,9 @@ namespace XyrusWorx.Runtime.Computation
 
 		private AcceleratedComputationKernel([NotNull] AccelerationDevice device) : base(device)
 		{
-			mConstants = new DelegatedHardwareResourceList<HardwareConstantBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetConstantBuffer(res.GetBuffer(), slot));
-			mResources = new DelegatedHardwareResourceList<HardwareInputBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetShaderResource(res.GetShaderResourceView(), slot));
-			mOutputs = new DelegatedHardwareResourceList<HardwareOutputBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetUnorderedAccessView(res.GetUnorderedAccessView(), slot));
+			mConstants = new DelegatedHardwareResourceList<HardwareConstantBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetConstantBuffer(res?.GetBuffer(), slot));
+			mResources = new DelegatedHardwareResourceList<HardwareInputBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetShaderResource(res?.GetShaderResourceView(), slot));
+			mOutputs = new DelegatedHardwareResourceList<HardwareOutputBuffer>(this, (dc, res, slot) => dc.ComputeShader.SetUnorderedAccessView(res?.GetUnorderedAccessView(), slot));
 		}
 		
 		public Vector3<uint> ThreadGroupCount { get; set; }
@@ -32,6 +33,18 @@ namespace XyrusWorx.Runtime.Computation
 		
 		public void Execute()
 		{
+			if (Context.IsDebugModeEnabled)
+			{
+				Context.DiagnosticsWriter.WriteDebug("Dispatching computation on {0:###,###,###,##0} threads", ThreadGroupCount.x * ThreadGroupCount.y * ThreadGroupCount.z);
+			}
+
+			Device.ImmediateContext.ClearState();
+
+			mConstants.Submit();
+			mResources.Submit();
+			mOutputs.Submit();
+
+			Device.ImmediateContext.ComputeShader.Set(mShader);
 			Device.ImmediateContext.Dispatch((int)ThreadGroupCount.x, (int)ThreadGroupCount.y, (int)ThreadGroupCount.z);
 		}
 		
@@ -75,7 +88,6 @@ namespace XyrusWorx.Runtime.Computation
 		protected override void OnBytecodeLoaded()
 		{
 			mShader = new ComputeShader(Device, Bytecode);
-			Device.ImmediateContext.ComputeShader.Set(mShader);
 		}
 		protected override string GetProfileName() => "cs_5_0";
 		protected override void Deallocate()

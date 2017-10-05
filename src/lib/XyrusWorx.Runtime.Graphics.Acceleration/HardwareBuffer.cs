@@ -19,8 +19,6 @@ namespace XyrusWorx.Runtime
 		
 		public long Size { get; }
 		
-		
-
 		internal abstract Buffer GetBuffer();
 	}
 }

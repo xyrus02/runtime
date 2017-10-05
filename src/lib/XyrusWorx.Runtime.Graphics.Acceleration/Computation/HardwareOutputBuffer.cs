@@ -22,14 +22,28 @@ namespace XyrusWorx.Runtime.Computation
 			{
 				throw new ArgumentNullException(nameof(itemType));
 			}
+
+			if (!itemType.IsValueType)
+			{
+				throw new ArgumentException("Can't use a reference type as buffer structure.", nameof(itemType));
+			}
+
+			var nStructure = Marshal.SizeOf(itemType);
+			var nBytes = nStructure * itemCount;
+
+			if (Context.IsDebugModeEnabled)
+			{
+				Context.DiagnosticsWriter.WriteDebug("Allocating {0:###,###,###,###,###,##0} bytes of UAV memory with a structure stride of {1:###,###,###,###,###,##0} bytes",
+					nBytes, nStructure);
+			}
 			
 			var bufferDescription = new BufferDescription
 			{
 				BindFlags = BindFlags.ShaderResource | BindFlags.UnorderedAccess,
 				CpuAccessFlags = CpuAccessFlags.None,
 				OptionFlags = ResourceOptionFlags.StructuredBuffer,
-				SizeInBytes = Marshal.SizeOf(itemType) * itemCount,
-				StructureByteStride = Marshal.SizeOf(itemType),
+				SizeInBytes = nBytes,
+				StructureByteStride = nStructure,
 				Usage = ResourceUsage.Default
 			};
 
@@ -75,7 +89,12 @@ namespace XyrusWorx.Runtime.Computation
 				
 				if (Context.IsDebugModeEnabled)
 				{
-					Context.DiagnosticsWriter.WriteDebug("OP_SWAP: GPU:{0:X16}+{3} => CPU:{1:X16}     {2:###,###,###,###,###,##0}B", mappedResource.Data.DataPointer.ToInt64(), target.ToInt64(), bytesToRead, readOffset);
+					Context.DiagnosticsWriter.WriteDebug(
+						"Reading {2:###,###,###,###,###,##0} bytes from staging buffer (0x{0:X16}+{3:X8}) into RAM (0x{1:X16})", 
+						mappedResource.Data.DataPointer.ToInt64(), 
+						target.ToInt64(),
+						bytesToRead, 
+						readOffset);
 				}
 				
 				UnmanagedBlock.Copy(mappedResource.Data.DataPointer, target, readOffset, 0, bytesToRead);
@@ -91,9 +110,9 @@ namespace XyrusWorx.Runtime.Computation
 		
 		protected override void DisposeResource()
 		{
-			mHardwareBuffer?.Dispose();
 			mUnorderedAccessView?.Dispose();
 			mResourceView?.Dispose();
+			mHardwareBuffer?.Dispose();
 			mSwapBuffer?.Dispose();
 		}
 
