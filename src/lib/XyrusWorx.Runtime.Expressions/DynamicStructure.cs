@@ -1,34 +1,31 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using XyrusWorx.Runtime.Expressions;
 
-namespace XyrusWorx.Runtime
+namespace XyrusWorx.Runtime.Expressions 
 {
 	[PublicAPI]
-	public class AcceleratedDynamicBuffer : Resource, IDynamicBufferBuilder, IDynamicBuffer
+	public class DynamicStructure : Resource, IDynamicBufferBuilder, IDynamicBuffer
 	{
-		private readonly AccelerationDevice mProvider;
-		private readonly DynamicHardwareConstantBufferContext mContext;
+		private readonly DynamicStructureBuilder mContext;
 		private readonly string mTypeName;
 		
 		private readonly List<StringKey> mFieldNames;
 		private readonly Dictionary<StringKey, FieldBuilder> mFieldBuilders;
 		private readonly Dictionary<StringKey, FieldInfo> mFields;
 
-		private Type mType;
+		private TypeInfo mType;
 		private TypeBuilder mTypeBuilder;
+		private UnmanagedBlock mBuffer;
 		
 		private object mData;
-		private HardwareConstantBuffer mBuffer;
-		
 		private bool mIsDisposed;
-		
-		private AcceleratedDynamicBuffer([NotNull] DynamicHardwareConstantBufferContext context, [NotNull] string typeName)
+
+		private DynamicStructure([NotNull] DynamicStructureBuilder context, [NotNull] string typeName)
 		{
 			if (context == null)
 			{
@@ -48,10 +45,8 @@ namespace XyrusWorx.Runtime
 			var module = context.GetModuleBuilder();
 			if (module == null)
 			{
-				throw new ObjectDisposedException(nameof(DynamicHardwareConstantBufferContext), $"The {nameof(DynamicHardwareConstantBufferContext)} was already disposed.");
+				throw new ObjectDisposedException(nameof(DynamicStructureBuilder), $"The {nameof(DynamicStructureBuilder)} was already disposed.");
 			}
-
-			mProvider = context.GetProvider();
 
 			mTypeName = typeName;
 			mTypeBuilder = module.DefineType(typeName.Trim(),
@@ -77,7 +72,7 @@ namespace XyrusWorx.Runtime
 		}
 
 		[NotNull]
-		public static IDynamicBufferBuilder Create([NotNull] DynamicHardwareConstantBufferContext context, [NotNull] string typeName) => new AcceleratedDynamicBuffer(context, typeName);
+		public static IDynamicBufferBuilder Create([NotNull] DynamicStructureBuilder context, [NotNull] string typeName) => new DynamicStructure(context, typeName);
 
 		IDynamicBufferBuilder IDynamicBufferAppender.Field(string fieldName, Type fieldType)
 		{
@@ -98,7 +93,7 @@ namespace XyrusWorx.Runtime
 			
 			if (mTypeBuilder == null)
 			{
-				throw new ObjectDisposedException(nameof(DynamicHardwareConstantBufferContext), $"The {nameof(AcceleratedDynamicBuffer)} was already disposed.");
+				throw new ObjectDisposedException(nameof(DynamicStructure), $"The {nameof(DynamicStructure)} was already disposed.");
 			}
 			
 			if (mType != null)
@@ -111,7 +106,7 @@ namespace XyrusWorx.Runtime
 			mFieldNames.Add(fieldName);
 			mFieldBuilders.Add(fieldName, fieldBuilder);
 
-			var offset = mFieldBuilders.Sum(x => Marshal.SizeOf(x.Value.FieldType));
+			var offset = mFieldBuilders.Sum(x => Marshal.SizeOf((Type)x.Value.FieldType));
 			fieldBuilder.SetOffset(offset);
 
 			return this;
@@ -119,9 +114,9 @@ namespace XyrusWorx.Runtime
 		
 		IDynamicBuffer IDynamicBufferBuilder.Commit()
 		{
-			mType = mTypeBuilder.CreateType();
+			mType = mTypeBuilder.CreateTypeInfo();
 			mData = Activator.CreateInstance(mType);
-			mBuffer = new HardwareConstantBuffer(mProvider, Marshal.SizeOf(mType));
+			mBuffer = new UnmanagedBlock(Marshal.SizeOf(mType.UnderlyingSystemType));
 
 			foreach (var fieldKey in mFieldNames)
 			{
@@ -141,7 +136,7 @@ namespace XyrusWorx.Runtime
 			
 			if (mTypeBuilder == null)
 			{
-				throw new ObjectDisposedException(nameof(DynamicHardwareConstantBufferContext), $"The {nameof(AcceleratedDynamicBuffer)} was already disposed.");
+				throw new ObjectDisposedException(nameof(DynamicStructure), $"The {nameof(DynamicStructure)} was already disposed.");
 			}
 
 			if (mType == null)
@@ -164,7 +159,7 @@ namespace XyrusWorx.Runtime
 		{
 			if (mTypeBuilder == null)
 			{
-				throw new ObjectDisposedException(nameof(DynamicHardwareConstantBufferContext), $"The {nameof(AcceleratedDynamicBuffer)} was already disposed.");
+				throw new ObjectDisposedException(nameof(DynamicStructure), $"The {nameof(DynamicStructure)} was already disposed.");
 			}
 			
 			if (mBuffer == null)
@@ -178,7 +173,7 @@ namespace XyrusWorx.Runtime
 		{
 			if (mTypeBuilder == null)
 			{
-				throw new ObjectDisposedException(nameof(DynamicHardwareConstantBufferContext), $"The {nameof(AcceleratedDynamicBuffer)} was already disposed.");
+				throw new ObjectDisposedException(nameof(DynamicStructure), $"The {nameof(DynamicStructure)} was already disposed.");
 			}
 			
 			if (mType == null)
@@ -186,7 +181,7 @@ namespace XyrusWorx.Runtime
 				throw new InvalidOperationException("Accessing the CLR type is not allowed before the type has been built.");
 			}
 			
-			return mType.GetTypeInfo();
+			return mType;
 		}
 
 		private void UpdateBuffer()

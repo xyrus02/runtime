@@ -4,11 +4,11 @@ using JetBrains.Annotations;
 namespace XyrusWorx.Runtime.Expressions
 {
 	[PublicAPI]
-	public abstract class Define : Symbol
+	public abstract class Define : Declaration
 	{
 		private readonly object mValue;
 
-		protected Define([NotNull] string name, [NotNull] Type type, [NotNull] object value) : base(name, type)
+		protected Define([NotNull] string label, [NotNull] Type type, [NotNull] object value) : base(label, type)
 		{
 			if (value == null)
 			{
@@ -30,7 +30,7 @@ namespace XyrusWorx.Runtime.Expressions
 	[PublicAPI]
 	public class Define<T> : Define where T : struct
 	{
-		public Define([NotNull] string name, T value) : base(name, typeof(T), value)
+		public Define([NotNull] string label, T value) : base(label, typeof(T), value)
 		{
 		}
 	}

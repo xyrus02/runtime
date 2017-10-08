@@ -127,7 +127,7 @@ namespace XyrusWorx.Runtime.Expressions
 				throw new KernelSourceException($"Unknown preprocessor definition: \"{defineName ?? "<null>"}\"");
 			}
 
-			Symbol.Check(defineName);
+			Declaration.IsValidSymbolLabel(defineName);
 			Function.CheckTypeSupport(requestedType);
 
 			var define = Defines[defineName];
@@ -168,11 +168,11 @@ namespace XyrusWorx.Runtime.Expressions
 				throw new KernelSourceException($"Invalid preprocessor definition access: \"{constantName ?? "<null>"}\" is not a valid definition label.");
 			}
 
-			Symbol.Check(constantName);
+			Declaration.IsValidSymbolLabel(constantName);
 			Function.CheckTypeSupport(requestedType);
 
 			var symbols = ConstantBuffers.Values.SelectMany(x => x.Symbols);
-			var constant = symbols.FirstOrDefault(x => Equals(constantName, x.Name));
+			var constant = symbols.FirstOrDefault(x => Equals(constantName, x.Label));
 
 			if (constant == null)
 			{
@@ -194,7 +194,7 @@ namespace XyrusWorx.Runtime.Expressions
 				}
 			}
 
-			return Expression.Parameter(constant.Type, constant.Name);
+			return Expression.Parameter(constant.Type, constant.Label);
 		}
 	}
 }

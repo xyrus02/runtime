@@ -1,41 +1,105 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using XyrusWorx.Collections;
 
-namespace XyrusWorx.Runtime.Expressions
+namespace XyrusWorx.Runtime.Expressions 
 {
 	[PublicAPI]
-	public class SymbolScope<T> : Scope, IEnumerable<T>, IReadOnlyDictionary<string, T>
+	public sealed class SymbolScope : Resource
 	{
-		private readonly Dictionary<string, T> mData;
+		private readonly string mNamespace;
+		private readonly DynamicStructureBuilder mStructureBuilder;
+		private readonly Dictionary<Symbol, object> mDeclaredSymbols;
+		private readonly SymbolScope mOuterScope;
 
-		public SymbolScope()
+		public SymbolScope() : this(null){}
+		public SymbolScope(SymbolScope outerScope)
 		{
-			mData = new Dictionary<string, T>();
+			mOuterScope = outerScope;
+			mNamespace = $"ns{Guid.NewGuid():N}".Substring(0, 10);
+			mStructureBuilder = new DynamicStructureBuilder(mNamespace);
+			mDeclaredSymbols = new Dictionary<Symbol, object>();
 		}
 
-		bool IReadOnlyDictionary<string, T>.ContainsKey(string key) => mData.ContainsKey(key);
-		bool IReadOnlyDictionary<string, T>.TryGetValue(string key, out T value) => mData.TryGetValue(key, out value);
-
-		public T this[string name]
+		public bool IsDeclared([NotNull] Symbol symbol)
 		{
-			get => mData.GetValueByKeyOrDefault(name);
-			set => mData.AddOrUpdate(name, value);
+			if (symbol == null)
+			{
+				throw new ArgumentNullException(nameof(symbol));
+			}
+
+			if (mDeclaredSymbols.ContainsKey(symbol))
+			{
+				return true;
+			}
+
+			if (mOuterScope != null && mOuterScope.IsDeclared(symbol))
+			{
+				return true;
+			}
+
+			return false;
 		}
-		public IEnumerable<string> Keys
+		
+		[NotNull]
+		internal T Resolve<T>([NotNull] Symbol symbol)
 		{
-			get => mData.Keys;
+			if (symbol == null)
+			{
+				throw new ArgumentNullException(nameof(symbol));
+			}
+
+			object result = null;
+
+			if (mDeclaredSymbols.ContainsKey(symbol))
+			{
+				result = mDeclaredSymbols[symbol];
+			}
+
+			if (mOuterScope != null)
+			{
+				result = mOuterScope.Resolve<T>(symbol);
+			}
+
+			if (result == null)
+			{
+				throw new CompilerException($"Symbol \"{symbol}\" can't be resolved in the current scope.");
+			}
+
+			if (!(result is T t))
+			{
+				throw new CompilerException($"Symbol \"{symbol}\" can't be resolved as \"{typeof(T)}\" in the current scope.");
+			}
+
+			return t;
 		}
-		public IEnumerable<T> Values
+		internal void Declare<T>([NotNull] Symbol symbol, [NotNull] T semantics)
 		{
-			get => mData.Values;
+			if (symbol == null)
+			{
+				throw new ArgumentNullException(nameof(symbol));
+			}
+			
+			if (semantics == null)
+			{
+				throw new ArgumentNullException(nameof(semantics));
+			}
+
+			if (mDeclaredSymbols.ContainsKey(symbol))
+			{
+				throw new CompilerException($"The symbol \"{symbol}\" has already been declared in the current scope.");
+			}
+
+			mDeclaredSymbols.Add(symbol, semantics);
 		}
 
-		IEnumerator<KeyValuePair<string, T>> IEnumerable<KeyValuePair<string, T>>.GetEnumerator() => mData.GetEnumerator();
-		IEnumerator<T> IEnumerable<T>.GetEnumerator() => mData.Values.GetEnumerator();
-		IEnumerator IEnumerable.GetEnumerator() => mData.Values.GetEnumerator();
+		[NotNull]
+		internal DynamicStructureBuilder GetStructureBuilder() => mStructureBuilder;
 
-		public int Count { get; }
+		protected override void DisposeOverride()
+		{
+			mStructureBuilder.Dispose();
+			mDeclaredSymbols.Clear();
+		}
 	}
 }

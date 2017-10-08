@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 
 namespace XyrusWorx.Runtime.Expressions 
@@ -11,5 +12,8 @@ namespace XyrusWorx.Runtime.Expressions
 
 		[NotNull]
 		IWritable GetUnmanagedBuffer();
+
+		[NotNull]
+		TypeInfo GetClrTypeInfo();
 	}
 }

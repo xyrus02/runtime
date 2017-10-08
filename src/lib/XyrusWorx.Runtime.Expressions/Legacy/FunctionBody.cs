@@ -17,7 +17,7 @@ namespace XyrusWorx.Runtime.Expressions
 				Function.CheckTypeSupport(returnType);
 			}
 
-			var collection = new ObservableCollection<Symbol>();
+			var collection = new ObservableCollection<Declaration>();
 
 			collection.CollectionChanged += OnParameterCollectionChanged;
 			Parameters = collection;
@@ -25,7 +25,7 @@ namespace XyrusWorx.Runtime.Expressions
 			Type = returnType;
 		}
 
-		public IList<Symbol> Parameters { get; }
+		public IList<Declaration> Parameters { get; }
 		public Type Type { get; }
 
 		protected virtual void InvalidateSignatureOverride()

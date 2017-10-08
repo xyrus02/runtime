@@ -9,12 +9,12 @@ using XyrusWorx.Collections;
 namespace XyrusWorx.Runtime.Expressions
 {
 	[PublicAPI]
-	public class Function : Symbol
+	public class Function : Declaration
 	{
 		private static Dictionary<Type, string> mIntrinsicTypes;
 		private FunctionBody mBody;
 
-		public Function([NotNull] string name, [NotNull] FunctionBody body) : base(name, body.Type)
+		public Function([NotNull] string label, [NotNull] FunctionBody body) : base(label, body.Type)
 		{
 			if (body == null)
 			{
@@ -29,7 +29,7 @@ namespace XyrusWorx.Runtime.Expressions
 
 		public virtual void Write(StringBuilder builder, IKernelWriterContext context)
 		{
-			WriteFunction(builder, Name, Type, Body.Parameters.Select(x => Expression.Parameter(x.Type, x.Name)));
+			WriteFunction(builder, Label, Type, Body.Parameters.Select(x => Expression.Parameter(x.Type, x.Label)));
 
 			var body = new StringBuilder();
 			Body.Write(body, context);
@@ -91,7 +91,7 @@ namespace XyrusWorx.Runtime.Expressions
 
 		public static void WriteFunction(StringBuilder target, string name, Type returnType, IEnumerable<ParameterExpression> parameters)
 		{
-			Check(name);
+			IsValidSymbolLabel(name);
 
 			if (returnType != null)
 			{
@@ -116,7 +116,7 @@ namespace XyrusWorx.Runtime.Expressions
 		}
 		public static void WriteParameterDeclaration(StringBuilder target, ParameterExpression expression)
 		{
-			Check(expression.Name);
+			IsValidSymbolLabel(expression.Name);
 			CheckTypeSupport(expression.Type);
 
 			target.Append($"{IntrinsicTypes[expression.Type]} {expression.Name}");

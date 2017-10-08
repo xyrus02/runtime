@@ -24,16 +24,7 @@ namespace XyrusWorx.Runtime.Expressions
 		{
 			mOutput.AppendLine(source);
 		}
-		public void WriteFunction([NotNull] Function function)
-		{
-			if (function == null)
-			{
-				throw new ArgumentNullException(nameof(function));
-			}
-
-			function.Write(mOutput, mContext);
-		}
-
+		
 		[NotNull]
 		public string GetSource()
 		{

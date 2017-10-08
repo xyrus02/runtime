@@ -11,7 +11,7 @@ namespace XyrusWorx.Runtime.Expressions
 	public class ConstantBufferDefinition
 	{
 		private readonly string mName;
-		private readonly List<Symbol> mSymbols;
+		private readonly List<Declaration> mSymbols;
 
 		public ConstantBufferDefinition([NotNull] string name)
 		{
@@ -20,23 +20,23 @@ namespace XyrusWorx.Runtime.Expressions
 				throw new ArgumentNullException(nameof(name));
 			}
 
-			Symbol.Check(name);
+			Declaration.IsValidSymbolLabel(name);
 
 			mName = name;
-			mSymbols = new List<Symbol>();
+			mSymbols = new List<Declaration>();
 		}
 
-		public void Add([NotNull] Symbol symbol)
+		public void Add([NotNull] Declaration declaration)
 		{
-			if (symbol == null)
+			if (declaration == null)
 			{
-				throw new ArgumentNullException(nameof(symbol));
+				throw new ArgumentNullException(nameof(declaration));
 			}
 
-			Symbol.Check(symbol.Name);
-			Function.CheckTypeSupport(symbol.Type);
+			Declaration.IsValidSymbolLabel(declaration.Label);
+			Function.CheckTypeSupport(declaration.Type);
 
-			mSymbols.Add(symbol);
+			mSymbols.Add(declaration);
 		}
 		public void Add<T>(Expression<Func<T, object>> field) where T: struct
 		{
@@ -46,14 +46,14 @@ namespace XyrusWorx.Runtime.Expressions
 				throw new ArgumentException(string.Format("Expression does not represent a field: {0}", field), nameof(field));
 			}
 
-			Symbol.Check(fieldInfo.Name);
+			Declaration.IsValidSymbolLabel(fieldInfo.Name);
 			Function.CheckTypeSupport(fieldInfo.FieldType);
 
-			Add(new Symbol(fieldInfo.Name, fieldInfo.FieldType));
+			Add(new Declaration(fieldInfo.Name, fieldInfo.FieldType));
 		}
 
 		public string Name => mName;
-		public IEnumerable<Symbol> Symbols => mSymbols.Select(x => x);
+		public IEnumerable<Declaration> Symbols => mSymbols.Select(x => x);
 
 		public void Write(StringBuilder builder, IKernelWriterContext context)
 		{
@@ -62,7 +62,7 @@ namespace XyrusWorx.Runtime.Expressions
 
 			foreach (var symbol in mSymbols)
 			{
-				builder.Append($"\t{Function.IntrinsicTypes[symbol.Type]} {symbol.Name}");
+				builder.Append($"\t{Function.IntrinsicTypes[symbol.Type]} {symbol.Label}");
 				builder.AppendLine(";");
 			}
 

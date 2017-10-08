@@ -10,10 +10,10 @@ namespace XyrusWorx.Runtime.Expressions
 	{
 		private string mContent;
 
-		public CustomFunctionBody(string content, params Symbol[] parameters) : this(content, null, parameters)
+		public CustomFunctionBody(string content, params Declaration[] parameters) : this(content, null, parameters)
 		{
 		}
-		public CustomFunctionBody(string content = null, Type returnType = null, params Symbol[] parameters) : base(returnType)
+		public CustomFunctionBody(string content = null, Type returnType = null, params Declaration[] parameters) : base(returnType)
 		{
 			Content = content;
 			parameters?.Foreach(x => Parameters.Add(x));
@@ -42,9 +42,9 @@ namespace XyrusWorx.Runtime.Expressions
 	[PublicAPI]
 	public class CustomFunctionBody<T> : CustomFunctionBody where T : struct
 	{
-		public CustomFunctionBody(params Symbol[] parameters) : this(null, parameters)
+		public CustomFunctionBody(params Declaration[] parameters) : this(null, parameters)
 		{
 		}
-		public CustomFunctionBody(string content = null, params Symbol[] parameters) : base(content, typeof(T), parameters) { }
+		public CustomFunctionBody(string content = null, params Declaration[] parameters) : base(content, typeof(T), parameters) { }
 	}
 }

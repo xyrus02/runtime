@@ -1,53 +1,78 @@
 using System;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
-namespace XyrusWorx.Runtime.Expressions
+namespace XyrusWorx.Runtime.Expressions 
 {
 	[PublicAPI]
-	public class Symbol
+	[DebuggerDisplay("{Key}")]
+	public sealed class Symbol : IEquatable<Symbol>
 	{
-		private string mName;
-
-		public Symbol([NotNull] string name, Type type)
+		public Symbol([NotNull] string label)
 		{
-			if (name == null)
+			if (label.NormalizeNull() == null)
 			{
-				throw new ArgumentNullException(nameof(name));
+				throw new ArgumentNullException(nameof(label));
 			}
 
-			Check(name);
-			mName = name;
-			Type = type;
-		}
-
-		public string Name
-		{
-			get { return mName; }
-			set
+			if (!IsValid(label))
 			{
-				if (string.IsNullOrWhiteSpace(value))
-				{
-					throw new ArgumentNullException(nameof(value));
-				}
-
-				Check(value);
-				mName = value;
+				throw new CompilerException($"The symbol \"{label}\" is invalid.");
 			}
+			
+			Key = label.Trim();
 		}
-		public Type Type
+		
+		[NotNull]
+		public string Key { get; }
+		
+		public static bool IsValid(string label)
 		{
-			get;
-		}
-
-		public static void Check(string label)
-		{
+			if (label.NormalizeNull() == null)
+			{
+				return false;
+			}
+			
 			label = label?.Trim() ?? string.Empty;
 
 			if (!Regex.IsMatch(label, "^[a-z_][_a-z0-9]*$", RegexOptions.IgnoreCase))
 			{
-				throw new Exception(string.Format("The name \"{0}\" is invalid in the target device context.", label));
+				return false;
 			}
+
+			return true;
 		}
+		
+		public bool Equals(Symbol other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+			
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+			
+			return string.Equals(Key, other.Key, StringComparison.InvariantCulture);
+		}
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+			{
+				return false;
+			}
+			
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+			
+			return obj is Symbol symbol && Equals(symbol);
+		}
+
+		public override int GetHashCode() => StringComparer.InvariantCulture.GetHashCode(Key);
 	}
 }

@@ -24,6 +24,11 @@
     <Compile Include="**\*.cs" Exclude="obj/**" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Legacy\**" />
+    <None Include="Legacy\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="XyrusWorx.Foundation" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>

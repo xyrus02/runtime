@@ -427,7 +427,7 @@ namespace XyrusWorx.Runtime.Expressions
 				return false;
 			}
 
-			Symbol.Check(access.Member.Name);
+			Declaration.IsValidSymbolLabel(access.Member.Name);
 
 			WriteExpression(target, access.Expression, context);
 			target.AppendFormat(".{0}", access.Member.Name);
@@ -442,7 +442,7 @@ namespace XyrusWorx.Runtime.Expressions
 				return false;
 			}
 
-			Symbol.Check(parameter.Name);
+			Declaration.IsValidSymbolLabel(parameter.Name);
 			Function.CheckTypeSupport(parameter.Type);
 			target.Append(parameter.Name);
 
@@ -543,7 +543,7 @@ namespace XyrusWorx.Runtime.Expressions
 
 			mExpression = expression.Body;
 			mExpressionRoot = expression;
-			expression.Parameters.Select(x => new Symbol(x.Name, x.Type)).Foreach(Parameters.Add);
+			expression.Parameters.Select(x => new Declaration(x.Name, x.Type)).Foreach(Parameters.Add);
 		}
 
 		[NotNull]

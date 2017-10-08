@@ -15,17 +15,13 @@ namespace XyrusWorx.Runtime.Imaging
 
 		public ReadOnlyTextureView([NotNull] IReadableMemory memory, int stride, TextureFormat format)
 		{
-			if (memory == null)
-			{
-				throw new ArgumentNullException(nameof(memory));
-			}
 
 			if (stride <= 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(stride));
 			}
 			
-			mMemory = memory;
+			mMemory = memory ?? throw new ArgumentNullException(nameof(memory));
 			mFormat = format;
 
 			mStride = stride;
