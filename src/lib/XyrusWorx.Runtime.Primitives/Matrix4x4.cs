@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{_m00}, {_m01}, {_m02}, {_m03} | {_m10}, {_m11}, {_m12}, {_m13} | {_m20}, {_m21}, {_m22}, {_m23} | {_m30}, {_m31}, {_m32}, {_m33}")]
-	public struct Matrix4x4<T> : IMatrix, IMatrix<T>, IEquatable<Matrix4x4<T>>, IComparable<Matrix4x4<T>>, IComparable
+	public struct Matrix4x4<T> : IMatrix, IMatrix<T>, IEquatable<Matrix4x4<T>>, IComparable<Matrix4x4<T>>, IComparable, IMatrixCellWriter
 		where T: struct, IEquatable<T>, IComparable<T>, IComparable
 	{
 		public T _m00, _m01, _m02, _m03, _m10, _m11, _m12, _m13, _m20, _m21, _m22, _m23, _m30, _m31, _m32, _m33;
@@ -260,6 +260,36 @@ namespace XyrusWorx.Runtime
 		Type IMatrix.ComponentType
 		{
 			get => typeof(T);
+		}
+		
+		IMatrix IMatrixCellWriter.Set(int column, int row, object value)
+		{
+			var t = (T)value;
+
+			switch (column * 4 + row)
+			{
+				case 00: return new Matrix4x4<T>(t, _m01, _m02, _m03, _m10, _m11, _m12, _m13, _m20, _m21, _m22, _m23, _m30, _m31, _m32, _m33);
+				case 01: return new Matrix4x4<T>(_m00, t, _m02, _m03, _m10, _m11, _m12, _m13, _m20, _m21, _m22, _m23, _m30, _m31, _m32, _m33);
+				case 02: return new Matrix4x4<T>(_m00, _m01, t, _m03, _m10, _m11, _m12, _m13, _m20, _m21, _m22, _m23, _m30, _m31, _m32, _m33);
+				case 03: return new Matrix4x4<T>(_m10, _m01, _m02, t, _m10, _m11, _m12, _m13, _m20, _m21, _m22, _m23, _m30, _m31, _m32, _m33);
+				
+				case 04: return new Matrix4x4<T>(_m00, _m01, _m02, _m03, t, _m11, _m12, _m13, _m20, _m21, _m22, _m23, _m30, _m31, _m32, _m33);
+				case 05: return new Matrix4x4<T>(_m00, _m01, _m02, _m03, _m10, t, _m12, _m13, _m20, _m21, _m22, _m23, _m30, _m31, _m32, _m33);
+				case 06: return new Matrix4x4<T>(_m10, _m01, _m02, _m03, _m10, _m11, t, _m13, _m20, _m21, _m22, _m23, _m30, _m31, _m32, _m33);
+				case 07: return new Matrix4x4<T>(_m10, _m01, _m02, _m03, _m10, _m11, _m12, t, _m20, _m21, _m22, _m23, _m30, _m31, _m32, _m33);
+				
+				case 08: return new Matrix4x4<T>(_m10, _m01, _m02, _m03, _m10, _m11, _m12, _m13, t, _m21, _m22, _m23, _m30, _m31, _m32, _m33);
+				case 09: return new Matrix4x4<T>(_m10, _m01, _m02, _m03, _m10, _m11, _m12, _m13, _m20, t, _m22, _m23, _m30, _m31, _m32, _m33);
+				case 10: return new Matrix4x4<T>(_m10, _m01, _m02, _m03, _m10, _m11, _m12, _m13, _m20, _m21, t, _m23, _m30, _m31, _m32, _m33);
+				case 11: return new Matrix4x4<T>(_m10, _m01, _m02, _m03, _m10, _m11, _m12, _m13, _m20, _m21, _m22, t, _m30, _m31, _m32, _m33);
+					
+				case 12: return new Matrix4x4<T>(_m10, _m01, _m02, _m03, _m10, _m11, _m12, _m13, _m20, _m21, _m22, _m23, t, _m31, _m32, _m33);
+				case 13: return new Matrix4x4<T>(_m10, _m01, _m02, _m03, _m10, _m11, _m12, _m13, _m20, _m21, _m22, _m23, _m30, t, _m32, _m33);
+				case 14: return new Matrix4x4<T>(_m10, _m01, _m02, _m03, _m10, _m11, _m12, _m13, _m20, _m21, _m22, _m23, _m30, _m31, t, _m33);
+				case 15: return new Matrix4x4<T>(_m10, _m01, _m02, _m03, _m10, _m11, _m12, _m13, _m20, _m21, _m22, _m23, _m30, _m31, _m32, t);
+			}
+
+			return this;
 		}
 	}
 }

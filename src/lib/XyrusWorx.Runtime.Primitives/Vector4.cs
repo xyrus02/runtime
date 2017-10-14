@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{x}, {y}, {z}, {w}")]
-	public struct Vector4<T> : IVector, IVector<T>, IEquatable<Vector4<T>>, IComparable<Vector4<T>>, IComparable
+	public struct Vector4<T> : IVector, IVector<T>, IEquatable<Vector4<T>>, IComparable<Vector4<T>>, IComparable, IVectorRowWriter
 		where T: struct, IEquatable<T>, IComparable<T>, IComparable
 	{
 		public T x, y, z, w;
@@ -339,6 +339,7 @@ namespace XyrusWorx.Runtime
 			return obj is Vector4<T> && Equals((Vector4<T>)obj);
 		}
 		public override string ToString() => $"{x}, {y}, {z}, {w}";
+
 		public int CompareTo(Vector4<T> other)
 		{
 			var xComparison = x.CompareTo(other.x);
@@ -374,6 +375,21 @@ namespace XyrusWorx.Runtime
 			}
 			
 			return CompareTo((Vector4<T>)obj);
+		}
+		
+		IVector IVectorRowWriter.Set(int row, object value)
+		{
+			var t = (T)value;
+
+			switch (row)
+			{
+				case 0: return new Vector4<T>(t, y, z, w);
+				case 1: return new Vector4<T>(x, t, z, w);
+				case 2: return new Vector4<T>(x, y, t, w);
+				case 3: return new Vector4<T>(x, y, z, t);
+			}
+
+			return this;
 		}
 	}
 }

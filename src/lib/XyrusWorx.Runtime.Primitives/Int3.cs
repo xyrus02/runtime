@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{x}, {y}, {z}")]
-	public struct Int3 : IVector, IVector<int>, IEquatable<Int3>, IComparable<Int3>, IComparable
+	public struct Int3 : IVector, IVector<int>, IEquatable<Int3>, IComparable<Int3>, IComparable, IVectorRowWriter
 	{
 		public int x, y, z;
 
@@ -176,6 +176,20 @@ namespace XyrusWorx.Runtime
 			}
 			
 			return CompareTo((Int3)obj);
+		}
+		
+		IVector IVectorRowWriter.Set(int row, object value)
+		{
+			var t = (int)value;
+
+			switch (row)
+			{
+				case 0: return new Int3(t, y, z);
+				case 1: return new Int3(x, t, z);
+				case 2: return new Int3(x, y, t);
+			}
+
+			return this;
 		}
 	}
 }

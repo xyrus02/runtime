@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{_m00}, {_m01} | {_m10}, {_m11}")]
-	public struct Matrix2x2<T> : IMatrix, IMatrix<T>, IEquatable<Matrix2x2<T>>, IComparable<Matrix2x2<T>>, IComparable
+	public struct Matrix2x2<T> : IMatrix, IMatrix<T>, IEquatable<Matrix2x2<T>>, IComparable<Matrix2x2<T>>, IComparable, IMatrixCellWriter
 		where T: struct, IEquatable<T>, IComparable<T>, IComparable
 	{
 		public T _m00, _m01, _m10, _m11;
@@ -81,6 +81,7 @@ namespace XyrusWorx.Runtime
 			return obj is Matrix2x2<T> && Equals((Matrix2x2<T>)obj);
 		}
 		public override string ToString() => $"{_m00}, {_m01} | {_m10}, {_m11}";
+		
 		public int CompareTo(Matrix2x2<T> other)
 		{
 			var m00Comparison = _m00.CompareTo(other._m00);
@@ -145,6 +146,21 @@ namespace XyrusWorx.Runtime
 		Type IMatrix.ComponentType
 		{
 			get => typeof(T);
+		}
+
+		IMatrix IMatrixCellWriter.Set(int column, int row, object value)
+		{
+			var t = (T)value;
+
+			switch (column * 2 + row)
+			{
+				case 0: return new Matrix2x2<T>(t, _m01, _m10, _m11);
+				case 1: return new Matrix2x2<T>(_m00, t, _m10, _m11);
+				case 2: return new Matrix2x2<T>(_m10, _m01, t, _m11);
+				case 3: return new Matrix2x2<T>(_m10, _m01, _m10, t);
+			}
+
+			return this;
 		}
 	}
 }

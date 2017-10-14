@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{x}, {y}, {z}")]
-	public struct Float3 : IVector, IVector<float>, IEquatable<Float3>, IComparable<Float3>, IComparable
+	public struct Float3 : IVector, IVector<float>, IEquatable<Float3>, IComparable<Float3>, IComparable, IVectorRowWriter
 	{
 		public float x, y, z;
 
@@ -179,6 +179,20 @@ namespace XyrusWorx.Runtime
 			}
 			
 			return CompareTo((Float3)obj);
+		}
+		
+		IVector IVectorRowWriter.Set(int row, object value)
+		{
+			var t = (float)value;
+
+			switch (row)
+			{
+				case 0: return new Float3(t, y, z);
+				case 1: return new Float3(x, t, z);
+				case 2: return new Float3(x, y, t);
+			}
+
+			return this;
 		}
 	}
 }

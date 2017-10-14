@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{_m00}, {_m10}, | {_m01}, {_m11}, | {_m20} {_m21}")]
-	public struct Float3x2 : IMatrix, IMatrix<float>, IEquatable<Float3x2>, IComparable<Float3x2>, IComparable
+	public struct Float3x2 : IMatrix, IMatrix<float>, IEquatable<Float3x2>, IComparable<Float3x2>, IComparable, IMatrixCellWriter
 	{
 		public float _m00, _m01, _m10, _m11, _m20, _m21;
 
@@ -192,6 +192,23 @@ namespace XyrusWorx.Runtime
 		Type IMatrix.ComponentType
 		{
 			get => typeof(float);
+		}
+		
+		IMatrix IMatrixCellWriter.Set(int column, int row, object value)
+		{
+			var t = (float)value;
+
+			switch (column * 2 + row)
+			{
+				case 0: return new Float3x2(t, _m01, _m10, _m11, _m20, _m21);
+				case 1: return new Float3x2(_m00, t, _m10, _m11, _m20, _m21);
+				case 2: return new Float3x2(_m00, _m01, t, _m11, _m20, _m21);
+				case 3: return new Float3x2(_m00, _m01, _m10, t, _m20, _m21);
+				case 4: return new Float3x2(_m00, _m01, _m10, _m11, t, _m21);
+				case 5: return new Float3x2(_m00, _m01, _m10, _m11, _m20, t);
+			}
+
+			return this;
 		}
 	}
 }

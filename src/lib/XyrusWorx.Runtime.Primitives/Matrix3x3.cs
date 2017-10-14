@@ -10,7 +10,7 @@ namespace XyrusWorx.Runtime
 	[StructLayout(LayoutKind.Sequential)]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[DebuggerDisplay("{_m00}, {_m01}, {_m02} | {_m10}, {_m11}, {_m12} | {_m20}, {_m21}, {_m22}")]
-	public struct Matrix3x3<T> : IMatrix, IMatrix<T>, IEquatable<Matrix3x3<T>>, IComparable<Matrix3x3<T>>, IComparable
+	public struct Matrix3x3<T> : IMatrix, IMatrix<T>, IEquatable<Matrix3x3<T>>, IComparable<Matrix3x3<T>>, IComparable, IMatrixCellWriter
 		where T: struct, IEquatable<T>, IComparable<T>, IComparable
 	{
 		public T _m00, _m01, _m02, _m10, _m11, _m12, _m20, _m21, _m22;
@@ -195,6 +195,26 @@ namespace XyrusWorx.Runtime
 		Type IMatrix.ComponentType
 		{
 			get => typeof(T);
+		}
+		
+		IMatrix IMatrixCellWriter.Set(int column, int row, object value)
+		{
+			var t = (T)value;
+
+			switch (column * 3 + row)
+			{
+				case 0: return new Matrix3x3<T>(t, _m01, _m02, _m10, _m11, _m12, _m20, _m21, _m22);
+				case 1: return new Matrix3x3<T>(_m00, t, _m02, _m10, _m11, _m12, _m20, _m21, _m22);
+				case 2: return new Matrix3x3<T>(_m00, _m01, t, _m10, _m11, _m12, _m20, _m21, _m22);
+				case 3: return new Matrix3x3<T>(_m10, _m01, _m02, t, _m11, _m12, _m20, _m21, _m22);
+				case 4: return new Matrix3x3<T>(_m10, _m01, _m02, _m10, t, _m12, _m20, _m21, _m22);
+				case 5: return new Matrix3x3<T>(_m10, _m01, _m02, _m10, _m11, t, _m20, _m21, _m22);
+				case 6: return new Matrix3x3<T>(_m10, _m01, _m02, _m10, _m11, _m12, t, _m21, _m22);
+				case 7: return new Matrix3x3<T>(_m10, _m01, _m02, _m10, _m11, _m12, _m20, t, _m22);
+				case 8: return new Matrix3x3<T>(_m10, _m01, _m02, _m10, _m11, _m12, _m20, _m21, t);
+			}
+
+			return this;
 		}
 	}
 }
