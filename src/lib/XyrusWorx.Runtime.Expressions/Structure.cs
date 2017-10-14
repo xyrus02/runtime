@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 namespace XyrusWorx.Runtime.Expressions 
@@ -59,5 +63,76 @@ namespace XyrusWorx.Runtime.Expressions
 			return mType;
 		}
 		public override string Key => Name.Key;
+		
+		protected override object GetDefaultValue() => Activator.CreateInstance(CreateClrType());
+		protected override Result<object> Construct(IEnumerable<object> values)
+		{
+			var structureType = CreateClrType();
+			var structureSize = Marshal.SizeOf(structureType);
+			var instance = GetDefaultValue();
+			
+			var valueArray = values.ToArray();
+			if (valueArray.Length > Fields.Length)
+			{
+				return Result.CreateError<Result<object>>($"Expected {Fields.Length} values, received {valueArray.Length}");
+			}
+			
+			using (var memory = new UnmanagedBlock(structureSize))
+			{
+				Marshal.StructureToPtr(instance, memory, true);
+
+				var offset = 0;
+				var index = 0;
+				
+				foreach (var field in Fields)
+				{
+					var fieldType = field.Type.CreateClrType();
+					var fieldSize = Marshal.SizeOf(fieldType);
+
+					object fieldValue;
+					try
+					{
+						fieldValue = System.Convert.ChangeType(valueArray[index], fieldType, CultureInfo.InvariantCulture);
+					}
+					catch (Exception)
+					{
+						return Result.CreateError($"Element \"{index + 1}\" failed to convert from \"{valueArray[index].GetType()}\" to \"{field.Type.Key}\".");
+					}
+					
+					Marshal.StructureToPtr(fieldValue, memory.Pointer + offset, true);
+					
+					offset += fieldSize;
+					index++;
+				}
+
+				Marshal.PtrToStructure(memory, instance);
+			}
+
+			return instance;
+		}
+		protected override IEnumerable<object> Deconstruct(object value)
+		{
+			var structureType = CreateClrType();
+			var structureSize = Marshal.SizeOf(structureType);
+
+			using (var memory = new UnmanagedBlock(structureSize))
+			{
+				Marshal.StructureToPtr(value, memory, true);
+
+				var offset = 0;
+				
+				foreach (var field in Fields)
+				{
+					var fieldType = field.Type.CreateClrType();
+					var fieldSize = Marshal.SizeOf(fieldType);
+					var fieldInstance = Activator.CreateInstance(fieldType);
+					
+					Marshal.PtrToStructure(memory.Pointer + offset, fieldInstance);
+					
+					yield return fieldInstance;
+					offset += fieldSize;
+				}
+			}
+		}
 	}
 }

@@ -1,8 +1,12 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using XyrusWorx.Collections;
 
 namespace XyrusWorx.Runtime.Expressions 
 {
@@ -10,6 +14,8 @@ namespace XyrusWorx.Runtime.Expressions
 	[DebuggerDisplay("{Primitive}<{Affinity}>")]
 	public sealed class IntrinsicType : ComputationType
 	{
+		private object mDefaultValue;
+
 		public IntrinsicType(Primitive primitive, Affinity affinity = null)
 		{
 			if (primitive == Primitive.Undefined)
@@ -51,13 +57,103 @@ namespace XyrusWorx.Runtime.Expressions
 			}
 		}
 		public override string Key { get; }
+		
+		protected override object GetDefaultValue()
+		{
+			if (mDefaultValue != null)
+			{
+				return mDefaultValue;
+			}
+			
+			var expandedType = CreateClrType();
+			var instance = Activator.CreateInstance(expandedType);
+
+			return mDefaultValue = instance;
+		}
+		protected override Result<object> Construct(IEnumerable<object> values)
+		{
+			var expectedCount = Affinity.Count;
+			var clrType = CreateClrType();
+
+			if (clrType == null)
+			{
+				return Result.CreateError($"Can't assign anything to a \"{Primitive}\" primitive.");
+			}
+
+			var index = 0;
+			var resultObject = GetDefaultValue();
+			
+			Action<int, object> setValue = (i, o) => { };
+
+			if (Affinity.Size.x > 1)
+			{
+				setValue = (i, o) => resultObject = resultObject.CastTo<IMatrixCellWriter>()?.Set(i % Affinity.Size.x, i / Affinity.Size.x, o);
+			}
+			else if (Affinity.Size.y > 1)
+			{
+				setValue = (i, o) => resultObject = resultObject.CastTo<IVectorRowWriter>()?.Set(i % Affinity.Size.y, o);
+			}
+
+			var valueArray = values.AsArray();
+			
+			foreach (var value in valueArray)
+			{
+				var inputValue = value;
+				if (inputValue == null)
+				{
+					inputValue = Activator.CreateInstance(clrType);
+				}
+				
+				try
+				{
+					setValue(index, System.Convert.ChangeType(inputValue, clrType, CultureInfo.InvariantCulture));
+				}
+				catch (Exception)
+				{
+					return Result.CreateError($"Element \"{index + 1}\" failed to convert from \"{value.GetType()}\" to \"{Primitive}\".");
+				}
+
+				index++;
+				
+				if (index >= expectedCount)
+				{
+					break;
+				}
+			}
+
+			if (index < valueArray.Length)
+			{
+				return Result.CreateError<Result<object>>($"Expected {expectedCount} values, received {valueArray.Length}");
+			}
+
+			return resultObject;
+		}
+		protected override IEnumerable<object> Deconstruct(object value)
+		{
+			if (value is IMatrix matrix)
+			{
+				return matrix.GetRows().SelectMany(x => x.GetComponents()).ToArray();
+			}
+			
+			if (value is IVector vector)
+			{
+				return vector.GetComponents();
+			}
+
+			if (value is IEnumerable enumerable)
+			{
+				return enumerable.OfType<object>().SelectMany(Deconstruct).ToArray();
+			}
+
+			return new[] { value };
+		}
 
 		[Pure]
 		private string CreateKey()
 		{
 			var primitiveTypeFields =
 				from field in typeof(Primitive).GetFields(BindingFlags.Static)
-				let attribute = CustomAttributeExtensions.GetCustomAttribute<RuntimeKeyAttribute>((MemberInfo)field)
+				let attribute = CustomAttributeExtensions.GetCustomAttribute<RuntimeKeyAttribute>(field)
 				where attribute != null
 				select new
 				{
