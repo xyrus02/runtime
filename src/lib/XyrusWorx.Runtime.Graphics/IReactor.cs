@@ -4,7 +4,6 @@ using XyrusWorx.Runtime.Imaging;
 
 namespace XyrusWorx.Runtime 
 {
-
 	[PublicAPI]
 	public interface IReactor : IDisposable
 	{
@@ -13,5 +12,9 @@ namespace XyrusWorx.Runtime
 		
 		[NotNull]
 		IReadWriteTexture BackBuffer { get; }
+		
+		[NotNull]
+		IVectorBuffer VectorBuffer { get; }
 	}
+
 }

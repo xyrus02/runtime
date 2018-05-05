@@ -16,19 +16,22 @@ namespace XyrusWorx.Runtime
 		private AcceleratedImagingKernel mOutputKernel;
 		private UnmanagedBlock mOutputTextureMemory;
 		private TextureView mOutputTexture;
+		private PlaceholderVectorBuffer mVectorBuffer;
 
 		protected AcceleratedReactor([NotNull] AccelerationDevice provider)
 		{
 			mProvider = provider;
 			mHardwareQueue = new List<IComputationKernel>();
 			mContext = new AcceleratedReactorContext(this);
+			mVectorBuffer = new PlaceholderVectorBuffer();
 		}
 		
 		public abstract int BackBufferWidth { get; }
 		public abstract int BackBufferHeight { get; }
 		
 		public IReadWriteTexture BackBuffer => mOutputTexture;
-		
+		public IVectorBuffer VectorBuffer => mVectorBuffer;
+
 		public void InvalidateState()
 		{
 			foreach (var kernel in mHardwareQueue)

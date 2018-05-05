@@ -9,6 +9,7 @@ namespace XyrusWorx.Runtime
 	{
 		private UnmanagedBlock mBackBufferMemory;
 		private TextureView mBackBuffer;
+		private IVectorBuffer mVectorBuffer;
 
 		public void InvalidateState()
 		{
@@ -21,6 +22,11 @@ namespace XyrusWorx.Runtime
 
 				mBackBufferMemory = new UnmanagedBlock(BackBufferWidth * BackBufferHeight * 4);
 				mBackBuffer = new TextureView(mBackBufferMemory, BackBufferWidth << 2, TextureFormat.Rgba);
+			}
+
+			if (mVectorBuffer == null)
+			{
+				mVectorBuffer = new WpfVectorBuffer();
 			}
 			
 			InvalidateStateOverride();
@@ -45,7 +51,8 @@ namespace XyrusWorx.Runtime
 		protected abstract void UpdateOverride([NotNull] IRenderLoop renderLoop);
 
 		public IReadWriteTexture BackBuffer => mBackBuffer;
-		
+		public IVectorBuffer VectorBuffer => mVectorBuffer;
+
 		public abstract int BackBufferWidth { get; }
 		public abstract int BackBufferHeight { get; }
 	}

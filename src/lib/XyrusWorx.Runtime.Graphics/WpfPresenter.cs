@@ -10,8 +10,9 @@ using XyrusWorx.Runtime.Imaging;
 
 namespace XyrusWorx.Runtime
 {
+
 	[PublicAPI]
-	public sealed class WpfPresenter : Control, IPresenter
+	public sealed class WpfPresenter : Control, IPresenter, IFontInfo
 	{
 		public static DependencyProperty MeasuresFontFamilyProperty = DependencyProperty.Register("MeasuresFontFamily", typeof(FontFamily), typeof(WpfPresenter), new FrameworkPropertyMetadata(new FontFamily("Courier"), FrameworkPropertyMetadataOptions.AffectsRender, OnMeasuresFontFamilyChanged));
 
@@ -125,6 +126,12 @@ namespace XyrusWorx.Runtime
 			if (mBitmap != null)
 			{
 				drawingContext.DrawImage(mBitmap, area);
+			}
+
+			var dg = mRenderLoop.CurrentReactor?.VectorBuffer.ToDrawingGroup();
+			if (dg != null)
+			{
+				drawingContext.DrawDrawing(dg);
 			}
 
 			double measuresOffset = 5;
