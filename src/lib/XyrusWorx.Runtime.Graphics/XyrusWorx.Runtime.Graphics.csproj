@@ -7,7 +7,7 @@
     <AssemblyName>XyrusWorx.Runtime.Graphics</AssemblyName>
     <AssemblyTitle>XyrusWorx Graphics Application Runtime</AssemblyTitle>
     <Description>Provides base classes and solutions for creating pure graphics applications on top of XyrusWorx Foundation and WPF</Description>
-    <TargetFrameworks>net461;net462</TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>true</GenerateAssemblyConfigurationAttribute>
@@ -33,7 +33,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="XyrusWorx.Foundation.Windows" Version="3.0.0" />
+    <PackageReference Include="XyrusWorx.Foundation.Windows" Version="3.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XyrusWorx.Runtime.Data\XyrusWorx.Runtime.Data.csproj" />

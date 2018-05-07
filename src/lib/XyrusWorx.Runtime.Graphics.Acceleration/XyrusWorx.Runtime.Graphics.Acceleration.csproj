@@ -7,7 +7,7 @@
     <AssemblyName>XyrusWorx.Runtime.Graphics.Acceleration</AssemblyName>
     <AssemblyTitle>Acceleration library for XyrusWorx graphics applications</AssemblyTitle>
     <Description>Extends XyrusWorx runtime with DirectX-based computation acceleration using the GPU</Description>
-    <TargetFrameworks>net461;net462</TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>true</GenerateAssemblyConfigurationAttribute>
@@ -29,7 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SlimDX" Version="4.0.13.44" />
-    <PackageReference Include="XyrusWorx.Foundation" Version="3.0.0" />
+    <PackageReference Include="XyrusWorx.Foundation" Version="3.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XyrusWorx.Runtime.Expressions\XyrusWorx.Runtime.Expressions.csproj" />

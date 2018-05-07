@@ -7,7 +7,7 @@
     <AssemblyName>XyrusWorx.Runtime.Data</AssemblyName>
     <AssemblyTitle>XyrusWorx Runtime - Memory Management</AssemblyTitle>
     <Description>Contains structures and classes to manage raw memory blocks</Description>
-    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>true</GenerateAssemblyConfigurationAttribute>
@@ -24,7 +24,7 @@
     <Compile Include="**\*.cs" Exclude="obj/**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="XyrusWorx.Foundation" Version="3.0.0" />
+    <PackageReference Include="XyrusWorx.Foundation" Version="3.1.0" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <RootNamespace>XyrusWorx.Runtime</RootNamespace>

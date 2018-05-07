@@ -7,7 +7,7 @@
     <AssemblyName>XyrusWorx.Runtime.Expressions</AssemblyName>
     <AssemblyTitle>XyrusWorx Runtime - Dynamic Expressions</AssemblyTitle>
     <Description>Contains an object model which is utilized to create GPU kernels from LINQ expressions</Description>
-    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>true</GenerateAssemblyConfigurationAttribute>
@@ -29,7 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
-    <PackageReference Include="XyrusWorx.Foundation" Version="3.0.0" />
+    <PackageReference Include="XyrusWorx.Foundation" Version="3.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XyrusWorx.Runtime.Data\XyrusWorx.Runtime.Data.csproj" />

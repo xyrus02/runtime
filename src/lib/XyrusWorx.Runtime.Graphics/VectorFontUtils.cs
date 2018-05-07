@@ -47,7 +47,7 @@ namespace XyrusWorx.Runtime
 			[Pure]
 			public FormattedText Create()
 			{
-				#if(NET462)
+				#if(NET472)
 					return new FormattedText(mText, mCulture, mFlowDirection, mFontInfo.ToTypeFace() ?? throw new ArgumentNullException(), mFontInfo.FontSize, mForeground, mNumberSubstitution, mTextFormattingMode, mDpi);
 				#else
 					return new FormattedText(mText, mCulture, mFlowDirection, mFontInfo.ToTypeFace() ?? throw new ArgumentNullException(), mFontInfo.FontSize, mForeground, mNumberSubstitution, mTextFormattingMode);
