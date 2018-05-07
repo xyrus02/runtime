@@ -7,13 +7,11 @@ namespace XyrusWorx.Runtime.Expressions
 	{
 		private const string mEntryPoint = "main";
 
-		private KernelSourceWriterContext mContext;
 		private KernelSourceProcessor mProcessor;
 
 		public KernelSourceWriter()
 		{
-			mContext = new KernelSourceWriterContext();
-			mProcessor = new KernelSourceProcessor(mContext);
+			mProcessor = new KernelSourceProcessor();
 		}
 
 		public void Write(string source)
@@ -21,9 +19,6 @@ namespace XyrusWorx.Runtime.Expressions
 			mProcessor.WriteRaw(source);
 		}
 		
-		[NotNull]
-		public KernelSourceWriterContext Context => mContext;
-
 		internal string SourceCode => mProcessor.GetSource();
 		internal static string EntryPointName = mEntryPoint;
 	}

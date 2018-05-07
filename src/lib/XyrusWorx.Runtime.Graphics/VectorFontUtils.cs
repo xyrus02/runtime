@@ -28,6 +28,7 @@ namespace XyrusWorx.Runtime
 			private Brush mForeground;
 			private NumberSubstitution mNumberSubstitution;
 			private TextFormattingMode mTextFormattingMode;
+			private double mDpi;
 
 			public FormattedTextBuilder([NotNull] IFontInfo fontInfo, string text)
 			{
@@ -39,10 +40,19 @@ namespace XyrusWorx.Runtime
 				mForeground = Brushes.Black;
 				mNumberSubstitution = null;
 				mTextFormattingMode = System.Windows.Media.TextFormattingMode.Display;
+				
+				mDpi = typeof(SystemParameters).GetProperty("Dpi", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null, null) as double? ?? 96.0;
 			}
 
 			[Pure]
-			public FormattedText Create() => new FormattedText(mText, mCulture, mFlowDirection, mFontInfo.ToTypeFace() ?? throw new ArgumentNullException(), mFontInfo.FontSize, mForeground, mNumberSubstitution, mTextFormattingMode);
+			public FormattedText Create()
+			{
+				#if(NET462)
+					return new FormattedText(mText, mCulture, mFlowDirection, mFontInfo.ToTypeFace() ?? throw new ArgumentNullException(), mFontInfo.FontSize, mForeground, mNumberSubstitution, mTextFormattingMode, mDpi);
+				#else
+					return new FormattedText(mText, mCulture, mFlowDirection, mFontInfo.ToTypeFace() ?? throw new ArgumentNullException(), mFontInfo.FontSize, mForeground, mNumberSubstitution, mTextFormattingMode);
+				#endif
+			}
 
 			public IFormattedTextBuilder Culture(CultureInfo cultureInfo)
 			{
@@ -77,6 +87,17 @@ namespace XyrusWorx.Runtime
 			public IFormattedTextBuilder TextFormattingMode(TextFormattingMode textFormattingMode)
 			{
 				mTextFormattingMode = textFormattingMode;
+				return this;
+			}
+
+			public IFormattedTextBuilder Dpi(double dpi)
+			{
+				if (dpi <= 0 || double.IsNaN(dpi) || double.IsInfinity(dpi))
+				{
+					throw new ArgumentOutOfRangeException(nameof(dpi));
+				}
+
+				mDpi = dpi;
 				return this;
 			}
 		}

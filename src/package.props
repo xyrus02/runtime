@@ -2,8 +2,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <PackageId>$(AssemblyName)</PackageId>
-    <PackageVersion>2.2.0</PackageVersion>
-    <PackageBaseVersion>2.2.0</PackageBaseVersion>
+    <PackageVersion>2.3.0</PackageVersion>
+    <PackageBaseVersion>2.3.0</PackageBaseVersion>
     <Description>$(PackageId)</Description>
     <Company>XyrusWorx</Company>
     <Copyright>Copyright (c) XyrusWorx. All rights reserved.</Copyright>

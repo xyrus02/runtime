@@ -13,11 +13,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.ComputeSh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Data", "lib\XyrusWorx.Runtime.Data\XyrusWorx.Runtime.Data.csproj", "{8CA92FAB-F5B8-4302-889C-EE32132C609E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Expressions", "lib\XyrusWorx.Runtime.Expressions\XyrusWorx.Runtime.Expressions.csproj", "{466098F8-DD9E-429B-A172-54D6981F393A}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{8CB3A727-B452-4D89-B8C2-19B6CC41EACB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Data.Test", "test\XyrusWorx.Runtime.Data.Test\XyrusWorx.Runtime.Data.Test.csproj", "{F4C8492A-CAEE-48E6-9D6D-65EE20C0D7BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Expressions", "lib\XyrusWorx.Runtime.Expressions\XyrusWorx.Runtime.Expressions.csproj", "{512832E7-591C-460C-83EF-C852B3E7C94A}"
 EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
@@ -48,14 +48,14 @@ Global
 		{8CA92FAB-F5B8-4302-889C-EE32132C609E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CA92FAB-F5B8-4302-889C-EE32132C609E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CA92FAB-F5B8-4302-889C-EE32132C609E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{466098F8-DD9E-429B-A172-54D6981F393A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{466098F8-DD9E-429B-A172-54D6981F393A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{466098F8-DD9E-429B-A172-54D6981F393A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{466098F8-DD9E-429B-A172-54D6981F393A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F4C8492A-CAEE-48E6-9D6D-65EE20C0D7BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F4C8492A-CAEE-48E6-9D6D-65EE20C0D7BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4C8492A-CAEE-48E6-9D6D-65EE20C0D7BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4C8492A-CAEE-48E6-9D6D-65EE20C0D7BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{512832E7-591C-460C-83EF-C852B3E7C94A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{512832E7-591C-460C-83EF-C852B3E7C94A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{512832E7-591C-460C-83EF-C852B3E7C94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{512832E7-591C-460C-83EF-C852B3E7C94A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{994C732F-4CF5-4FF5-B336-70F61AE4AEC7} = {8CB3A727-B452-4D89-B8C2-19B6CC41EACB}
