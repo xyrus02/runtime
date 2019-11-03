@@ -2,15 +2,14 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <PackageId>$(AssemblyName)</PackageId>
-    <PackageVersion>2.3.0</PackageVersion>
-    <PackageBaseVersion>2.3.0</PackageBaseVersion>
+    <PackageVersion>2.3.1</PackageVersion>
+    <PackageBaseVersion>2.3.1</PackageBaseVersion>
     <Description>$(PackageId)</Description>
-    <Company>XyrusWorx</Company>
-    <Copyright>Copyright (c) XyrusWorx. All rights reserved.</Copyright>
-    <Authors>$(Company)</Authors>
+    <Company>Georg Kiehne</Company>
+    <Authors>gkiehne</Authors>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseUrl>http://xyrus-worx.org/license/mit</PackageLicenseUrl>
-    <PackageProjectUrl>http://xyrus-worx.org</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/xyrus02/runtime</PackageProjectUrl>
     <PackageIconUrl>http://media.xyrus-worx.org/static/xw.png</PackageIconUrl>
     <AssemblyCompany>$(Company)</AssemblyCompany>
     <AssemblyVersion>$(PackageBaseVersion)</AssemblyVersion>
