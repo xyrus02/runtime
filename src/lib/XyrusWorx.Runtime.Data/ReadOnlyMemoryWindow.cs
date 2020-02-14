@@ -26,6 +26,21 @@ namespace XyrusWorx.Runtime
 			Pointer = memoryBlock.GetPointer() + offset;
 			Size = size;
 		}
+		public ReadOnlyMemoryWindow([NotNull] IMemoryBlock memoryBlock)
+		{
+			if (memoryBlock == null)
+			{
+				throw new ArgumentNullException(nameof(memoryBlock));
+			}
+
+			Pointer = memoryBlock.GetPointer();
+			Size = memoryBlock.Size;
+		}
+		public ReadOnlyMemoryWindow([NotNull] IntPtr pointer, long size)
+		{
+			Pointer = pointer;
+			Size = size;
+		}
 
 		IntPtr IMemoryBlock.GetPointer() => Pointer;
 

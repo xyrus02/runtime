@@ -14,7 +14,7 @@ namespace XyrusWorx.Runtime
 		private readonly IList<IComputationKernel> mHardwareQueue;
 		private readonly AcceleratedReactorContext mContext;
 		private AcceleratedImagingKernel mOutputKernel;
-		private UnmanagedBlock mOutputTextureMemory;
+		private IWritableMemory mOutputTextureMemory;
 		private TextureView mOutputTexture;
 		private PlaceholderVectorBuffer mVectorBuffer;
 
@@ -26,13 +26,10 @@ namespace XyrusWorx.Runtime
 			mVectorBuffer = new PlaceholderVectorBuffer();
 		}
 		
-		public abstract int BackBufferWidth { get; }
-		public abstract int BackBufferHeight { get; }
-		
 		public IReadWriteTexture BackBuffer => mOutputTexture;
 		public IVectorBuffer VectorBuffer => mVectorBuffer;
 
-		public void InvalidateState()
+		void IReactor.SetBackBuffer(IWritableMemory writableMemory, TextureFormat pixelFormat, int stride)
 		{
 			foreach (var kernel in mHardwareQueue)
 			{
@@ -42,15 +39,14 @@ namespace XyrusWorx.Runtime
 			mHardwareQueue.Clear();
 			mOutputKernel?.Dispose();
 
-			if (BackBufferWidth <= 0 || BackBufferHeight <= 0)
+			if (writableMemory.Size <= 0)
 			{
 				throw new InvalidOperationException("The buffer dimensions are invalid.");
 			}
-			
-			mOutputTextureMemory?.Dispose();
-			mOutputTextureMemory = new UnmanagedBlock((BackBufferWidth << 2) * BackBufferHeight);
-			mOutputTexture = new TextureView(mOutputTextureMemory, BackBufferWidth << 2, TextureFormat.Rgba);
-			
+
+			mOutputTextureMemory = writableMemory;
+			mOutputTexture = new TextureView(writableMemory, stride, pixelFormat);
+
 			CreateComputeKernels(mHardwareQueue);
 
 			var outputKernel = CreateOutputKernel();
@@ -58,8 +54,13 @@ namespace XyrusWorx.Runtime
 			{
 				throw new ArgumentException("The imaging kernel is null.");
 			}
-			
+
 			mOutputKernel = outputKernel;
+		}
+
+		public void InvalidateState()
+		{
+			
 		}
 		public void Update(IRenderLoop renderLoop)
 		{
@@ -73,10 +74,9 @@ namespace XyrusWorx.Runtime
 			if (mOutputKernel != null)
 			{
 				mOutputKernel.Execute();
-				mOutputKernel.Output.Read(mOutputTextureMemory, 0, mOutputTextureMemory.Size);
+				mOutputKernel.Output.Read(mOutputTextureMemory.GetPointer(), 0, mOutputTextureMemory.Size);
 			}
 		}
-
 		public void Dispose()
 		{
 			try

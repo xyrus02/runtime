@@ -7,14 +7,8 @@ namespace XyrusWorx.Runtime
 	[PublicAPI]
 	public interface IReactor : IDisposable
 	{
-		void InvalidateState();
 		void Update([NotNull] IRenderLoop renderLoop);
-		
-		[NotNull]
-		IReadWriteTexture BackBuffer { get; }
-		
-		[NotNull]
-		IVectorBuffer VectorBuffer { get; }
+		void SetBackBuffer(IWritableMemory writableMemory, TextureFormat pixelFormat, int stride);
 	}
 
 }

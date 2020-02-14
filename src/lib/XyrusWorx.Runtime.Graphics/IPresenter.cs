@@ -5,7 +5,11 @@ namespace XyrusWorx.Runtime
 	[PublicAPI]
 	public interface IPresenter
 	{
-		void InvalidateBackBuffer();
-		void Present([NotNull] IReactor reactor, [NotNull] IRenderLoop renderLoop);
+		void SetSize(Int2 size);
+
+		bool ShowFramesPerSecond { get; set; }
+		bool ShowClock { get; set; }
+
+		void Run();
 	}
 }

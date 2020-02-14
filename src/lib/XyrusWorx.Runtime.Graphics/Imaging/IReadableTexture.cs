@@ -1,3 +1,4 @@
+using System;
 using JetBrains.Annotations;
 
 namespace XyrusWorx.Runtime.Imaging 
@@ -8,5 +9,8 @@ namespace XyrusWorx.Runtime.Imaging
 		uint this[int address] { get; }
 		Vector4<byte> this[Int2 xy] { get; }
 		Vector4<byte> this[int x, int y] { get; }
+
+		IReadableMemory RawMemory { get; }
+		IntPtr Pointer { get; }
 	}
 }

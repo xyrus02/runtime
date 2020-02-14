@@ -8,13 +8,15 @@ namespace XyrusWorx.Runtime.Imaging
 	{
 		private readonly IMemoryBlock mMemory;
 		private readonly TextureFormat mFormat;
-		
+		private readonly IReadableMemory mReadableMemory;
+
 		private readonly bool mReadable;
 		private readonly bool mWritable;
 		
 		private readonly int mWidth;
 		private readonly int mHeight;
 		private readonly int mStride;
+		
 
 		public TextureView([NotNull] IMemoryBlock memory, int stride, TextureFormat format)
 		{
@@ -30,6 +32,7 @@ namespace XyrusWorx.Runtime.Imaging
 			
 			mMemory = memory;
 			mFormat = format;
+			mReadableMemory = new ReadOnlyMemoryWindow(memory);
 
 			mStride = stride;
 			mWidth = stride >> 2;
@@ -45,6 +48,7 @@ namespace XyrusWorx.Runtime.Imaging
 			}
 		}
 
+		IReadableMemory IReadableTexture.RawMemory => mReadableMemory;
 		public IMemoryBlock RawMemory => mMemory;
 		public TextureFormat Format => mFormat;
 		
@@ -80,6 +84,8 @@ namespace XyrusWorx.Runtime.Imaging
 			}
 		}
 
+		public IntPtr Pointer => mMemory.GetPointer();
+
 		public void Read(IntPtr target, int readOffset, long bytesToRead)
 		{
 			if (!mReadable)
@@ -97,6 +103,21 @@ namespace XyrusWorx.Runtime.Imaging
 			}
 			
 			UnmanagedBlock.Copy(source, mMemory.GetPointer(), 0, writeOffset, bytesToWrite);
+		}
+		public unsafe void Write(Int2 pixelPosition, TextureFormat pixelFormat, Vector4<byte> pixelData)
+		{
+			var offset = pixelPosition.y * mStride + (pixelPosition.x << 2);
+			var pPixel = (uint*)(void*)(mMemory.GetPointer() + offset);
+
+			uint inputFormattedData = mFormat.Pack(pixelData);
+			uint outputFormattedData = inputFormattedData;
+
+			if (pixelFormat != mFormat)
+			{
+				outputFormattedData = mFormat.Map(inputFormattedData, pixelFormat);
+			}
+
+			*pPixel = outputFormattedData;
 		}
 	}
 }

@@ -51,6 +51,8 @@ namespace XyrusWorx.Runtime.Imaging
 			}
 		}
 
+		public IntPtr Pointer => mBox.Data.DataPointer;
+
 		protected override void DisposeOverride()
 		{
 			mTexture?.Device.ImmediateContext.UnmapSubresource(mTexture, 0);

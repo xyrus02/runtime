@@ -14,8 +14,8 @@ namespace XyrusWorx.Runtime.Imaging
 		// byte # starts with 1; zero in R, G, B or A means, that the byte is void
 		//
 		//                                                   RRR GGG BBB AAA   
-		public static readonly TextureFormat Rgba      = 0b0_100_011_010_001_0u;
-		public static readonly TextureFormat Bgra      = 0b0_010_011_100_001_0u;
+		public static readonly TextureFormat Rgba      = 0b0_001_010_011_100_0u;
+		public static readonly TextureFormat Bgra      = 0b0_001_100_011_010_0u;
 
 		private readonly uint mLayout;
 		
@@ -39,10 +39,10 @@ namespace XyrusWorx.Runtime.Imaging
 			
 			var o = 0u;
 			
-			o |= sA * tA > 0 ? (uint)((sourceData >> (sA - 1)) & 0xff << (tA - 1)) : 0u;
-			o |= sR * tR > 0 ? (uint)((sourceData >> (sR - 1)) & 0xff << (tR - 1)) : 0u;
-			o |= sG * tG > 0 ? (uint)((sourceData >> (sG - 1)) & 0xff << (tG - 1)) : 0u;
-			o |= sB * tB > 0 ? (uint)((sourceData >> (sB - 1)) & 0xff << (tB - 1)) : 0u;
+			o |= sA * tA > 0 ? ((sourceData >> ((sA - 1) << 3)) & 0xff) << ((tA - 1) << 3) : 0u;
+			o |= sR * tR > 0 ? ((sourceData >> ((sR - 1) << 3)) & 0xff) << ((tR - 1) << 3) : 0u;
+			o |= sG * tG > 0 ? ((sourceData >> ((sG - 1) << 3)) & 0xff) << ((tG - 1) << 3) : 0u;
+			o |= sB * tB > 0 ? ((sourceData >> ((sB - 1) << 3)) & 0xff) << ((tB - 1) << 3) : 0u;
 
 			return o;
 		}
@@ -55,11 +55,11 @@ namespace XyrusWorx.Runtime.Imaging
 			var sG = (int)((mLayout & 0b0_000_111_000_000_0u) >> 0x7);
 			var sB = (int)((mLayout & 0b0_111_000_000_000_0u) >> 0xa);
 
-			var o = sA == 0 ? 0 : (uint)pixelValue.w << (sA - 1);
+			var o = sA == 0 ? 0 : (uint)pixelValue.w << ((sA - 1) << 3);
 			
-			o |= sR == 0 ? 0 : (uint)pixelValue.x << (sR - 1);
-			o |= sG == 0 ? 0 : (uint)pixelValue.y << (sG - 1);
-			o |= sB == 0 ? 0 : (uint)pixelValue.z << (sB - 1);
+			o |= sR == 0 ? 0 : (uint)pixelValue.x << ((sR - 1) << 3);
+			o |= sG == 0 ? 0 : (uint)pixelValue.y << ((sG - 1) << 3);
+			o |= sB == 0 ? 0 : (uint)pixelValue.z << ((sB - 1) << 3);
 
 			return o;
 		}
@@ -72,14 +72,14 @@ namespace XyrusWorx.Runtime.Imaging
 			var sG = (int)((mLayout & 0b0_000_111_000_000_0u) >> 0x7);
 			var sB = (int)((mLayout & 0b0_111_000_000_000_0u) >> 0xa);
 
-			var a = sA > 0 ? (byte)((data >> (sA - 1)) & 0xff) : byte.MinValue;
-			var r = sR > 0 ? (byte)((data >> (sR - 1)) & 0xff) : byte.MinValue;
-			var g = sG > 0 ? (byte)((data >> (sG - 1)) & 0xff) : byte.MinValue;
-			var b = sB > 0 ? (byte)((data >> (sB - 1)) & 0xff) : byte.MinValue;
+			var a = sA > 0 ? (byte)((data >> ((sA - 1) << 3)) & 0xff) : byte.MinValue;
+			var r = sR > 0 ? (byte)((data >> ((sR - 1) << 3)) & 0xff) : byte.MinValue;
+			var g = sG > 0 ? (byte)((data >> ((sG - 1) << 3)) & 0xff) : byte.MinValue;
+			var b = sB > 0 ? (byte)((data >> ((sB - 1) << 3)) & 0xff) : byte.MinValue;
 			
 			return new Vector4<byte>(r, g, b, a);
 		}
-		
+
 		public bool Equals(TextureFormat other) => mLayout == other.mLayout;
 		public override bool Equals(object obj)
 		{

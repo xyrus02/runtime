@@ -59,6 +59,8 @@ namespace XyrusWorx.Runtime.Imaging
 			}
 		}
 
+		IntPtr IWritableTexture.Pointer => throw new NotSupportedException("Direct memory access is not allowed for write-only blocks.");
+
 		public void Write(IntPtr source, int writeOffset, long bytesToWrite) => UnmanagedBlock.Copy(source, mMemory.GetPointer(), 0, writeOffset, bytesToWrite);
 	}
 }

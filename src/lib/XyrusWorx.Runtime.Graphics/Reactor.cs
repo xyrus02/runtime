@@ -7,30 +7,16 @@ namespace XyrusWorx.Runtime
 	[PublicAPI]
 	public abstract class Reactor : IReactor
 	{
-		private UnmanagedBlock mBackBufferMemory;
+		private TextureFormat mBackBufferPixelFormat;
+		private IWritableMemory mBackBufferMemory;
 		private TextureView mBackBuffer;
-		private IVectorBuffer mVectorBuffer;
+		private ReactorRenderContext mContext;
 
-		public void InvalidateState()
+		protected Reactor()
 		{
-			if (mBackBuffer == null)
-			{
-				if (BackBufferWidth <= 0 || BackBufferHeight <= 0)
-				{
-					throw new InvalidOperationException("The buffer dimensions are invalid.");
-				}
-
-				mBackBufferMemory = new UnmanagedBlock(BackBufferWidth * BackBufferHeight * 4);
-				mBackBuffer = new TextureView(mBackBufferMemory, BackBufferWidth << 2, TextureFormat.Rgba);
-			}
-
-			if (mVectorBuffer == null)
-			{
-				mVectorBuffer = new WpfVectorBuffer();
-			}
-			
-			InvalidateStateOverride();
+			mContext = new ReactorRenderContext(this);
 		}
+
 		public void Update(IRenderLoop renderLoop)
 		{
 			if (renderLoop == null)
@@ -38,23 +24,58 @@ namespace XyrusWorx.Runtime
 				throw new ArgumentNullException(nameof(renderLoop));
 			}
 
-			UpdateOverride(renderLoop);
+			UpdateOverride(renderLoop, mContext);
 		}
+
+		void IReactor.SetBackBuffer(IWritableMemory writableMemory, TextureFormat pixelFormat, int stride)
+		{
+			mBackBufferMemory = writableMemory;
+			mBackBufferPixelFormat = pixelFormat;
+			mBackBuffer = new TextureView(writableMemory, stride, pixelFormat);
+
+			InitializeOverride();
+		}
+
 		public void Dispose()
 		{
-			mBackBufferMemory?.Dispose();
+			mBackBufferPixelFormat = default;
 			mBackBufferMemory = null;
 			mBackBuffer = null;
 		}
 
-		protected abstract void InvalidateStateOverride();
-		protected abstract void UpdateOverride([NotNull] IRenderLoop renderLoop);
+		protected abstract void InitializeOverride();
+		protected abstract void UpdateOverride([NotNull] IRenderLoop renderLoop, IRenderContext context);
 
 		public IReadWriteTexture BackBuffer => mBackBuffer;
-		public IVectorBuffer VectorBuffer => mVectorBuffer;
 
-		public abstract int BackBufferWidth { get; }
-		public abstract int BackBufferHeight { get; }
+		public int BackBufferWidth => mBackBuffer?.Width ?? 0;
+		public int BackBufferHeight => mBackBuffer?.Height ?? 0;
+
+		class ReactorRenderContext : IRenderContext
+		{
+			private readonly Reactor mReactor;
+
+			public ReactorRenderContext(Reactor reactor)
+			{
+				mReactor = reactor;
+			}
+
+			public void Blit(IReadableMemory pixels)
+			{
+				mReactor.mBackBufferMemory.Write(pixels);
+			}
+
+			public void Blit(IReadableTexture texture)
+			{
+				mReactor.mBackBuffer.Write(texture.RawMemory);
+			}
+		}
+	}
+
+	public interface IRenderContext
+	{
+		void Blit(IReadableMemory pixels);
+		void Blit(IReadableTexture texture);
 	}
 
 }

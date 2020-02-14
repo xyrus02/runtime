@@ -38,6 +38,27 @@ namespace XyrusWorx.Runtime
 				mReadable = mWritable = true;
 			}
 		}
+		public MemoryWindow([NotNull] IMemoryBlock memoryBlock)
+		{
+			if (memoryBlock == null)
+			{
+				throw new ArgumentNullException(nameof(memoryBlock));
+			}
+
+			Pointer = memoryBlock.GetPointer();
+			Size = memoryBlock.Size;
+
+			mReadable = memoryBlock is IReadableMemory;
+			mWritable = memoryBlock is IWritableMemory;
+		}
+		public MemoryWindow([NotNull] IntPtr pointer, long size)
+		{
+			Pointer = pointer;
+			Size = size;
+
+			mReadable = true;
+			mWritable = true;
+		}
 
 		IntPtr IMemoryBlock.GetPointer() => Pointer;
 
@@ -55,7 +76,7 @@ namespace XyrusWorx.Runtime
 		}
 		public void Write(IntPtr source, int writeOffset, long bytesToWrite)
 		{
-			if (!mReadable)
+			if (!mWritable)
 			{
 				throw new AccessViolationException("The underlying memory block does not allow writing.");
 			}

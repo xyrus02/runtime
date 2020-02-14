@@ -1,28 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Graphics", "lib\XyrusWorx.Runtime.Graphics\XyrusWorx.Runtime.Graphics.csproj", "{2C065FAF-F0A9-4796-93BB-8C8B25F9AE4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XyrusWorx.Runtime.Graphics", "lib\XyrusWorx.Runtime.Graphics\XyrusWorx.Runtime.Graphics.csproj", "{2C065FAF-F0A9-4796-93BB-8C8B25F9AE4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Primitives", "lib\XyrusWorx.Runtime.Primitives\XyrusWorx.Runtime.Primitives.csproj", "{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XyrusWorx.Runtime.Primitives", "lib\XyrusWorx.Runtime.Primitives\XyrusWorx.Runtime.Primitives.csproj", "{049FE5BD-55BB-40DD-A0CB-D2CD4D19EC15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Graphics.Acceleration", "lib\XyrusWorx.Runtime.Graphics.Acceleration\XyrusWorx.Runtime.Graphics.Acceleration.csproj", "{21641FA1-884A-4B12-9009-87429F07D787}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XyrusWorx.Runtime.Graphics.Acceleration", "lib\XyrusWorx.Runtime.Graphics.Acceleration\XyrusWorx.Runtime.Graphics.Acceleration.csproj", "{21641FA1-884A-4B12-9009-87429F07D787}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.ComputeShaderTest", "workbench\XyrusWorx.Runtime.ComputeShaderTest\XyrusWorx.Runtime.ComputeShaderTest.csproj", "{994C732F-4CF5-4FF5-B336-70F61AE4AEC7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Data", "lib\XyrusWorx.Runtime.Data\XyrusWorx.Runtime.Data.csproj", "{8CA92FAB-F5B8-4302-889C-EE32132C609E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XyrusWorx.Runtime.Data", "lib\XyrusWorx.Runtime.Data\XyrusWorx.Runtime.Data.csproj", "{8CA92FAB-F5B8-4302-889C-EE32132C609E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{8CB3A727-B452-4D89-B8C2-19B6CC41EACB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Data.Test", "test\XyrusWorx.Runtime.Data.Test\XyrusWorx.Runtime.Data.Test.csproj", "{F4C8492A-CAEE-48E6-9D6D-65EE20C0D7BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XyrusWorx.Runtime.Data.Test", "test\XyrusWorx.Runtime.Data.Test\XyrusWorx.Runtime.Data.Test.csproj", "{F4C8492A-CAEE-48E6-9D6D-65EE20C0D7BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.Expressions", "lib\XyrusWorx.Runtime.Expressions\XyrusWorx.Runtime.Expressions.csproj", "{512832E7-591C-460C-83EF-C852B3E7C94A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XyrusWorx.Runtime.Expressions", "lib\XyrusWorx.Runtime.Expressions\XyrusWorx.Runtime.Expressions.csproj", "{512832E7-591C-460C-83EF-C852B3E7C94A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XyrusWorx.Runtime.SimpleGraphicsAppTest", "workbench\XyrusWorx.Runtime.SimpleGraphicsAppTest\XyrusWorx.Runtime.SimpleGraphicsAppTest.csproj", "{9D44629D-8B90-460F-8D5D-4E3BE73FE27C}"
 EndProject
 Global
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -40,10 +37,6 @@ Global
 		{21641FA1-884A-4B12-9009-87429F07D787}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21641FA1-884A-4B12-9009-87429F07D787}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21641FA1-884A-4B12-9009-87429F07D787}.Release|Any CPU.Build.0 = Release|Any CPU
-		{994C732F-4CF5-4FF5-B336-70F61AE4AEC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{994C732F-4CF5-4FF5-B336-70F61AE4AEC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{994C732F-4CF5-4FF5-B336-70F61AE4AEC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{994C732F-4CF5-4FF5-B336-70F61AE4AEC7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8CA92FAB-F5B8-4302-889C-EE32132C609E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8CA92FAB-F5B8-4302-889C-EE32132C609E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CA92FAB-F5B8-4302-889C-EE32132C609E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -56,8 +49,18 @@ Global
 		{512832E7-591C-460C-83EF-C852B3E7C94A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{512832E7-591C-460C-83EF-C852B3E7C94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{512832E7-591C-460C-83EF-C852B3E7C94A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D44629D-8B90-460F-8D5D-4E3BE73FE27C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D44629D-8B90-460F-8D5D-4E3BE73FE27C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D44629D-8B90-460F-8D5D-4E3BE73FE27C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D44629D-8B90-460F-8D5D-4E3BE73FE27C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{994C732F-4CF5-4FF5-B336-70F61AE4AEC7} = {8CB3A727-B452-4D89-B8C2-19B6CC41EACB}
+		{9D44629D-8B90-460F-8D5D-4E3BE73FE27C} = {8CB3A727-B452-4D89-B8C2-19B6CC41EACB}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6889CE00-CDFC-47A8-A9EC-3E48AC485BEF}
 	EndGlobalSection
 EndGlobal

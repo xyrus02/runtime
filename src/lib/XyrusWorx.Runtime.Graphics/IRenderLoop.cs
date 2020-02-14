@@ -1,4 +1,3 @@
-using System.Threading;
 using JetBrains.Annotations;
 
 namespace XyrusWorx.Runtime 
@@ -6,14 +5,13 @@ namespace XyrusWorx.Runtime
 	[PublicAPI]
 	public interface IRenderLoop
 	{
-		void Run(CancellationToken cancellationToken);
-		void WaitForFrame();
-		
+		void Reset();
+		void NextFrame();
+
 		[CanBeNull]
 		IReactor CurrentReactor { get; }
 		
 		float Clock { get; }
 		float FramesPerSecond { get; }
-		float MaximumFramesPerSecond { get; set; }
 	}
 }

@@ -67,11 +67,11 @@ namespace XyrusWorx.Runtime.Imaging
 		private AcceleratedImagingKernel([NotNull] AccelerationDevice device, int width, int height) : base(device)
 		{
 			mDevice = device;
+			mWidth = width;
+			mHeight = height;
 			
 			mConstants = new DelegatedHardwareResourceList<HardwareConstantBuffer>(this, (dc, res, slot) => dc.PixelShader.SetConstantBuffer(res.GetBuffer(), slot));
 			mResources = new DelegatedHardwareResourceList<HardwareInputBuffer>(this, (dc, res, slot) => dc.PixelShader.SetShaderResource(res.GetShaderResourceView(), slot));
-			
-			CreateView(width, height);
 		}
 		
 		public IResourcePool<HardwareConstantBuffer> Constants => mConstants;
@@ -83,6 +83,11 @@ namespace XyrusWorx.Runtime.Imaging
 		
 		public void Execute()
 		{
+			if (mRenderTarget == null)
+			{
+				CreateView(mWidth, mHeight);
+			}
+
 			var context = Device.ImmediateContext;
 			var view = mRenderTarget.GetRenderTargetView();
 			

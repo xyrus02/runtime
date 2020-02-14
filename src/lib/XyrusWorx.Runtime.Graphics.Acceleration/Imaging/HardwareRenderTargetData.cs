@@ -10,6 +10,7 @@ namespace XyrusWorx.Runtime.Imaging
 	{
 		private Texture2D mTexture;
 		private DataBox mBox;
+		private IReadableMemory mMemory;
 
 		public HardwareRenderTargetData([NotNull] HardwareRenderTarget renderTarget)
 		{
@@ -20,6 +21,7 @@ namespace XyrusWorx.Runtime.Imaging
 			
 			mTexture = renderTarget.GetTexture2D();
 			mBox = renderTarget.Device.ImmediateContext.MapSubresource(mTexture, 0, MapMode.Read, MapFlags.None);
+			mMemory = new ReadOnlyMemoryWindow(mBox.Data.DataPointer, mBox.Data.Length);
 		}
 		
 		public TextureFormat Format => TextureFormat.Rgba;
@@ -50,6 +52,10 @@ namespace XyrusWorx.Runtime.Imaging
 				return Format.Unpack(*pPixel);
 			}
 		}
+
+		IReadableMemory IReadableTexture.RawMemory => mMemory;
+
+		public IntPtr Pointer => mBox.Data.DataPointer;
 
 		protected override void DisposeOverride()
 		{

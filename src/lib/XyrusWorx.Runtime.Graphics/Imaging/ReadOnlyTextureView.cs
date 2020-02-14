@@ -55,6 +55,9 @@ namespace XyrusWorx.Runtime.Imaging
 			}
 		}
 
+		IReadableMemory IReadableTexture.RawMemory => mMemory;
+		IntPtr IReadableTexture.Pointer => throw new NotSupportedException("Direct memory access is not allowed for read-only blocks.");
+
 		public void Read(IntPtr target, int readOffset, long bytesToRead) => UnmanagedBlock.Copy(mMemory.GetPointer(), target, readOffset, 0, bytesToRead);
 	}
 }

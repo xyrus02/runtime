@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace XyrusWorx.Runtime 
 {
 	class WpfVectorBuffer : IVectorBuffer
 	{
-		private DrawingGroup mDrawingGroup = new DrawingGroup();
+		private DrawingGroup mDrawingGroup;
 		private WpfVectorFrame mFrame;
+
+		public WpfVectorBuffer(Dispatcher dispatcher)
+		{
+			mDrawingGroup = dispatcher == null ? new DrawingGroup() : dispatcher.Invoke(() => new DrawingGroup());
+		}
 
 		public IDisposable BeginFrame()
 		{

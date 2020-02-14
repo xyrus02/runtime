@@ -53,6 +53,18 @@ namespace XyrusWorx.Runtime.Imaging
 				return mOutput;
 			}
 		}
+		public IReadableMemory OutputMemory
+		{
+			get
+			{
+				if (mOutputMemory == null)
+				{
+					CreateOutputTexture();
+				}
+
+				return mOutputMemory;
+			}
+		}
 
 		public void Execute()
 		{
@@ -60,7 +72,12 @@ namespace XyrusWorx.Runtime.Imaging
 			{
 				return;
 			}
-			
+
+			if (mOutput == null)
+			{
+				CreateOutputTexture();
+			}
+
 			void ParallelLoopCallback(int index, Int2 arraySize2D)
 			{
 				var position = new Int2(index % arraySize2D.x, index / arraySize2D.x);
@@ -68,8 +85,8 @@ namespace XyrusWorx.Runtime.Imaging
 
 				var color = ExecuteOverride(psii);
 				var icolor = (color * 255f).Clamp(new Float4(), new Float4(255,255,255,255)).Int();
-				
-				mOutput[position] = new Vector4<byte>((byte)icolor.x, (byte)icolor.y, (byte)icolor.z, (byte)icolor.w);
+
+				mOutput.Write(position, TextureFormat.Rgba, new Vector4<byte>((byte) icolor.x, (byte) icolor.y, (byte) icolor.z, (byte) icolor.w));
 			}
 
 			try
